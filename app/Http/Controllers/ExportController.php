@@ -38,13 +38,13 @@ class ExportController extends Controller
                 'model' => User::class,
                 'table' => 'users',
                 'filename_prefix' => 'users',
-                'excluded' => ['email_verified_at', 'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'],
+                'excluded' => ['password', 'remember_token'],
                 'headers' => [
-                    'ID', 'ユーザID', '氏名',
-                    'メールアドレス1', 
-                    '作成日時', '更新日時',
+                    'ID', 'ユーザID', '氏名', 
                     '従業員区分', 'システム権限', '所属事務所',
-                    '電話番号', '電話番号2', 'メールアドレス2',
+                    'メールアドレス1',  'メールアドレス2',
+                    '電話番号1', '電話番号2',
+                    '作成日時', '更新日時',
                 ],
                 'master_maps' => [
                     'employee_type' => 'employee_types',
