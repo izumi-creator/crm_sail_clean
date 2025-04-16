@@ -14,7 +14,7 @@ class UserFactory extends Factory
     /**
      * The current password being used by the factory.
      */
-    protected static ?string $password;
+    protected static ?string $password = null;
 
     /**
      * Define the model's default state.
@@ -24,10 +24,16 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'user_id' => $this->faker->unique()->userName(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
+            'employee_type' => 1,
+            'role_type' => 1,
+            'office_id' => null,
+            'email2' => null,
+            'phone_number' => null,
+            'phone_number2' => null,
             'remember_token' => Str::random(10),
         ];
     }
