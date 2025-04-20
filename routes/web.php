@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\InsuranceCompanyController;
 use App\Http\Controllers\CourtController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExportController;
 
 Route::get('/', function () {
@@ -17,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
 
     // client
-    Route::get('/client', function () {return view('client.index');})->name('client.index');
+    Route::get('/client', [ClientController::class, 'index'])->name('client.index');
 
     //inquiry
     Route::get('/inquiry', function () {return view('inquiry.index');})->name('inquiry.index');

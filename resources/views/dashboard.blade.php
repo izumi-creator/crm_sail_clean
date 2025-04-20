@@ -108,5 +108,41 @@
             </div>
         </div>
     </div>
+
+    <div class="space-y-2">
+        {{-- ローカルフォルダをエクスプローラーで開く --}}
+        <div>
+            <a href="file:///C:/Users/User/Box/test/" class="localexplorer" target="_blank">📂 エクスプローラーでフォルダ開く</a>
+            <button onclick="copyToClipboard('file:///C:/Users/User/Box/test/')" class="text-blue-500">コピー</button>
+        </div>
+    
+        {{-- ローカルファイルをエクスプローラーで開く --}}
+        <div>
+            <a href="file:///C:/Users/User/Box/test/test3.txt" class="localexplorer" target="_blank">📂 エクスプローラーでファイル開く</a>
+            <button onclick="copyToClipboard('file:///C:/Users/User/Box/test/test3.txt')" class="text-blue-500">コピー</button>
+        </div>
+    
+        {{-- Box WebフォルダURL --}}
+        <div>
+            <a href="https://app.box.com/folder/314075644618" target="_blank">📂 Box Webフォルダ</a>
+            <button onclick="copyToClipboard('https://app.box.com/folder/314075644618')" class="text-blue-500">コピー</button>
+        </div>
+    
+        {{-- Box フォルダIDによるWebリンク --}}
+        <div>
+            <a href="https://app.box.com/folder/314075644618" target="_blank">📂 Box WebフォルダID</a>
+            <button onclick="copyToClipboard('https://app.box.com/folder/314075644618')" class="text-blue-500">コピー</button>
+        </div>
+    </div>
+    
+    <script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('リンクをコピーしました！');
+        }).catch(err => {
+            alert('コピーに失敗しました：' + err);
+        });
+    }
+    </script>
 </div>
 @endsection
