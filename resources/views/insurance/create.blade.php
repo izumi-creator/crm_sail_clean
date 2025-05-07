@@ -43,6 +43,7 @@
                            class="w-full p-2 border rounded bg-white">
                     @errorText('insurance_name')
                 </div>
+                
                 <!-- 種類 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">

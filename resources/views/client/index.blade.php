@@ -41,7 +41,7 @@
                 <div class="mt-4 flex justify-end space-x-2">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded min-w-[100px]">検索</button>
                     <a href="{{ route('client.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded">検索条件クリア</a>
-                    <a href=# class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
+                    <a href="{{ route('client.create') }}" class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
                 </div>
             </form>
         </div>

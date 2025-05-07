@@ -19,6 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // client
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/client/create', [ClientController::class, 'create'])->name('client.create');
+    Route::post('/client', [ClientController::class, 'store'])->name('client.store');
 
     //inquiry
     Route::get('/inquiry', function () {return view('inquiry.index');})->name('inquiry.index');
