@@ -21,6 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
     Route::get('/client/create', [ClientController::class, 'create'])->name('client.create');
     Route::post('/client', [ClientController::class, 'store'])->name('client.store');
+    Route::get('/client/{client}', [ClientController::class, 'show'])->name('client.show');
+    Route::delete('/client/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+
 
     //inquiry
     Route::get('/inquiry', function () {return view('inquiry.index');})->name('inquiry.index');

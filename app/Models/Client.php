@@ -44,6 +44,7 @@ class Client extends Model
         'first_name_kanji',
         'last_name_kana',
         'first_name_kana',
+        'birthday',
         'identification_document1',
         'identification_document2',
         'identification_document3',

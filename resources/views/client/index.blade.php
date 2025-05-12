@@ -65,7 +65,7 @@
                     <tr>
                         <td class="border px-2 py-[6px] truncate">{{ $client->id }}</td>
                         <td class="border px-2 py-[6px] truncate">
-                            <a href=# class="text-blue-500">
+                            <a href="{{ route('client.show', $client->id) }}" class="text-blue-500">
                                 {{ $client->name_kanji }}
                             </a>
                         </td>

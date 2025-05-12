@@ -67,6 +67,7 @@ class ClientController extends Controller
                 'individual.first_name_kanji' => 'required|string|max:155',
                 'individual.last_name_kana' => 'required|string|max:100',
                 'individual.first_name_kana' => 'required|string|max:155',
+                'individual.birthday' => 'nullable|date',
                 'individual.identification_document1' => 'nullable|in:' . implode(',', array_keys(config('master.identification_documents'))),
                 'individual.identification_document2' => 'nullable|in:' . implode(',', array_keys(config('master.identification_documents'))),
                 'individual.identification_document3' => 'nullable|in:' . implode(',', array_keys(config('master.identification_documents'))),
@@ -152,6 +153,20 @@ class ClientController extends Controller
     
         return redirect()->route('client.index')->with('success', 'クライアントを追加しました！');
     }
-        
+
+    // 詳細表示
+    public function show(Client $client)
+    {
+        return view('client.show', compact('client'));
+    }
+    
+    // 編集処理は後で追加
+    
+    // 削除処理
+    public function destroy(Client $client)
+    {
+        $client->delete();
+        return redirect()->route('client.index')->with('success', 'クライアントを削除しました！');
+    }
 
 }
