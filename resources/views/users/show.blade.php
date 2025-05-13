@@ -249,10 +249,10 @@
             
                 <!-- ボタン -->
                 <div class="flex justify-end space-x-2 px-6 pb-6">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px]">
-                        キャンセル
-                    </button>
+                    <a href="{{ route('users.show', $user->id) }}"
+                       class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px] text-center">
+                       キャンセル
+                    </a>
                     <button type="submit"
                             class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 min-w-[100px]">
                         保存

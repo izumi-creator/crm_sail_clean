@@ -416,7 +416,7 @@
                         <div class="grid grid-cols-2 gap-6">
                             <!-- 電話番号1 -->
                             <div>
-                                <label class="block font-semibold mb-1">電話番号</label>
+                                <label class="block font-semibold mb-1">電話番号1</label>
                                 <input type="text" name="corporate[phone_number]" value="{{ old('corporate.phone_number') }}"
                                        placeholder="ハイフンなしで入力（例: 0312345678）" class="w-full p-2 border rounded bg-white">
                                 @errorText('corporate.phone_number')

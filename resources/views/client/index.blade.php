@@ -25,13 +25,13 @@
                             class="w-full border px-3 py-2 rounded">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold">電話番号</label>
-                        <input type="text" name="phone_number" value="{{ request('phone_number') }}" 
+                        <label class="block text-gray-700 font-semibold">電話番号：関連項目</label>
+                        <input type="text" name="phone_number_search" value="{{ request('phone_number_search') }}" 
                             class="w-full border px-3 py-2 rounded">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold">メールアドレス</label>
-                        <input type="text" name="email1" value="{{ request('email1') }}" 
+                        <label class="block text-gray-700 font-semibold">メールアドレス：関連項目</label>
+                        <input type="text" name="email_search" value="{{ request('email_search') }}" 
                             class="w-full border px-3 py-2 rounded">
                     </div>
 
@@ -55,9 +55,8 @@
                 <thead class="sticky top-0 bg-sky-700 text-white z-10 text-sm shadow-md border-b border-gray-300">
                     <tr>
                         <th class="border p-2 w-1/12">ID</th>
-                        <th class="border p-2 w-5/12">クライアント名（漢字）</th>
-                        <th class="border p-2 w-3/12">電話番号</th>
-                        <th class="border p-2 w-3/12">メールアドレス</th>
+                        <th class="border p-2 w-6/12">クライアント名（漢字）</th>
+                        <th class="border p-2 w-5/12">クライアント名（かな）</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
@@ -70,10 +69,7 @@
                             </a>
                         </td>
                         <td class="border px-2 py-[6px] truncate">
-                            {{ $client->phone_number }}
-                        </td>
-                        <td class="border px-2 py-[6px] truncate">
-                            {{ $client->email1 }}
+                            {{ $client->name_kana }}
                         </td>
                     </tr>
                     @endforeach
