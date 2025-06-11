@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use App\Models\Client;
 use App\Models\User;
 use App\Models\InsuranceCompany;
 use App\Models\Court;
@@ -34,6 +35,37 @@ class ExportController extends Controller
 
         // ✅ export対象定義マップ（共通化）
         $exportables = [
+            'clients' => [
+                'model' => Client::class,
+                'table' => 'clients',
+                'filename_prefix' => 'clients',
+                'excluded' => [],
+                'headers' => [
+                    'ID', '個人法人区分', 'クライアント名（漢字）', 'クライアント名（ふりがな）',
+                    '取引先名略称', '電話番号', '電話番号2', '携帯電話', '自宅電話番号', '自宅連絡不可区分',
+                    '電話番号（第一連絡先）', '電話番号（第二連絡先）', 'FAX', 'メールアドレス1', 'メールアドレス2',
+                    '住所_郵便番号', '住所_都道府県', '住所_市区郡', '住所_町名・番地', 
+                    '住所_名（漢字）', '住所_名（ふりがな）', '住所（郵送先）_郵便番号', '住所（郵送先）_都道府県', 
+                    '住所（郵送先）_市区郡', '住所（郵送先）_町名・番地', '住所（郵送先）_請求先名（漢字）', '住所（郵送先）_請求先名（ふりがな）', '連絡先特記事項', 
+                    '姓（漢字）', '名（漢字）', '姓（ふりがな）', '名（ふりがな）', '生年月日', '本人確認書1', '本人確認書2', '本人確認書3', 
+                    '年賀状を送る', '暑中見舞いを送る', '事務所報を送る', '交際情報履歴を自動作成', 
+                    '取引先責任者_姓（漢字）', '取引先責任者_名（漢字）', '取引先責任者_姓（ふりがな）', '取引先責任者_名（ふりがな）', 
+                    '取引先責任者_電話番号', '取引先責任者_携帯電話', '取引先責任者_自宅電話番号', 
+                    '取引先責任者_メールアドレス1', '取引先責任者_メールアドレス2', '取引先責任者_FAX', 
+                    '作成日時', '更新日時', 
+                ],
+                'master_maps' => [
+                    'client_type' => 'client_types',
+                    'not_home_contact' => 'not_home_contacts',
+                    'identification_document1' => 'identification_documents',
+                    'identification_document2' => 'identification_documents',
+                    'identification_document3' => 'identification_documents',
+                    'send_newyearscard' => 'send_types',
+                    'send_summergreetingcard' => 'send_types',
+                    'send_office_news' => 'send_types',
+                    'send_autocreation' => 'send_autocreations',
+                ],
+            ],
             'users' => [
                 'model' => User::class,
                 'table' => 'users',

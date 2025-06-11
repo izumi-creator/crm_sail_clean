@@ -7,6 +7,7 @@ use App\Http\Controllers\CourtController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\InquiryController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard'); // ログイン後はダッシュボードへ
@@ -26,7 +27,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/client/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
 
     //inquiry
-    Route::get('/inquiry', function () {return view('inquiry.index');})->name('inquiry.index');
+    Route::get('/inquiry', [InquiryController::class, 'index'])->name('inquiry.index');
+    Route::get('/inquiry/create', [InquiryController::class, 'create'])->name('inquiry.create');
+    Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
+    Route::get('/inquiry/{inquiry}', [InquiryController::class, 'show'])->name('inquiry.show');
+    Route::put('/inquiry/{inquiry}', [InquiryController::class, 'update'])->name('inquiry.update');
+    Route::delete('/inquiry/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiry.destroy');
 
     //consultation
     Route::get('/consultation', function () {return view('consultation.index');})->name('consultation.index');
@@ -94,5 +100,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-// 認証関連のルート（Breeze が自動生成）
+// 認証関連のルート
 require __DIR__.'/auth.php';

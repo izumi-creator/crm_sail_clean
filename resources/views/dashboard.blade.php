@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <div class="space-y-2">
+    <!-- <div class="space-y-2">
         {{-- ローカルフォルダをエクスプローラーで開く --}}
         <div>
             <a href="file:///C:/Users/User/Box/test/" class="localexplorer" target="_blank">📂 エクスプローラーでフォルダ開く</a>
@@ -143,6 +143,6 @@
             alert('コピーに失敗しました：' + err);
         });
     }
-    </script>
+    </script> -->
 </div>
 @endsection

@@ -29,6 +29,7 @@
                         class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
                         required>
                     <option value="">＜データ選択＞</option>
+                    <option value="clients">クライアント管理</option>
                     <option value="users">スタッフ管理</option>
                     <option value="insurances">保険会社マスタ</option>
                     <option value="courts">裁判所マスタ</option>
