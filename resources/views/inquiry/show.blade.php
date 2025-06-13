@@ -14,7 +14,9 @@
         <!-- 上部ボタン -->
         <div class="flex justify-end space-x-2 mb-4">
             <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded min-w-[100px]">編集</button>
+            @if (auth()->user()->role_type == 1)
             <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded min-w-[100px]">削除</button>
+            @endif
         </div>
 
     <!-- ✅ 問合せ情報の見出し＋内容を枠で囲む -->

@@ -8,6 +8,8 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\RelatedPartyController;
+use App\Http\Controllers\ConsultationController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard'); // ログイン後はダッシュボードへ
@@ -35,13 +37,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/inquiry/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiry.destroy');
 
     //consultation
-    Route::get('/consultation', function () {return view('consultation.index');})->name('consultation.index');
+    Route::get('/consultation', [ConsultationController::class, 'index'])->name('consultation.index');
+    Route::get('/consultation/create', [ConsultationController::class, 'create'])->name('consultation.create');
+    Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store');
+    Route::get('/consultation/{consultation}', [ConsultationController::class, 'show'])->name('consultation.show');
+    //Route::put('/consultation/{consultation}', [ConsultationController::class, 'update'])->name('consultation.update');
+    Route::delete('/consultation/{consultation}', [ConsultationController::class, 'destroy'])->name('consultation.destroy');
 
     //business
     Route::get('/business', function () {return view('business.index');})->name('business.index');
 
-    //opponent
-    Route::get('/opponent', function () {return view('opponent.index');})->name('opponent.index');
+    //relatedparty
+    Route::get('/relatedparty', [RelatedPartyController::class, 'index'])->name('relatedparty.index');
+    Route::get('/relatedparty/create', [RelatedPartyController::class, 'create'])->name('relatedparty.create');
+    Route::post('/relatedparty', [RelatedPartyController::class, 'store'])->name('relatedparty.store');
+    Route::get('/relatedparty/{relatedparty}', [RelatedPartyController::class, 'show'])->name('relatedparty.show');
+    Route::put('/relatedparty/{relatedparty}', [RelatedPartyController::class, 'update'])->name('relatedparty.update');
+    Route::delete('/relatedparty/{relatedparty}', [RelatedPartyController::class, 'destroy'])->name('relatedparty.destroy');
 
     //advisory
     Route::get('/advisory', function () {return view('advisory.index');})->name('advisory.index');

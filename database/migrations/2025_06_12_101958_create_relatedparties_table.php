@@ -1,0 +1,65 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('related_parties', function (Blueprint $table) {
+            $table->id(); // 関係者ID
+
+            // 先に存在している clients テーブルへの外部キー
+            // $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained();
+            
+            // 未作成のテーブルへの外部キーは今は定義しない
+            $table->unsignedBigInteger('consultation_id')->nullable();
+            $table->unsignedBigInteger('business_id')->nullable();
+            $table->unsignedBigInteger('advisory_id')->nullable();
+
+            // 区分・分類・種別・立場
+            $table->tinyInteger('relatedparties_party');
+            $table->tinyInteger('relatedparties_class');
+            $table->tinyInteger('relatedparties_type');
+            $table->tinyInteger('relatedparties_position')->nullable();
+            $table->string('relatedparties_position_details', 255)->nullable();
+            $table->string('relatedparties_explanation', 1000)->nullable();
+
+            // 詳細情報
+            $table->string('relatedparties_name_kanji', 255);
+            $table->string('relatedparties_name_kana', 255)->nullable();
+            $table->string('mobile_number', 15)->nullable();
+            $table->string('phone_number', 15)->nullable();
+            $table->string('phone_number2', 15)->nullable();
+            $table->string('fax', 15)->nullable();
+            $table->string('email', 100)->nullable();
+            $table->string('email2', 100)->nullable();
+            $table->string('relatedparties_postcode', 10)->nullable();
+            $table->string('relatedparties_address', 255)->nullable();
+            $table->string('relatedparties_address2', 255)->nullable();
+            $table->string('placeofwork', 255)->nullable();
+            $table->string('manager_name_kanji', 255)->nullable();
+            $table->string('manager_name_kana', 255)->nullable();
+            $table->string('manager_post', 100)->nullable();
+            $table->string('manager_department', 100)->nullable();
+
+            $table->timestamps();
+
+            // インデックス
+            $table->index('client_id');
+            //$table->index('consultation_id');
+            //$table->index('business_id');
+            //$table->index('advisoryconsultation_id');
+            $table->index('relatedparties_class');
+            $table->index('relatedparties_type');
+            $table->index('relatedparties_position');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('relatedparties');
+    }
+};

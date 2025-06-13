@@ -41,13 +41,13 @@ class InquiryController extends Controller
         return view('inquiry.index', compact('inquiries'));
     }
 
-    // 施設追加画面
+    // 問い合わせ追加画面
     public function create()
     {
         return view('inquiry.create');
     }
 
-    // 施設追加処理
+    // 問い合わせ追加処理
     public function store(Request $request)
     {        
         $request->validate([

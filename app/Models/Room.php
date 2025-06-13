@@ -9,6 +9,8 @@ class Room extends Model
 {
     use HasFactory;
 
+    protected $table = 'relatedparties';
+
     /**
      * 一括代入可能な属性（フォームからの保存対象）
      */

@@ -33,7 +33,7 @@
             <li class="mb-1"><a href="{{ route('inquiry.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">問合せ</a></li>
             <li class="mb-1"><a href="{{ route('consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">相談</a></li>
             <li class="mb-1"><a href="{{ route('business.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">受任案件</a></li>
-            <li class="mb-1"><a href="{{ route('opponent.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">相手先</a></li>
+            <li class="mb-1"><a href="{{ route('relatedparty.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">関係者</a></li>
             <li class="mb-1"><a href="{{ route('advisory.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問契約</a></li>
             <li class="mb-1"><a href="{{ route('advisory_consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問相談</a></li>
             <li class="mb-1"><a href="{{ route('task.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">タスク</a></li>
