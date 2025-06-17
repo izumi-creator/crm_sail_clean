@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/client/{client}', [ClientController::class, 'update'])->name('client.update');
     Route::delete('/client/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
 
+    Route::get('/api/client/search', [ClientController::class, 'search'])->name('client.search');
+
     //inquiry
     Route::get('/inquiry', [InquiryController::class, 'index'])->name('inquiry.index');
     Route::get('/inquiry/create', [InquiryController::class, 'create'])->name('inquiry.create');
@@ -41,8 +43,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/consultation/create', [ConsultationController::class, 'create'])->name('consultation.create');
     Route::post('/consultation', [ConsultationController::class, 'store'])->name('consultation.store');
     Route::get('/consultation/{consultation}', [ConsultationController::class, 'show'])->name('consultation.show');
-    //Route::put('/consultation/{consultation}', [ConsultationController::class, 'update'])->name('consultation.update');
+    Route::put('/consultation/{consultation}', [ConsultationController::class, 'update'])->name('consultation.update');
     Route::delete('/consultation/{consultation}', [ConsultationController::class, 'destroy'])->name('consultation.destroy');
+
+    Route::get('/api/consultations/search', [ConsultationController::class, 'search'])->name('consultations.search');
 
     //business
     Route::get('/business', function () {return view('business.index');})->name('business.index');
@@ -97,6 +101,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+
+    Route::get('/api/users/search', [UserController::class, 'search'])->name('users.search');
     
     //room
     Route::get('/room', [RoomController::class, 'index'])->name('room.index');

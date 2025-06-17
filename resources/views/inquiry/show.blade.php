@@ -79,7 +79,7 @@
                 {!! $inquiry->first_name_kanji ?: '&nbsp;' !!}
             </div>
         </div>
-        <!-- 姓（かな） -->
+        <!-- 姓（ふりがな） -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
                 <span class="text-red-500">*</span> 姓（かな）
@@ -88,7 +88,7 @@
                 {!! $inquiry->last_name_kana ?: '&nbsp;' !!}
             </div>
         </div>
-        <!-- 名（かな） -->
+        <!-- 名（ふりがな） -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
                 <span class="text-red-500">*</span> 名（かな）
@@ -143,7 +143,7 @@
         <!-- お問合せ内容 -->
         <div class="col-span-2">
             <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
-            <pre class="mt-1 p-2 border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $inquiry->inquirycontent }}</pre>
+            <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $inquiry->inquirycontent }}</pre>
         </div>
         <!-- 流入経路 -->
         <div>

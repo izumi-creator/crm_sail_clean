@@ -238,11 +238,28 @@
                            class="w-full p-2 border rounded bg-white">
                     @errorText('client_id')
                 </div>
-                <!-- 相談ID -->
+                <!-- 相談（select2連携：相談詳細画面から来たときは固定） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談ID</label>
-                    <input type="text" name="consultation_id" value="{{ old('consultation_id') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談：件名</label>
+                
+                    @if (request('consultation_id'))
+                        {{-- 相談詳細画面から遷移：hidden + readonly表示 --}}
+                        <input type="hidden" name="consultation_id" value="{{ request('consultation_id') }}">
+                        <input type="text"
+                               value="{{ \App\Models\Consultation::find(request('consultation_id'))?->title ?? '（不明）' }}"
+                               class="w-full p-2 border rounded bg-gray-100 text-gray-500"
+                               readonly>
+                    @else
+                        {{-- 通常時：select2で検索して選択 --}}
+                      <select name="consultation_id"
+                            class="select-consultation w-full"
+                            data-old-id="{{ old('consultation_id') }}"
+                            data-old-text="{{ old('consultation_name_display') }}"> 
+                            <option></option>
+                    </select>
+
+                    @endif
+                    
                     @errorText('consultation_id')
                 </div>
                 <!-- 受任案件ID -->

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\RelatedParty;
+use App\Models\Consultation;
 use Illuminate\Validation\Rule;
 
 class RelatedPartyController extends Controller
@@ -48,10 +49,20 @@ class RelatedPartyController extends Controller
     }
     // 関係者追加処理
     public function store(Request $request)
-    {        
+    {
+
+        if ($request->has('consultation_id')) {
+            $consultation = Consultation::find($request->input('consultation_id'));
+            if ($consultation) {
+                $request->merge([
+                    'consultation_name_display' => $consultation->title,
+                ]);
+            }
+        }
+
         $request->validate([
             'client_id' => 'nullable|exists:clients,id',
-            'consultation_id' => 'nullable|integer',
+            'consultation_id' => 'nullable|exists:consultations,id',
             'business_id' => 'nullable|integer',
             'advisory_id' => 'nullable|integer',
             'relatedparties_party' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_parties'))),
@@ -113,6 +124,8 @@ class RelatedPartyController extends Controller
     // 関係者詳細表示
     public function show(RelatedParty $relatedparty)
     {
+        $relatedparty->load('consultation'); // ← 相談とのリレーションを読み込む
+
         return view('relatedparty.show', compact('relatedparty'));
     }
 

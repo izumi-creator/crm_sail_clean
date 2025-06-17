@@ -40,4 +40,9 @@ class RelatedParty extends Model
         'manager_post',
         'manager_department',
     ];
+
+    public function consultation()
+    {
+        return $this->belongsTo(\App\Models\Consultation::class);
+    }
 }

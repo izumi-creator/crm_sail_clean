@@ -216,11 +216,11 @@
                         {!! $relatedparty->client_id ?: '&nbsp;' !!}
                     </div>
                 </div>
-                <!-- 相談ID -->
+                <!-- 相談：件名-->
                 <div>
-                    <label class="font-bold">相談ID</label>
+                    <label class="font-bold">相談：件名</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->consultation_id ?: '&nbsp;' !!}
+                        {!! optional($relatedparty->consultation)->title  ?: '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- 受任案件ID -->
@@ -480,12 +480,15 @@
                                class="w-full p-2 border rounded bg-white">
                         @errorText('client_id')
                     </div>
-                    <!-- 相談ID -->
+                    <!-- 相談: 件名 -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">相談ID</label>
-                        <input type="text" name="consultation_id" value="{{ $relatedparty->consultation_id }}"
-                               class="w-full p-2 border rounded bg-white">
-                        @errorText('consultation_id')
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">相談: 件名</label>
+                        <select name="consultation_id"
+                                class="select-consultation-edit w-full"
+                                data-initial-id="{{ $relatedparty->consultation_id }}"
+                                data-initial-text="{{ optional($relatedparty->consultation)->title }}">
+                            <option></option>
+                        </select>
                     </div>
                     <!-- 受任案件ID -->
                     <div>

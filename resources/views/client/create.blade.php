@@ -69,7 +69,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>クライアント名（かな） 
+                        <span class="text-red-500">*</span>クライアント名（ふりがな） 
                     </label>
                         <input type="text" name="individual[name_kana]" value="{{ old('individual.name_kana') }}"
                             placeholder="姓・名の入力で自動反映"
@@ -367,7 +367,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>クライアント名（かな） 
+                        <span class="text-red-500">*</span>クライアント名（ふりがな） 
                     </label>
                         <input type="text" name="corporate[name_kana]" value="{{ old('corporate.name_kana') }}"
                            class="w-full p-2 border rounded bg-white">
@@ -576,14 +576,14 @@
                                        class="w-full p-2 border rounded bg-white">
                                 @errorText('corporate.contact_name_kanji')
                             </div>                
-                            <!-- 住所_名（かな） -->
+                            <!-- 住所_名（ふりがな） -->
                             <div>
                                 <label class="block font-semibold mb-1">住所_宛先名（ふりがな）</label>
                                 <input type="text" name="corporate[address_name_kana]" value="{{ old('corporate.address_name_kana') }}"
                                        class="w-full p-2 border rounded bg-white">
                                 @errorText('corporate.address_name_kana')
                             </div>
-                            <!-- 住所（郵送先）_名（かな） -->
+                            <!-- 住所（郵送先）_名（ふりがな） -->
                             <div>
                                 <label class="block font-semibold mb-1">住所（郵送先）_宛先名（ふりがな）</label>
                                 <input type="text" name="corporate[contact_name_kana]" value="{{ old('corporate.contact_name_kana') }}"

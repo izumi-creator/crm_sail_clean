@@ -297,4 +297,26 @@ class ClientController extends Controller
         return redirect()->route('client.index')->with('success', 'クライアントを削除しました！');
     }
 
+    // クライアント検索API
+    public function search(Request $request)
+    {
+        $keyword = $request->input('q');
+
+        $results = [];
+
+        if ($keyword) {
+            $results = Client::where('name_kanji', 'like', "%{$keyword}%")
+                ->orWhere('name_kana', 'like', "%{$keyword}%")
+                ->select('id', 'name_kanji') // 表示する名前カラムに応じて調整
+                ->limit(10)
+                ->get()
+                ->map(fn($client) => [
+                    'id' => $client->id,
+                    'text' => $client->name_kanji, // Select2の表示名
+                ]);
+        }
+
+        return response()->json(['results' => $results]);
+    }
+
 }

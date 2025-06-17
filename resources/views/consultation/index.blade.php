@@ -88,7 +88,7 @@
                         <td class="border px-2 py-[6px] truncate">
                             @if ($consultation->client)
                                 <a href="{{ route('client.show', $consultation->client_id) }}" class="text-blue-600 hover:underline">
-                                    {{ $consultation->client->name_kanji }}
+                                    {{ optional($consultation->client)->name_kanji }}
                                 </a>
                             @else
                                 （不明）

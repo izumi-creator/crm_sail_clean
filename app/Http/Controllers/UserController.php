@@ -204,4 +204,22 @@ class UserController extends Controller
     return implode('', $password);
     }
 
+    // ユーザ検索API
+    public function search(Request $request)
+    {
+        $keyword = $request->input('q');
+    
+        $results = [];
+    
+        if ($keyword) {
+            $results = User::where('name', 'like', "%{$keyword}%")
+                ->select('id', 'name')
+                ->limit(10)
+                ->get()
+                ->map(fn($user) => ['id' => $user->id, 'text' => $user->name]);
+        }
+    
+        return response()->json(['results' => $results]);
+    }
+
 }

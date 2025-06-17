@@ -63,10 +63,44 @@ class Consultation extends Model
     ];
 
     /**
-     * クライアントとのリレーション（1対多の逆）
+     * クライアントとのリレーション
      */
     public function client()
     {
         return $this->belongsTo(Client::class);
     }
+
+    /**
+     * ユーザとのリレーション
+     */
+    public function lawyer()
+    {
+        return $this->belongsTo(User::class, 'lawyer_id');
+    }
+
+    public function lawyer2()
+    {
+        return $this->belongsTo(User::class, 'lawyer2_id');
+    }
+
+    public function lawyer3()
+    {
+        return $this->belongsTo(User::class, 'lawyer3_id');
+    }
+
+    public function paralegal()
+    {
+        return $this->belongsTo(User::class, 'paralegal_id');
+    }
+
+    public function paralegal2()
+    {
+        return $this->belongsTo(User::class, 'paralegal2_id');
+    }
+
+    public function paralegal3()
+    {
+        return $this->belongsTo(User::class, 'paralegal3_id');
+    }
+
 }

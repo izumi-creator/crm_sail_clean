@@ -15,6 +15,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
         function toggleMenu() {
@@ -42,11 +45,220 @@
 
             menuButton.style.display = "block";
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // ▼ ユーザー（担当弁護士・パラリーガルなど）
+            $('.select-user').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: 'ユーザーを検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '該当するユーザーは見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("users.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ クライアント
+            $('.select-client').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: 'クライアントを検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '該当するクライアントは見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("client.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 相談
+            $('.select-consultation').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: '相談を検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する相談は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("consultations.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ ユーザー（担当弁護士・パラリーガルなど）
+            $('.select-user-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%', // ← width: resolve → 100% に明示修正
+                    dropdownParent: $('#editModal'), // ← モーダル内でdropdownがずれるのを防止
+                    placeholder: 'ユーザーを検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致するユーザーは見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("users.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ クライアント
+            $('.select-client-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: 'クライアントを検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必要、通常画面なら削除OK
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致するクライアントは見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("client.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 相談
+            $('.select-consultation-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: '相談を検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必須
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する相談は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("consultations.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                // 初期値を選択済み状態に反映
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });           
+        });
     </script>
     <style>
         #sidebar.closed {
             width: 0;
             overflow: hidden;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 2.5rem !important;         /* h-10 相当 = 40px */
+            padding: 0.5rem 0.75rem !important; /* px-3 py-2 相当 */
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.875rem;               /* text-sm 相当 */
+            background-color: #fff;
+        }
+        
+        .select2-selection__rendered {
+            line-height: 1.5 !important;
+        }
+        
+        .select2-selection__arrow {
+            height: 2.5rem !important;
         }
     </style>
 </head>
@@ -99,6 +311,6 @@
             document.getElementById('newPasswordArea').classList.add('hidden');
             document.getElementById('newPasswordArea').textContent = '';
         }
-        </script>   
+    </script>   
 </body>
 </html>
