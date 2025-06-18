@@ -77,7 +77,7 @@
                 詳細情報
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-consultation">
-                相談一覧（3件）
+                相談一覧（{{ $consultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-case">
                 受任案件一覧（2件）
@@ -349,8 +349,50 @@
     <!-- ▼ 相談一覧タブ -->
     <div id="tab-consultation" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
-            <p>相談一覧の内容（今はダミー）</p>
+            <div class="mb-4 flex justify-end space-x-2">
+                <a href="{{ route('consultation.create', ['client_id' => $client->id]) }}"
+                   class="bg-green-500 text-white px-4 py-2 rounded">
+                    新規登録
+                </a>
+            </div>
+            @if ($consultations->isEmpty())
+                <p class="text-sm text-gray-500">相談は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                    <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">事件分野</th>
+                        <th class="border p-2 w-2/12">事件分野（詳細）</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                    </tr>
+                </thead>
+                    <tbody class="text-sm">
+                    @foreach ($consultations as $consultation)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $consultation->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                <a href="{{ route('consultation.show', $consultation->id) }}" class="text-blue-500">
+                                    {{ $consultation->title }}
+                                </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $consultation->case_category ? config('master.case_categories')[$consultation->case_category] : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $consultation->case_subcategory ? config('master.case_subcategories')[$consultation->case_subcategory] : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $consultation->status ? config('master.consultation_statuses')[$consultation->status] : '&nbsp;' !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
+    </div>
     </div>
     <!-- ▼ 受任案件一覧タブ -->
     <div id="tab-case" class="tab-content hidden">

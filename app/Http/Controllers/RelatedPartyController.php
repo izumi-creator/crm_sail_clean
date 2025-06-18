@@ -125,6 +125,7 @@ class RelatedPartyController extends Controller
     public function show(RelatedParty $relatedparty)
     {
         $relatedparty->load('consultation'); // ← 相談とのリレーションを読み込む
+        $relatedparty->load('client'); // ← クライアントとのリレーションを読み込む
 
         return view('relatedparty.show', compact('relatedparty'));
     }

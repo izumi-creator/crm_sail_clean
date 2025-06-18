@@ -198,7 +198,24 @@ class ConsultationController extends Controller
             }
         }
 
-        return redirect()->route('consultation.index')->with('success', '相談を追加しました！');
+        $participants = $request->input('participants', []);
+
+        $hasParticipants = collect($participants)->filter(function ($p) {
+            return !empty($p['name_kanji']);
+        })->isNotEmpty();
+
+        $message = '相談を追加しました！';
+
+        if ($clientMode === 'new' && $hasParticipants) {
+            $message = '相談・クライアント・関係者を追加しました！';
+        } elseif ($clientMode === 'new') {
+            $message = '相談・クライアントを追加しました！';
+        } elseif ($hasParticipants) {
+            $message = '相談・関係者を追加しました！';
+        }
+
+        return redirect()->route('consultation.index')->with('success', $message);
+
     }
 
     // 相談詳細処理

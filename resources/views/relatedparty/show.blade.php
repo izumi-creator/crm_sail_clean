@@ -209,18 +209,31 @@
                     関連先
                 </div>
 
-                <!-- クライアントID -->
+                <!-- クライアント -->
                 <div>
-                    <label class="font-bold">クライアントID</label>
+                    <label class="font-bold">クライアント</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->client_id ?: '&nbsp;' !!}
+                        @if ($relatedparty->client)
+                            {{ $relatedparty->client->name_kanji }}
+                        @elseif ($relatedparty->client_id)
+                            <span class="text-gray-400 italic">（削除されたクライアント）</span>
+                        @else
+                            &nbsp;
+                        @endif
                     </div>
                 </div>
                 <!-- 相談：件名-->
                 <div>
                     <label class="font-bold">相談：件名</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! optional($relatedparty->consultation)->title  ?: '&nbsp;' !!}
+                        @if ($relatedparty->consultation)
+                            {{ $relatedparty->consultation->title }}
+                        @elseif ($relatedparty->consultation_id)
+                            <span class="text-gray-400">（削除された相談）</span>
+                        @else
+                            {{-- 空白（何も表示しない） --}}
+                            &nbsp;
+                        @endif
                     </div>
                 </div>
                 <!-- 受任案件ID -->
@@ -475,9 +488,13 @@
                     
                     <!-- クライアントID -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">クライアントID</label>
-                        <input type="text" name="client_id" value="{{ $relatedparty->client_id }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
+                        <select name="client_id"
+                                class="select-client-edit w-full"
+                                data-initial-id="{{ $relatedparty->client->id }}"
+                                data-initial-text="{{ $relatedparty->client->name_kanji }}">
+                        </select>
+                        <option></option>
                         @errorText('client_id')
                     </div>
                     <!-- 相談: 件名 -->
@@ -489,6 +506,7 @@
                                 data-initial-text="{{ optional($relatedparty->consultation)->title }}">
                             <option></option>
                         </select>
+                        @errorText('consultation_id')
                     </div>
                     <!-- 受任案件ID -->
                     <div>

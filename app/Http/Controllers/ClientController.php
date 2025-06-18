@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Client;
+use App\Models\Consultation;
 use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
@@ -187,7 +188,10 @@ class ClientController extends Controller
     // 詳細表示
     public function show(Client $client)
     {
-        return view('client.show', compact('client'));
+
+        $consultations = Consultation::where('client_id', $client->id)->get();
+
+        return view('client.show', compact('client', 'consultations'));
     }
     
     // 編集処理

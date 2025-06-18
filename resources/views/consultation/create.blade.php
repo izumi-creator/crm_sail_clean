@@ -6,6 +6,12 @@
         {{ session('success') }}
     </div>
 @endif
+@if (session('debug_participants'))
+    <div class="bg-gray-100 p-2 mb-2 rounded text-sm">
+        <strong>participants:</strong>
+        <pre>{{ print_r(session('debug_participants'), true) }}</pre>
+    </div>
+@endif
 
 <!-- タイトル -->
 <h2 class="text-2xl font-bold mb-4 text-gray-800">相談登録</h2>
@@ -38,161 +44,176 @@
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     クライアント
                 </div>
-                <!-- クライアントの種別 -->
-                    <div class="col-span-2">
-                      <label class="font-semibold text-gray-700">クライアントの種別</label>
-                      <div class="flex gap-4 mt-1">
-                        <label><input type="radio" name="client_mode" value="existing" checked> 既存クライアント</label>
-                        <label><input type="radio" name="client_mode" value="new"> 新規クライアント</label>
-                      </div>
-                    </div>
 
-                    {{-- 既存クライアント（Select2） --}}
-                    <div id="existing-client-area">
-                      <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント検索</label>
-                      <select name="client_id"
-                            class="select-client w-full"
-                            data-old-id="{{ old('client_id') }}"
-                            data-old-text="{{ old('client_name_display') }}"> {{-- ←表示名（オプション） --}}
-                            <option></option>
-                    </select>
-                      @errorText('client_id')
-                    </div>
+                    @if (request('client_id'))
+                        {{-- クライアント詳細から遷移した場合：ラジオ非表示、クライアント固定 --}}
+                        <input type="hidden" name="client_mode" value="existing">
+                        <input type="hidden" name="client_id" value="{{ request('client_id') }}">
 
-                    {{-- 新規クライアント（Select2） --}}
-                    <div id="new-client-area" class="hidden col-span-2 grid grid-cols-2 gap-6">
-                        {{-- 個人 or 法人 ラジオボタン --}}
                         <div class="col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">種別</label>
-                            <div class="flex gap-4 mb-2">
-                                <label><input type="radio" name="client_type" value="individual"> 個人</label>
-                                <label><input type="radio" name="client_type" value="corporation"> 法人</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント（固定）</label>
+                            <input type="text"
+                                   value="{{ \App\Models\Client::find(request('client_id'))?->name_kanji ?? '（不明）' }}"
+                                   class="w-full p-2 border rounded bg-gray-100 text-gray-500"
+                                   readonly>
+                            @errorText('client_id')
+                        </div>
+                    @else
+                        {{-- 通常表示（既存／新規選択可） --}}
+                        <div class="col-span-2">
+                            <label class="font-semibold text-gray-700">クライアントの種別</label>
+                            <div class="flex gap-4 mt-1">
+                                <label><input type="radio" name="client_mode" value="existing" {{ old('client_mode', 'existing') == 'existing' ? 'checked' : '' }}> 既存クライアント</label>
+                                <label><input type="radio" name="client_mode" value="new" {{ old('client_mode') == 'new' ? 'checked' : '' }}> 新規クライアント</label>
                             </div>
                         </div>
-
-                        {{-- 個人フォーム --}}
-                        <div id="individual-form" class="col-span-2 grid grid-cols-2 gap-6 hidden">
-                                <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>クライアント名（漢字） 
-                                    </label>
-                                        <input type="text" name="individual[name_kanji]" value="{{ old('individual.name_kanji') }}"
-                                           placeholder="姓・名の入力で自動反映"
-                                           class="w-full p-2 border rounded bg-gray-100 text-gray-700 cursor-not-allowed" readonly>
-                                        @errorText('individual.name_kanji') 
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>クライアント名（ふりがな） 
-                                    </label>
-                                        <input type="text" name="individual[name_kana]" value="{{ old('individual.name_kana') }}"
-                                            placeholder="姓・名の入力で自動反映"
-                                           class="w-full p-2 border rounded bg-gray-100 text-gray-700 cursor-not-allowed" readonly>
-                                        @errorText('individual.name_kana')
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>姓（漢字）</label>
-                                    <input type="text" name="individual[last_name_kanji]" value="{{ old('individual.last_name_kanji') }}" 
-                                        class="w-full p-2 border rounded bg-white">
-                                        @errorText('individual.last_name_kanji')                    
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>名（漢字）</label>
-                                    <input type="text" name="individual[first_name_kanji]" value="{{ old('individual.first_name_kanji') }}" 
-                                        class="w-full p-2 border rounded bg-white">
-                                    @errorText('individual.first_name_kanji')                    
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>姓（かな）</label>
-                                    <input type="text" name="individual[last_name_kana]" value="{{ old('individual.last_name_kana') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('individual.last_name_kana')
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>名（かな）</label>
-                                    <input type="text" name="individual[first_name_kana]" value="{{ old('individual.first_name_kana') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('individual.first_name_kana')
-                                </div>
-                                <div>
-                                    <label class="block font-semibold mb-1">電話番号（第一連絡先）</label>
-                                    <input type="text" name="individual[first_contact_number]" value="{{ old('individual.first_contact_number') }}"
-                                           placeholder="ハイフンなしで入力（例: 0312345678）" class="w-full p-2 border rounded bg-white">
-                                    @errorText('individual.first_contact_number')
-                                </div>
-                                <div>
-                                    <label class="block font-semibold mb-1">メールアドレス1</label>
-                                    <input type="email" name="individual[email1]" value="{{ old('individual.email1') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('individual.email1')
-                                </div>
+                    
+                        {{-- 既存クライアント（Select2） --}}
+                        <div id="existing-client-area">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント検索</label>
+                            <select name="client_id"
+                                    class="select-client w-full"
+                                    data-old-id="{{ old('client_id') }}"
+                                    data-old-text="{{ old('client_name_display') }}">
+                                <option></option>
+                            </select>
+                            @errorText('client_id')
                         </div>
 
-                        {{-- 法人フォーム --}}
-                        <div id="corporation-form" class="col-span-2 grid grid-cols-2 gap-6 hidden">
-                                <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>クライアント名（漢字） 
-                                    </label>
-                                        <input type="text" name="corporate[name_kanji]" value="{{ old('corporate.name_kanji') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.name_kanji')
+                        {{-- 新規クライアント（Select2） --}}
+                        <div id="new-client-area" class="hidden col-span-2 grid grid-cols-2 gap-6">
+                            {{-- 個人 or 法人 ラジオボタン --}}
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">種別</label>
+                                <div class="flex gap-4 mb-2">
+                                    <label><input type="radio" name="client_type" value="individual"> 個人</label>
+                                    <label><input type="radio" name="client_type" value="corporation"> 法人</label>
                                 </div>
-                                <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                        <span class="text-red-500">*</span>クライアント名（ふりがな） 
-                                    </label>
-                                        <input type="text" name="corporate[name_kana]" value="{{ old('corporate.name_kana') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.name_kana')
-                                </div>
-                                <!-- 取引先責任者_姓（漢字）contact_last_name_kanji -->
-                                <div>
-                                    <label class="block font-semibold mb-1">取引先責任者_姓（漢字）</label>
-                                    <input type="text" name="corporate[contact_last_name_kanji]" value="{{ old('corporate.contact_last_name_kanji') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.contact_last_name_kanji')
-                                </div>
-                                <!-- 取引先責任者_名（漢字）contact_first_name_kanji -->
-                                <div>
-                                    <label class="block font-semibold mb-1">取引先責任者_名（漢字）</label>
-                                    <input type="text" name="corporate[contact_first_name_kanji]" value="{{ old('corporate.contact_first_name_kanji') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.contact_first_name_kanji')
-                                </div>
-                                <!-- 取引先責任者_姓（ふりがな）contact_last_name_kana -->
-                                <div>
-                                    <label class="block font-semibold mb-1">取引先責任者_姓（ふりがな）</label>
-                                    <input type="text" name="corporate[contact_last_name_kana]" value="{{ old('corporate.contact_last_name_kana') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.contact_last_name_kana')
-                                </div>
-                                <!-- 取引先責任者_名（ふりがな）contact_first_name_kana -->
-                                <div>
-                                    <label class="block font-semibold mb-1">取引先責任者_名（ふりがな）</label>
-                                    <input type="text" name="corporate[contact_first_name_kana]" value="{{ old('corporate.contact_first_name_kana') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.contact_first_name_kana')
-                                </div>
-                                <div>
-                                    <label class="block font-semibold mb-1">電話番号（第一連絡先）</label>
-                                    <input type="text" name="corporate[first_contact_number]" value="{{ old('corporate.first_contact_number') }}"
-                                           placeholder="ハイフンなしで入力（例: 0312345678）" class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.first_contact_number')
-                                </div>
-                                <div>
-                                    <label class="block font-semibold mb-1">メールアドレス</label>
-                                    <input type="email" name="corporate[email1]" value="{{ old('corporate.email1') }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('corporate.email1')
-                                </div>
-                        </div>
-                    </div>
+                            </div>
 
+                            {{-- 個人フォーム --}}
+                            <div id="individual-form" class="col-span-2 grid grid-cols-2 gap-6 hidden">
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>クライアント名（漢字） 
+                                        </label>
+                                            <input type="text" name="individual[name_kanji]" value="{{ old('individual.name_kanji') }}"
+                                               placeholder="姓・名の入力で自動反映"
+                                               class="w-full p-2 border rounded bg-gray-100 text-gray-700 cursor-not-allowed" readonly>
+                                            @errorText('individual.name_kanji') 
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>クライアント名（ふりがな） 
+                                        </label>
+                                            <input type="text" name="individual[name_kana]" value="{{ old('individual.name_kana') }}"
+                                                placeholder="姓・名の入力で自動反映"
+                                               class="w-full p-2 border rounded bg-gray-100 text-gray-700 cursor-not-allowed" readonly>
+                                            @errorText('individual.name_kana')
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>姓（漢字）</label>
+                                        <input type="text" name="individual[last_name_kanji]" value="{{ old('individual.last_name_kanji') }}" 
+                                            class="w-full p-2 border rounded bg-white">
+                                            @errorText('individual.last_name_kanji')                    
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>名（漢字）</label>
+                                        <input type="text" name="individual[first_name_kanji]" value="{{ old('individual.first_name_kanji') }}" 
+                                            class="w-full p-2 border rounded bg-white">
+                                        @errorText('individual.first_name_kanji')                    
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>姓（かな）</label>
+                                        <input type="text" name="individual[last_name_kana]" value="{{ old('individual.last_name_kana') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('individual.last_name_kana')
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>名（かな）</label>
+                                        <input type="text" name="individual[first_name_kana]" value="{{ old('individual.first_name_kana') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('individual.first_name_kana')
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold mb-1">電話番号（第一連絡先）</label>
+                                        <input type="text" name="individual[first_contact_number]" value="{{ old('individual.first_contact_number') }}"
+                                               placeholder="ハイフンなしで入力（例: 0312345678）" class="w-full p-2 border rounded bg-white">
+                                        @errorText('individual.first_contact_number')
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold mb-1">メールアドレス1</label>
+                                        <input type="email" name="individual[email1]" value="{{ old('individual.email1') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('individual.email1')
+                                    </div>
+                            </div>
+
+                            {{-- 法人フォーム --}}
+                            <div id="corporation-form" class="col-span-2 grid grid-cols-2 gap-6 hidden">
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>クライアント名（漢字） 
+                                        </label>
+                                            <input type="text" name="corporate[name_kanji]" value="{{ old('corporate.name_kanji') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.name_kanji')
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                            <span class="text-red-500">*</span>クライアント名（ふりがな） 
+                                        </label>
+                                            <input type="text" name="corporate[name_kana]" value="{{ old('corporate.name_kana') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.name_kana')
+                                    </div>
+                                    <!-- 取引先責任者_姓（漢字）contact_last_name_kanji -->
+                                    <div>
+                                        <label class="block font-semibold mb-1">取引先責任者_姓（漢字）</label>
+                                        <input type="text" name="corporate[contact_last_name_kanji]" value="{{ old('corporate.contact_last_name_kanji') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.contact_last_name_kanji')
+                                    </div>
+                                    <!-- 取引先責任者_名（漢字）contact_first_name_kanji -->
+                                    <div>
+                                        <label class="block font-semibold mb-1">取引先責任者_名（漢字）</label>
+                                        <input type="text" name="corporate[contact_first_name_kanji]" value="{{ old('corporate.contact_first_name_kanji') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.contact_first_name_kanji')
+                                    </div>
+                                    <!-- 取引先責任者_姓（ふりがな）contact_last_name_kana -->
+                                    <div>
+                                        <label class="block font-semibold mb-1">取引先責任者_姓（ふりがな）</label>
+                                        <input type="text" name="corporate[contact_last_name_kana]" value="{{ old('corporate.contact_last_name_kana') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.contact_last_name_kana')
+                                    </div>
+                                    <!-- 取引先責任者_名（ふりがな）contact_first_name_kana -->
+                                    <div>
+                                        <label class="block font-semibold mb-1">取引先責任者_名（ふりがな）</label>
+                                        <input type="text" name="corporate[contact_first_name_kana]" value="{{ old('corporate.contact_first_name_kana') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.contact_first_name_kana')
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold mb-1">電話番号（第一連絡先）</label>
+                                        <input type="text" name="corporate[first_contact_number]" value="{{ old('corporate.first_contact_number') }}"
+                                               placeholder="ハイフンなしで入力（例: 0312345678）" class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.first_contact_number')
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold mb-1">メールアドレス</label>
+                                        <input type="email" name="corporate[email1]" value="{{ old('corporate.email1') }}"
+                                               class="w-full p-2 border rounded bg-white">
+                                        @errorText('corporate.email1')
+                                    </div>
+                            </div>
+                        </div>
+                    @endif
                 <!-- 小見出し：相談 -->
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     相談

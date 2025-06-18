@@ -233,9 +233,13 @@
                 </div>
                 <!-- クライアントID -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">クライアントID</label>
-                    <input type="text" name="client_id" value="{{ old('client_id') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
+                    <select name="client_id"
+                        class="select-client w-full"
+                        data-old-id="{{ old('client_id') }}"
+                        data-old-text="{{ old('client_name_display') }}"> {{-- ←表示名（オプション） --}}
+                        <option></option>
+                    </select>
                     @errorText('client_id')
                 </div>
                 <!-- 相談（select2連携：相談詳細画面から来たときは固定） -->
@@ -251,11 +255,12 @@
                                readonly>
                     @else
                         {{-- 通常時：select2で検索して選択 --}}
-                      <select name="consultation_id"
+                    <select name="consultation_id"
                             class="select-consultation w-full"
                             data-old-id="{{ old('consultation_id') }}"
                             data-old-text="{{ old('consultation_name_display') }}"> 
                             <option></option>
+                        @errorText('consultation_id')
                     </select>
 
                     @endif

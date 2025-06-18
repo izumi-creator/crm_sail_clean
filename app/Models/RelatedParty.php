@@ -41,8 +41,16 @@ class RelatedParty extends Model
         'manager_department',
     ];
 
+    /**
+     * リレーション
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public function consultation()
     {
-        return $this->belongsTo(\App\Models\Consultation::class);
+        return $this->belongsTo(Consultation::class);
     }
 }
