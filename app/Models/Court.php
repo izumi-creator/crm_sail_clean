@@ -20,4 +20,12 @@ class Court extends Model
         'phone_number',
         'importantnotes',
     ];
+
+    /**
+     * 裁判所対応とのリレーション
+     */
+    public function relatedParties()
+    {
+        return $this->hasMany(RelatedParty::class);
+    }
 }

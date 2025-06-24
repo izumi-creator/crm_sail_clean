@@ -5,38 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Consultation extends Model
+class AdvisoryContract extends Model
 {
     use HasFactory;
-    
+
     /**
      * 一括代入可能な属性（フォームからの保存対象）
      */
     protected $fillable = [
         'client_id',
-        'business_id',
-        'advisory_id',
-        'consultation_party',
+        'advisory_party',
         'title',
         'status',
-        'status_detail',
-        'case_summary',
+        'explanation',
         'special_notes',
-        'inquirycontent',
-        'firstchoice_datetime',
-        'secondchoice_datetime',
-        'inquirytype',
-        'consultationtype',
-        'case_category',
-        'case_subcategory',
-        'opponent_confliction',
-        'consultation_receptiondate',
+        'advisory_start_date',
+        'advisory_end_date',
+        'amount_monthly',
+        'contract_term_monthly',
         'consultation_firstdate',
-        'enddate',
-        'consultation_notreason',
-        'consultation_feedback',
-        'reason_termination',
-        'reason_termination_detail',
+        'payment_category',
+        'adviser_fee_auto',
+        'payment_method',
+        'withdrawal_request_amount',
+        'withdrawal_breakdown',
+        'withdrawal_update_date',
         'office_id',
         'lawyer_id',
         'lawyer2_id',
@@ -44,22 +37,11 @@ class Consultation extends Model
         'paralegal_id',
         'paralegal2_id',
         'paralegal3_id',
-        'feefinish_prospect',
-        'feesystem',
-        'sales_prospect',
-        'feesystem_initialvalue',
-        'sales_reason_updated',
-        'enddate_prospect',
-        'enddate_prospect_initialvalue',
-        'route',
-        'routedetail',
-        'introducer',
+        'source',
+        'source_detail',
         'introducer_others',
-    ];
-
-    protected $casts = [
-        'firstchoice_datetime' => 'datetime',
-        'secondchoice_datetime' => 'datetime',
+        'gift',
+        'newyearscard',
     ];
 
     /**
@@ -68,21 +50,6 @@ class Consultation extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
-    }
-
-    /**
-     * 受任案件とのリレーション
-     */
-    public function business()
-    {
-        return $this->belongsTo(Business::class);
-    }
-    /**
-     * 関係者とのリレーション
-     */
-    public function relatedParties()
-    {
-        return $this->hasMany(RelatedParty::class);
     }
     /**
      * ユーザとのリレーション
@@ -116,5 +83,11 @@ class Consultation extends Model
     {
         return $this->belongsTo(User::class, 'paralegal3_id');
     }
-
+    /**
+     * 顧問相談とのリレーション
+     */
+    public function advisoryConsultation()
+    {
+        return $this->hasMany(AdvisoryConsultation::class, 'advisory_id');
+    }
 }

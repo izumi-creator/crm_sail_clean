@@ -53,4 +53,14 @@ class RelatedParty extends Model
     {
         return $this->belongsTo(Consultation::class);
     }
+
+    public function business()
+    {
+        return $this->belongsTo(Business::class);
+    }
+
+    public function advisoryConsultation()
+    {
+        return $this->belongsTo(AdvisoryConsultation::class, 'advisory_id');
+    }
 }

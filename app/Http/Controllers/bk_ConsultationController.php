@@ -7,7 +7,6 @@ use App\Models\Consultation;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\RelatedParty;
-use App\Models\Business;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -49,7 +48,7 @@ class ConsultationController extends Controller
             $query->where('status', $request->status);
         }
 
-        $consultations = $query->with('client')->paginate(15);
+        $consultations = $query->paginate(15);
         return view('consultation.index', compact('consultations'));
     }
 
@@ -222,33 +221,14 @@ class ConsultationController extends Controller
     // 相談詳細処理
     public function show(Consultation $consultation)
     {
-
-        $consultation->load([
-            'client',
-            'lawyer',
-            'lawyer2',
-            'lawyer3',
-            'paralegal',
-            'paralegal2',
-            'paralegal3',
-            'business',
-            'relatedParties',
-        ]);
-
-        return view('consultation.show', [
-            'consultation' => $consultation,
-            'relatedparties' => $consultation->relatedParties,
-            'business' => $consultation->business,
-        ]);
-
+        $relatedparties = RelatedParty::where('consultation_id', $consultation->id)->get();
+        
+        return view('consultation.show', compact('consultation', 'relatedparties'));
     }
     
     // 相談編集処理
-    public function update(Request $request, Consultation $consultation)
+        public function update(Request $request, Consultation $consultation)
     {
-
-        $before_status = $consultation->status;
-
         $validator = Validator::make($request->all(), [
             'client_id' => 'required|exists:clients,id',
             'business_id' => 'nullable|integer',
@@ -271,7 +251,6 @@ class ConsultationController extends Controller
             'opponent_confliction' => 'nullable|in:' . implode(',', array_keys(config('master.opponent_conflictions'))),
             'consultation_receptiondate' => 'nullable|date',
             'consultation_firstdate' => 'nullable|date',
-            'enddate' => 'nullable|date',
             'consultation_notreason' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_notreasons'))),
             'consultation_feedback' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_feedbacks'))),
             'reason_termination' => 'nullable|string|max:255',
@@ -378,6 +357,8 @@ class ConsultationController extends Controller
             }
         });
 
+        $validator->validate(); // ←最後にバリデーション実行
+
         $selectedClient = Client::find($request->client_id);
         if ($selectedClient && $selectedClient->client_type !== (int) $request->consultation_party) {
             return back()
@@ -394,131 +375,53 @@ class ConsultationController extends Controller
         if ($request->filled('secondchoice_date') && $request->filled('secondchoice_time')) {
             $secondChoice = \Carbon\Carbon::parse($request->secondchoice_date . ' ' . $request->secondchoice_time);
         }
-
-        $validated = $validator->validate();
-
         $consultation->update([
-            'client_id' => $validated['client_id'],
-            'business_id' => $validated['business_id'],
-            'advisory_id' => $validated['advisory_id'],
-            'consultation_party' => $validated['consultation_party'],
-            'title' => $validated['title'],
-            'status' => $validated['status'],
-            'status_detail' => $validated['status_detail'],
-            'case_summary' => $validated['case_summary'],
-            'special_notes' => $validated['special_notes'],
-            'inquirycontent' => $validated['inquirycontent'],
+            'client_id' => $request->client_id,
+            'business_id' => $request->business_id,
+            'advisory_id' => $request->advisory_id,
+            'consultation_party' => $request->consultation_party,
+            'title' => $request->title,
+            'status' => $request->status,
+            'status_detail' => $request->status_detail,
+            'case_summary' => $request->case_summary,
+            'special_notes' => $request->special_notes,
+            'inquirycontent' => $request->inquirycontent,
             'firstchoice_datetime' => $firstChoice,
             'secondchoice_datetime' => $secondChoice,
-            'inquirytype' => $validated['inquirytype'],
-            'consultationtype' => $validated['consultationtype'],
-            'case_category' => $validated['case_category'],
-            'case_subcategory' => $validated['case_subcategory'],
-            'opponent_confliction' => $validated['opponent_confliction'],
-            'consultation_receptiondate' => $validated['consultation_receptiondate'],
-            'consultation_firstdate' => $validated['consultation_firstdate'],
-            'enddate' => $validated['enddate'],
-            'consultation_notreason' => $validated['consultation_notreason'],
-            'consultation_feedback' => $validated['consultation_feedback'],
-            'reason_termination' => $validated['reason_termination'],
-            'reason_termination_detail' => $validated['reason_termination_detail'],
-            'office_id' => $validated['office_id'],
-            'lawyer_id' => $validated['lawyer_id'],
-            'lawyer2_id' => $validated['lawyer2_id'],
-            'lawyer3_id' => $validated['lawyer3_id'],
-            'paralegal_id' => $validated['paralegal_id'],
-            'paralegal2_id' => $validated['paralegal2_id'],
-            'paralegal3_id' => $validated['paralegal3_id'],
-            'feefinish_prospect' => $validated['feefinish_prospect'],
-            'feesystem' => $validated['feesystem'],
-            'sales_prospect' => $validated['sales_prospect'],
-            'feesystem_initialvalue' => $validated['feesystem_initialvalue'],
-            'sales_reason_updated' => $validated['sales_reason_updated'],
-            'enddate_prospect' => $validated['enddate_prospect'],
-            'enddate_prospect_initialvalue' => $validated['enddate_prospect_initialvalue'],
-            'route' => $validated['route'],
-            'routedetail' => $validated['routedetail'],
-            'introducer' => $validated['introducer'],
-            'introducer_others' => $validated['introducer_others'],
+            'inquirytype' => $request->inquirytype,
+            'consultationtype' => $request->consultationtype,
+            'case_category' => $request->case_category,
+            'case_subcategory' => $request->case_subcategory,
+            'opponent_confliction' => $request->opponent_confliction,
+            'consultation_receptiondate' => $request->consultation_receptiondate,
+            'consultation_firstdate' => $request->consultation_firstdate,
+            'enddate' => $request->enddate,
+            'consultation_notreason' => $request->consultation_notreason,
+            'consultation_feedback' => $request->consultation_feedback,
+            'reason_termination' => $request->reason_termination,
+            'reason_termination_detail' => $request->reason_termination_detail,
+            'office_id' => $request->office_id,
+            'lawyer_id' => $request->lawyer_id,
+            'lawyer2_id' => $request->lawyer2_id,
+            'lawyer3_id' => $request->lawyer3_id,
+            'paralegal_id' => $request->paralegal_id,
+            'paralegal2_id' => $request->paralegal2_id,
+            'paralegal3_id' => $request->paralegal3_id,
+            'feefinish_prospect' => $request->feefinish_prospect,
+            'feesystem' => $request->feesystem,
+            'sales_prospect' => $request->sales_prospect,
+            'feesystem_initialvalue' => $request->feesystem_initialvalue,
+            'sales_reason_updated' => $request->sales_reason_updated,
+            'enddate_prospect' => $request->enddate_prospect,
+            'enddate_prospect_initialvalue' => $request->enddate_prospect_initialvalue,
+            'route' => $request->route,
+            'routedetail' => $request->routedetail,
+            'introducer' => $request->introducer,
+            'introducer_others' => $request->introducer_others,
         ]);
 
-        $messages = ['相談が更新されました。'];
-
-        $before_status = (int) $before_status;
-        $after_status = (int) $validated['status'];
-
-        if ($before_status !== 6 && $after_status === 6) {
-            $business = $this->generateBusinessFromConsultation($consultation);
-        
-            if ($business->wasRecentlyCreated) {
-                $messages[] = "▶ 受任案件が新規作成されました（案件ID: #{$business->id}）。";
-            
-                $count = RelatedParty::where('consultation_id', $consultation->id)->count();
-                if ($count > 0) {
-                    $messages[] = "▶ 関係者{$count}名に受任案件を自動設定しました。";
-                }
-            } else {
-                $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）。";
-            }
-        }
-
-        return redirect()
-            ->route('consultation.show', $consultation->id)
-            ->with('success', implode("\n", $messages));
-
+        return redirect()->route('consultation.show', $consultation->id)->with('success', '相談を更新しました！');
     }
-
-    private function generateBusinessFromConsultation(Consultation $consultation)
-    {
-
-    $business = Business::firstOrCreate(
-        ['consultation_id' => $consultation->id],
-        [
-            'client_id' => $consultation->client_id,
-            'advisory_id' => $consultation->advisory_id,
-            'consultation_party' => $consultation->consultation_party,
-            'status' => 1, // 初期ステータス
-            'title' => $consultation->title,
-            'case_summary' => $consultation->case_summary,
-            'special_notes' => $consultation->special_notes,
-            'inquirytype' => $consultation->inquirytype,
-            'consultationtype' => $consultation->consultationtype,
-            'case_category' => $consultation->case_category,
-            'case_subcategory' => $consultation->case_subcategory,
-            'office_id' => $consultation->office_id,
-            'lawyer_id' => $consultation->lawyer_id,
-            'paralegal_id' => $consultation->paralegal_id,
-            'lawyer2_id' => $consultation->lawyer2_id,
-            'paralegal2_id' => $consultation->paralegal2_id,
-            'lawyer3_id' => $consultation->lawyer3_id,
-            'paralegal3_id' => $consultation->paralegal3_id,
-            'feefinish_prospect' => $consultation->feefinish_prospect,
-            'feesystem' => $consultation->feesystem,
-            'sales_prospect' => $consultation->sales_prospect,
-            'feesystem_initialvalue' => $consultation->feesystem_initialvalue,
-            'sales_reason_updated' => $consultation->sales_reason_updated,
-            'enddate_prospect' => $consultation->enddate_prospect,
-            'enddate_prospect_initialvalue' => $consultation->enddate_prospect_initialvalue,
-            'route' => $consultation->route,
-            'routedetail' => $consultation->routedetail,
-            'introducer' => $consultation->introducer,
-            'introducer_others' => $consultation->introducer_others,
-        ]
-        );
-
-        // 関係者に business_id を紐づけ（新規作成時のみ）
-        if ($business->wasRecentlyCreated) {
-            RelatedParty::where('consultation_id', $consultation->id)
-                ->update(['business_id' => $business->id]);
-        }
-
-        // 相談に business_id を紐づけ（新規作成時のみ）
-        $consultation->business_id = $business->id;
-        $consultation->save();
-
-        return $business;
-    }
-
 
     // 相談削除処理
     public function destroy(Consultation $consultation)

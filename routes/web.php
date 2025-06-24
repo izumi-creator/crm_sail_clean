@@ -10,6 +10,10 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\RelatedPartyController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\CourtTaskController;
+use App\Http\Controllers\AdvisoryContractController;
+use App\Http\Controllers\AdvisoryConsultationController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard'); // ログイン後はダッシュボードへ
@@ -49,7 +53,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/consultations/search', [ConsultationController::class, 'search'])->name('consultations.search');
 
     //business
-    Route::get('/business', function () {return view('business.index');})->name('business.index');
+    Route::get('/business', [BusinessController::class, 'index'])->name('business.index');
+    Route::get('/business/create', [BusinessController::class, 'create'])->name('business.create');
+    Route::post('/business', [BusinessController::class, 'store'])->name('business.store');
+    Route::get('/business/{business}', [BusinessController::class, 'show'])->name('business.show');
+    Route::put('/business/{business}', [BusinessController::class, 'update'])->name('business.update');
+    Route::delete('/business/{business}', [BusinessController::class, 'destroy'])->name('business.destroy');
+
+    Route::get('/api/businesses/search', [BusinessController::class, 'search'])->name('businesses.search');
+
+
+    // CourtTask（裁判所対応）ルート群
+    // 受任案件に紐づく裁判所対応の作成・登録
+    Route::prefix('/business/{business}/court-task')->name('court_task.')->group(function () {
+        Route::get('/create', [CourtTaskController::class, 'create'])->name('create');
+        Route::post('/', [CourtTaskController::class, 'store'])->name('store');
+    });
+
+    // 編集・表示・削除など（business_idは不要）
+    Route::get('/court-task/{court_task}', [CourtTaskController::class, 'show'])->name('court_task.show');
+    Route::put('/court-task/{court_task}', [CourtTaskController::class, 'update'])->name('court_task.update');
+    Route::delete('/court-task/{court_task}', [CourtTaskController::class, 'destroy'])->name('court_task.destroy');
 
     //relatedparty
     Route::get('/relatedparty', [RelatedPartyController::class, 'index'])->name('relatedparty.index');
@@ -60,10 +84,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/relatedparty/{relatedparty}', [RelatedPartyController::class, 'destroy'])->name('relatedparty.destroy');
 
     //advisory
-    Route::get('/advisory', function () {return view('advisory.index');})->name('advisory.index');
+    Route::get('/advisory', [AdvisoryContractController::class, 'index'])->name('advisory.index');
+    Route::get('/advisory/create', [AdvisoryContractController::class, 'create'])->name('advisory.create');
+    Route::post('/advisory', [AdvisoryContractController::class, 'store'])->name('advisory.store');
+    Route::get('/advisory/{advisory}', [AdvisoryContractController::class, 'show'])->name('advisory.show');
+    Route::put('/advisory/{advisory}', [AdvisoryContractController::class, 'update'])->name('advisory.update');
+    Route::delete('/advisory/{advisory}', [AdvisoryContractController::class, 'destroy'])->name('advisory.destroy');
+
+    Route::get('/api/advisories/search', [AdvisoryContractController::class, 'search'])->name('advisory.search');
 
     //advisory_consultation
-    Route::get('/advisory_consultation', function () {return view('advisory_consultation.index');})->name('advisory_consultation.index');
+    Route::get('/advisory-consultation', [AdvisoryConsultationController::class, 'index'])->name('advisory_consultation.index');
+    Route::get('/advisory-consultation/create', [AdvisoryConsultationController::class, 'create'])->name('advisory_consultation.create');
+    Route::post('/advisory-consultation', [AdvisoryConsultationController::class, 'store'])->name('advisory_consultation.store');
+    Route::get('/advisory-consultation/{advisory_consultation}', [AdvisoryConsultationController::class, 'show'])->name('advisory_consultation.show');
+    Route::put('/advisory-consultation/{advisory_consultation}', [AdvisoryConsultationController::class, 'update'])->name('advisory_consultation.update');
+    Route::delete('/advisory-consultation/{advisory_consultation}', [AdvisoryConsultationController::class, 'destroy'])->name('advisory_consultation.destroy');
+    
+    Route::get('/api/advisory_consultations/search', [AdvisoryConsultationController::class, 'search'])->name('advisory_consultation.search');
 
     //task
     Route::get('/task', function () {return view('task.index');})->name('task.index');
@@ -81,6 +119,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/court/{court}', [CourtController::class, 'show'])->name('court.show');
     Route::put('/court/{court}', [CourtController::class, 'update'])->name('court.update');
     Route::delete('/court/{court}', [CourtController::class, 'destroy'])->name('court.destroy');
+
+    Route::get('/api/court/search', [CourtController::class, 'search'])->name('courts.search');
 
     //insurance
     Route::get('/insurance', [InsuranceCompanyController::class, 'index'])->name('insurance.index');

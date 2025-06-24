@@ -1,0 +1,374 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Client;
+use App\Models\AdvisoryContract;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
+class AdvisoryContractController extends Controller
+{
+
+    /**
+     * 管理者権限チェック
+     */
+    private function ensureIsAdmin()
+    {
+        $loginUser = auth()->user();
+        if ($loginUser->role_type != 1) {
+            abort(403, '管理者権限が必要です。');
+        }
+    }
+
+    // 顧問契約一覧（検索 + ページネーション）
+    public function index(Request $request)
+    {
+        $query = AdvisoryContract::query();
+
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        if ($request->filled('advisory_party')) {
+            $query->where('advisory_party', $request->advisory_party);
+        }
+        // クライアント名（漢字orかな）で検索
+        if ($request->filled('client_name')) {
+            $clientIds = Client::where(function ($query) use ($request) {
+                $query->where('name_kanji', 'like', '%' . $request->client_name . '%')
+                      ->orWhere('name_kana', 'like', '%' . $request->client_name . '%');
+            })->pluck('id');
+        
+            $query->whereIn('client_id', $clientIds);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $advisories = $query->with('client')->paginate(15);
+        return view('advisory.index', compact('advisories'));
+    }
+
+    // 顧問契約登録画面
+    public function create()
+    {
+        return view('advisory.create');
+    }
+
+    // 顧問契約登録処理
+    public function store(Request $request)
+    {
+
+        // ▼ Select2の初期テキスト表示対応（クライアント）
+        if ($request->has('client_id')) {
+            $client = Client::find($request->input('client_id'));
+            if ($client) {
+                $request->merge([
+                    'client_name_display' => $client->name_kanji,
+                ]);
+            }
+        }
+
+        // ▼ Select2の初期テキスト表示対応（弁護士）
+        if ($request->has('lawyer_id')) {
+            $lawyer = User::find($request->input('lawyer_id'));
+            if ($lawyer) {
+                $request->merge([
+                    'lawyer_name_display' => $lawyer->name,
+                ]);
+            }
+        }
+
+        // ▼ Select2の初期テキスト表示対応（パラリーガル）
+        if ($request->has('paralegal_id')) {
+            $paralegal = User::find($request->input('paralegal_id'));
+            if ($paralegal) {
+                $request->merge([
+                    'paralegal_name_display' => $paralegal->name,
+                ]);
+            }
+        }
+
+        // ▼ クライアントから client_type を取得し advisory_party に設定
+        if ($request->filled('client_id')) {
+            $client = Client::find($request->input('client_id'));
+            if ($client) {
+                // バリデーションの前に advisory_party をマージ
+                $request->merge([
+                    'advisory_party' => $client->client_type,
+                    'client_name_display' => $client->name_kanji,
+                ]);
+            }
+        }
+
+        $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
+            'title' => 'required|string|max:255',
+            'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_contracts_statuses'))),
+            'explanation' => 'nullable|string|max:1000',
+            'special_notes' => 'nullable|string|max:1000',
+            'advisory_start_date' => 'nullable|date',
+            'advisory_end_date' => 'nullable|date',
+            'amount_monthly' => 'nullable|numeric',
+            'contract_term_monthly' => 'nullable|numeric',
+            'consultation_firstdate' => 'nullable|date',
+            'payment_category' => 'nullable|in:' . implode(',', array_keys(config('master.payment_categories'))),
+            'adviser_fee_auto' => 'nullable|string|max:255',
+            'payment_method' => 'nullable|in:' . implode(',', array_keys(config('master.payment_methods'))),
+            'withdrawal_request_amount' => 'nullable|numeric',
+            'withdrawal_breakdown' => 'nullable|string|max:255',
+            'withdrawal_update_date' => 'nullable|date',
+            'office_id' => 'nullable|in:' . implode(',', array_keys(config('master.offices_id'))),
+            'lawyer_id' => 'nullable|exists:users,id',
+            'paralegal_id' => 'nullable|exists:users,id',
+            'source' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
+            'source_detail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
+            'introducer_others' => 'nullable|string|max:255',
+            'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
+            'newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.newyearscards'))),
+        ]);
+
+        // ▼契約期間（月）を自動算出
+        if (!empty($validated['advisory_start_date']) && !empty($validated['advisory_end_date'])) {
+            $start = new \DateTime($validated['advisory_start_date']);
+            $end = new \DateTime($validated['advisory_end_date']);
+            if ($start <= $end) {
+                $interval = $start->diff($end);
+                $validated['contract_term_monthly'] = ($interval->y * 12 + $interval->m + 1);
+            }
+        }
+
+        // ▼ 顧問契約を作成
+        AdvisoryContract::create([
+            'client_id' => $validated['client_id'],
+            'advisory_party' => $validated['advisory_party'],
+            'title' => $validated['title'],
+            'status' => $validated['status'],
+            'explanation' => $validated['explanation'],
+            'special_notes' => $validated['special_notes'],
+            'advisory_start_date' => $validated['advisory_start_date'],
+            'advisory_end_date' => $validated['advisory_end_date'],
+            'amount_monthly' => $validated['amount_monthly'],
+            'contract_term_monthly' => $validated['contract_term_monthly'],
+            'consultation_firstdate' => $validated['consultation_firstdate'],
+            'payment_category' => $validated['payment_category'],
+            'adviser_fee_auto' => $validated['adviser_fee_auto'],
+            'payment_method' => $validated['payment_method'],
+            'withdrawal_request_amount' => $validated['withdrawal_request_amount'],
+            'withdrawal_breakdown' => $validated['withdrawal_breakdown'],
+            'withdrawal_update_date' => $validated['withdrawal_update_date'],
+            'office_id' => $validated['office_id'],
+            'lawyer_id' => $validated['lawyer_id'],
+            'paralegal_id' => $validated['paralegal_id'],
+            'source' => $validated['source'],
+            'source_detail' => $validated['source_detail'],
+            'introducer_others' => $validated['introducer_others'] ?? null,
+            'gift' => $validated['gift'],
+            'newyearscard' => $validated['newyearscard'],
+        ]);
+        return redirect()->route('advisory.index')->with('success', '顧問契約が作成されました。');
+    }
+
+    // 顧問契約詳細処理
+    public function show(AdvisoryContract $advisory)
+    {
+        // 関連データをロード
+        $advisory->load([
+            'client',
+            'lawyer',
+            'lawyer2',
+            'lawyer3',
+            'paralegal',
+            'paralegal2',
+            'paralegal3',
+            'advisoryConsultation',
+        ]);
+
+        return view('advisory.show', compact('advisory'));
+    }
+
+    // 顧問契約編集画面
+    public function update(Request $request, AdvisoryContract $advisory)
+    {
+
+        // ▼ クライアントから client_type を取得し advisory_party に設定
+        if ($request->filled('client_id')) {
+            $client = Client::find($request->input('client_id'));
+            if ($client) {
+                // バリデーションの前に advisory_party をマージ
+                $request->merge([
+                    'advisory_party' => $client->client_type,
+                    'client_name_display' => $client->name_kanji,
+                ]);
+            }
+        }
+
+        $validator = Validator::make($request->all(), [
+            'client_id' => 'required|exists:clients,id',
+            'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
+            'title' => 'required|string|max:255',
+            'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_contracts_statuses'))),
+            'explanation' => 'nullable|string|max:1000',
+            'special_notes' => 'nullable|string|max:1000',
+            'advisory_start_date' => 'nullable|date',
+            'advisory_end_date' => 'nullable|date',
+            'amount_monthly' => 'nullable|numeric',
+            'contract_term_monthly' => 'nullable|numeric',
+            'consultation_firstdate' => 'nullable|date',
+            'payment_category' => 'nullable|in:' . implode(',', array_keys(config('master.payment_categories'))),
+            'adviser_fee_auto' => 'nullable|string|max:255',
+            'payment_method' => 'nullable|in:' . implode(',', array_keys(config('master.payment_methods'))),
+            'withdrawal_request_amount' => 'nullable|numeric',
+            'withdrawal_breakdown' => 'nullable|string|max:255',
+            'withdrawal_update_date' => 'nullable|date',
+            'office_id' => 'nullable|in:' . implode(',', array_keys(config('master.offices_id'))),
+            'lawyer_id' => 'nullable|exists:users,id',
+            'lawyer2_id' => 'nullable|exists:users,id',
+            'lawyer3_id' => 'nullable|exists:users,id',
+            'paralegal_id' => 'nullable|exists:users,id',
+            'paralegal2_id' => 'nullable|exists:users,id',
+            'paralegal3_id' => 'nullable|exists:users,id',
+            'source' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
+            'source_detail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
+            'introducer_others' => 'nullable|string|max:255',
+            'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
+            'newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.newyearscards'))),
+        ]);
+
+        // ✳ ステータスに応じた追加チェック
+        $validator->after(function ($validator) use ($request) {
+
+
+            if (in_array((int)$request->status, [2, 3, 4, 5, 6])) {
+                if (empty($request->explanation)) {
+                    $validator->errors()->add('explanation', '「説明」を入力してください。');
+                }
+                if (empty($request->office_id)) {
+                    $validator->errors()->add('office_id', '「取扱事務所」を選択してください。');
+                }
+                if (empty($request->lawyer_id)) {
+                    $validator->errors()->add('lawyer_id', '「担当弁護士」を選択してください。');
+                }
+                if (empty($request->paralegal_id)) {
+                    $validator->errors()->add('paralegal_id', '「担当パラリーガル」を選択してください。');
+                }
+                if (empty($request->source)) {
+                    $validator->errors()->add('source', '「ソース」を選択してください。');
+                }
+                if (empty($request->source_detail)) {
+                    $validator->errors()->add('source_detail', '「ソース詳細」を選択してください。');
+                }
+            }
+
+            if (in_array((int)$request->status, [3, 5, 6])) {
+                if (empty($request->advisory_start_date)) {
+                    $validator->errors()->add('advisory_start_date', '「契約開始日」を入力してください。');
+                }
+                if (empty($request->advisory_end_date)) {
+                    $validator->errors()->add('advisory_end_date', '「契約終了日」を入力してください。');
+                }
+                if (empty($request->amount_monthly)) {
+                    $validator->errors()->add('amount_monthly', '「顧問料月額」を入力してください。');
+                }
+                if (empty($request->payment_category)) {
+                    $validator->errors()->add('payment_category', '「支払区分」を選択してください。');
+                }
+                if (empty($request->payment_method)) {
+                    $validator->errors()->add('payment_method', '「支払方法」を選択してください。');
+                }
+                if (empty($request->withdrawal_request_amount)) {
+                    $validator->errors()->add('withdrawal_request_amount', '「引落依頼額」を入力してください。');
+                }
+                if (empty($request->withdrawal_breakdown)) {
+                    $validator->errors()->add('withdrawal_breakdown', '「引落内訳」を入力してください。');
+                }
+            }
+
+            if (in_array((int)$request->status, [5, 6])) {
+                if (empty($request->gift)) {
+                    $validator->errors()->add('gift', '「ギフト」を入力してください。');
+                }
+                if (empty($request->newyearscard)) {
+                    $validator->errors()->add('newyearscard', '「年賀状」を入力してください。');
+                }
+            }
+
+        });
+
+        $validated = $validator->validate();
+
+        // ▼契約期間（月）を自動算出
+        if (!empty($validated['advisory_start_date']) && !empty($validated['advisory_end_date'])) {
+            $start = new \DateTime($validated['advisory_start_date']);
+            $end = new \DateTime($validated['advisory_end_date']);
+            if ($start <= $end) {
+                $interval = $start->diff($end);
+                $validated['contract_term_monthly'] = ($interval->y * 12 + $interval->m + 1);
+            }
+        }
+
+        $advisory->update([
+            'client_id' => $validated['client_id'],
+            'advisory_party' => $validated['advisory_party'],
+            'title' => $validated['title'],
+            'status' => $validated['status'],
+            'explanation' => $validated['explanation'],
+            'special_notes' => $validated['special_notes'],
+            'advisory_start_date' => $validated['advisory_start_date'],
+            'advisory_end_date' => $validated['advisory_end_date'],
+            'amount_monthly' => $validated['amount_monthly'],
+            'contract_term_monthly' => $validated['contract_term_monthly'],
+            'consultation_firstdate' => $validated['consultation_firstdate'],
+            'payment_category' => $validated['payment_category'],
+            'adviser_fee_auto' => $validated['adviser_fee_auto'],
+            'payment_method' => $validated['payment_method'],
+            'withdrawal_request_amount' => $validated['withdrawal_request_amount'],
+            'withdrawal_breakdown' => $validated['withdrawal_breakdown'],
+            'withdrawal_update_date' => $validated['withdrawal_update_date'],
+            'office_id' => $validated['office_id'],
+            'lawyer_id' => $validated['lawyer_id'],
+            'lawyer2_id' => $validated['lawyer2_id'],
+            'lawyer3_id' => $validated['lawyer3_id'],
+            'paralegal_id' => $validated['paralegal_id'],
+            'paralegal2_id' => $validated['paralegal2_id'],
+            'paralegal3_id' => $validated['paralegal3_id'],
+            'source' => $validated['source'],
+            'source_detail' => $validated['source_detail'],
+            'introducer_others' => $validated['introducer_others'],
+            'gift' => $validated['gift'],
+            'newyearscard' => $validated['newyearscard'],
+        ]);
+
+        return redirect()->route('advisory.show', $advisory->id)->with('success', '顧問契約が更新されました。');
+    }
+
+    // 顧問契約削除処理
+    public function destroy(AdvisoryContract $advisory)
+    {
+        $this->ensureIsAdmin();
+        $advisory->delete();
+        return redirect()->route('advisory.index')->with('success', '顧問契約を削除しました！');
+    }
+
+    /** 顧問契約検索API */
+    public function search(Request $request)
+    {
+        $keyword = $request->input('q');
+    
+        $results = [];
+    
+        if ($keyword) {
+            $results = AdvisoryContract::where('title', 'like', "%{$keyword}%")
+                ->select('id', 'title')
+                ->limit(10)
+                ->get()
+                ->map(fn($advisory) => ['id' => $advisory->id, 'text' => $advisory->title]);
+        }
+    
+        return response()->json(['results' => $results]);
+    }
+
+}

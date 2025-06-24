@@ -7,9 +7,9 @@
         </div>
     @endif
 
-    <h2 class="text-2xl font-bold mb-4 text-gray-800">関係者詳細</h2>
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">裁判所対応詳細</h2>
 
-    <!-- 関係者詳細カード -->
+    <!-- 裁判所対応詳細カード -->
     <div class="p-6 border rounded-lg shadow bg-white">
         <!-- 上部ボタン -->
         <div class="flex justify-end space-x-2 mb-4">
@@ -19,236 +19,87 @@
             @endif
         </div>
 
-        <!-- ✅ 関係者情報の見出し＋内容を枠で囲む -->
+        <!-- ✅ 裁判所対応情報の見出し＋内容を枠で囲む -->
         <div class="border border-gray-300 overflow-hidden">
 
             <!-- 見出し -->
-            <div class="bg-sky-700 text-white px-4 py-2 font-bold border">関係者情報</div>
+            <div class="bg-sky-700 text-white px-4 py-2 font-bold border">裁判所対応情報</div>
 
             <!-- 内容 -->
             <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                    区分・分類
+                    基本情報
                 </div>
-                <!-- 区分 -->
+                <!-- ステータス -->
                <div>
                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                       <span class="text-red-500">*</span> 区分
+                       <span class="text-red-500">*</span> ステータス
                   </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! config('master.relatedparties_parties')[$relatedparty->relatedparties_party] ?? '&nbsp;' !!}
+                        {!! config('master.court_tasks_statuses')[$courtTask->status] ?? '&nbsp;' !!}
                      </div>
                 </div>
-                <!-- 分類 -->
+                <!-- ステータス詳細 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 分類
-                    </label>
-                        <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! config('master.relatedparties_classes')[$relatedparty->relatedparties_class] ?? '&nbsp;' !!}
-                        </div>
+                    <label class="font-bold">ステータス詳細</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->status_detail ?: '&nbsp;' !!}
+                    </div>
                 </div>
-                <!-- 種別 -->
-               <div>
+                <!-- タスク名 -->
+                <div>
                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                       <span class="text-red-500">*</span> 種別
-                  </label>
+                       <span class="text-red-500">*</span> タスク名
+                    </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! config('master.relatedparties_types')[$relatedparty->relatedparties_type] ?? '&nbsp;' !!}
-                     </div>
+                        {!! $courtTask->task_title ?: '&nbsp;' !!}
+                    </div>
                 </div>
-                <!-- 立場 -->
+                <!-- タスク分類 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 立場
+                        <span class="text-red-500">*</span> タスク分類
                     </label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! config('master.relatedparties_positions')[$relatedparty->relatedparties_position] ?? '&nbsp;' !!}
+                        {!! config('master.court_task_categories')[$courtTask->task_category] ?? '&nbsp;' !!}
                         </div>
                 </div>
-
-                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                    説明
-                </div>
-
-                <!-- 立場詳細 -->
+                <!-- タスク内容 -->
                 <div class="col-span-2">
-                    <label class="font-bold">立場詳細</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_position_details ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 説明 -->
-                <div class="col-span-2">
-                    <label class="font-bold">説明</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_explanation ?: '&nbsp;' !!}
-                    </div>
-                </div>
-
-                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                    詳細情報
-                </div>
-
-                <!-- 関係者名（漢字） -->
-                <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 関係者名（漢字）
+                   <label class="block text-sm font-semibold text-gray-700 mb-1">
+                       <span class="text-red-500">*</span> タスク内容
                     </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_name_kanji ?: '&nbsp;' !!}
+                        <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $courtTask->task_content }}</pre>
                     </div>
                 </div>
-                <!-- 関係者名（ふりがな） -->
-                <div class="col-span-2">
-                    <label class="font-bold">関係者名（ふりがな）</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_name_kana ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 携帯 -->
+                <!-- 担当弁護士 -->
                 <div>
-                    <label class="font-bold">携帯</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->mobile_number ?: '&nbsp;' !!}
-                    </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($courtTask->lawyer)->name ?: '&nbsp;' !!}</div>
                 </div>
-                <!-- 電話 -->
+                <!-- 担当パラリーガル -->
                 <div>
-                    <label class="font-bold">電話</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->phone_number ?: '&nbsp;' !!}
-                    </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当パラリーガル</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($courtTask->paralegal)->name ?: '&nbsp;' !!}</div>
                 </div>
-                <!-- 電話2 -->
+                <!-- 期限 -->
                 <div>
-                    <label class="font-bold">電話2</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"> 期限</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->phone_number2 ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- FAX -->
-                <div>
-                    <label class="font-bold">FAX</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->fax ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- メール -->
-                <div>
-                    <label class="font-bold">メール</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->email ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- メール2 -->
-                <div>
-                    <label class="font-bold">メール2</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->email2 ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 郵便番号 -->
-                <div>
-                    <label class="font-bold">郵便番号</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_postcode ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 住所 -->
-                <div>
-                    <label class="font-bold">住所</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_address ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 住所2 -->
-                  <div>
-                    <label class="font-bold">住所2</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_address2 ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 勤務先 -->
-                <div>
-                    <label class="font-bold">勤務先</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->placeofwork ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 担当者名（漢字） -->
-                <div>
-                    <label class="font-bold">担当者名（漢字）</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->manager_name_kanji ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 担当者名（ふりがな） -->
-                <div>
-                    <label class="font-bold">担当者名（ふりがな）</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->manager_name_kana ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 役職 -->
-                <div>
-                    <label class="font-bold">役職</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->manager_post ?: '&nbsp;' !!}
-                    </div>
-                </div>
-                <!-- 部署 -->
-                <div>
-                    <label class="font-bold">部署</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->manager_department ?: '&nbsp;' !!}
-                    </div>
-                </div>
-
-                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                    関連先
-                </div>
-
-                <!-- クライアント -->
-                <div>
-                    <label class="font-bold">クライアント</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        @if ($relatedparty->client)
-                            {{ $relatedparty->client->name_kanji }}
-                        @elseif ($relatedparty->client_id)
-                            <span class="text-gray-400 italic">（削除されたクライアント）</span>
-                        @else
-                            &nbsp;
-                        @endif
-                    </div>
-                </div>
-                <!-- 相談：件名-->
-                <div>
-                    <label class="font-bold">相談：件名</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        @if ($relatedparty->consultation)
-                            <a href="{{ route('consultation.show', $relatedparty->consultation->id) }}"
-                               class="text-blue-600 underline hover:text-blue-800">
-                                {{ $relatedparty->consultation->title }}
-                            </a>
-                        @elseif ($relatedparty->consultation_id)
-                            <span class="text-gray-400">（削除された相談）</span>
-                        @else
-                            {{-- 空白（何も表示しない） --}}
-                            &nbsp;
-                        @endif
+                        {{ $courtTask->deadline ? $courtTask->deadline->format('Y-m-d H:i') : '―' }}
                     </div>
                 </div>
                 <!-- 受任案件：件名 -->
                 <div>
                     <label class="font-bold">受任案件：件名</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        @if ($relatedparty->business)
-                            <a href="{{ route('business.show', $relatedparty->business->id) }}"
+                        @if ($courtTask->business)
+                            <a href="{{ route('business.show', $courtTask->business->id) }}"
                                class="text-blue-600 underline hover:text-blue-800">
-                                {{ $relatedparty->business->title }}
+                                {{ $courtTask->business->title }}
                             </a>
-                        @elseif ($relatedparty->business_id)
+                        @elseif ($courtTask->business_id)
                             <span class="text-gray-400">（削除された受任案件）</span>
                         @else
                             {{-- 空白（何も表示しない） --}}
@@ -256,21 +107,84 @@
                         @endif
                     </div>
                 </div>
-                <!-- 顧問相談ID -->
+                <!-- 移動時間 -->         
                 <div>
-                    <label class="font-bold">顧問相談：件名</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"> 移動時間</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        @if ($relatedparty->advisoryConsultation)
-                            <a href="{{ route('advisory_consultation.show', $relatedparty->advisoryConsultation->id) }}"
+                        {{ $courtTask->move_time ? $courtTask->move_time->format('H:i') : '―' }}
+                    </div>
+                </div>
+                <!-- メモ欄 -->
+                <div class="col-span-2">
+                   <label class="block text-sm font-semibold text-gray-700 mb-1">
+                       <span class="text-red-500">*</span> メモ欄
+                    </label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $courtTask->memo }}</pre>
+                    </div>
+                </div>
+
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                    裁判所情報
+                </div>
+
+                <!-- 裁判所名 -->
+                <div>
+                    <label class="font-bold">裁判所名</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        @if ($courtTask->court)
+                            <a href="{{ route('court.show', $courtTask->court->id) }}"
                                class="text-blue-600 underline hover:text-blue-800">
-                                {{ $relatedparty->advisoryConsultation->title }}
+                                {{ $courtTask->court->court_name }}
                             </a>
-                        @elseif ($relatedparty->advisory_id)
-                            <span class="text-gray-400">（削除された顧問相談）</span>
+                        @elseif ($courtTask->court_id)
+                            <span class="text-gray-400">（削除された裁判所）</span>
                         @else
                             {{-- 空白（何も表示しない） --}}
                             &nbsp;
                         @endif
+                    </div>
+                </div>
+                <!-- 担当係 -->
+                <div>
+                    <label class="font-bold">担当係</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->department ?: '&nbsp;' !!}
+                    </div>
+                </div>
+                <!-- 担当裁判官 -->
+                <div>
+                    <label class="font-bold">担当裁判官</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->judge ?: '&nbsp;' !!}
+                    </div>
+                </div>
+                <!-- 担当書記官 -->
+                <div>
+                    <label class="font-bold">担当書記官</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->clerk ?: '&nbsp;' !!}
+                     </div>
+                </div>
+                <!-- 電話（直通） -->
+                <div>
+                    <label class="font-bold">電話（直通）</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->tel_direct ?: '&nbsp;' !!}
+                    </div>
+                </div>
+                <!-- FAX（直通） -->
+                <div>
+                    <label class="font-bold">FAX（直通）</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->fax_direct ?: '&nbsp;' !!}
+                    </div>
+                </div>
+                <!-- メール（直通） -->
+                <div>
+                    <label class="font-bold">メール（直通）</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $courtTask->email_direct ?: '&nbsp;' !!}
                     </div>
                 </div>
             </div>
@@ -279,7 +193,10 @@
         <div class="relative mt-6 h-10">
            <!-- 左側：一覧に戻る -->
             <div class="absolute left-0">
-                <a href="{{ route('relatedparty.index') }}" class="text-blue-600 hover:underline hover:text-blue-800">一覧に戻る</a>
+                <a href="{{ route('business.show', ['business' => $business->id]) }}#tab-courtTask"
+                   class="text-blue-600 hover:underline hover:text-blue-800">
+                    一覧に戻る
+                </a>
             </div>
         </div>
     </div>
@@ -287,12 +204,12 @@
     <!-- 編集モーダル -->
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white shadow-lg w-full max-w-3xl rounded max-h-[90vh] overflow-y-auto">
-            <form method="POST" action="{{ route('relatedparty.update', $relatedparty->id) }}">
+            <form method="POST" action="{{ route('court_task.update', $courtTask->id) }}">
                 @csrf
                 @method('PUT')
             
                 <!-- モーダル見出し -->
-                <div class="bg-amber-600 text-white px-4 py-2 font-bold border-b">関係者編集</div>
+                <div class="bg-amber-600 text-white px-4 py-2 font-bold border-b">裁判所対応編集</div>
 
                 <!-- ✅ エラーボックスをgrid外に出す -->
                 @if ($errors->any())
@@ -543,15 +460,11 @@
                         </select>
                         @errorText('business_id')
                     </div>
-                    <!-- 顧問相談：件名 -->
+                    <!-- 顧問相談ID -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談：件名</label>
-                        <select name="advisory_id"
-                                class="select-advisory-consultation-edit w-full"
-                                data-initial-id="{{ $relatedparty->advisory_id ?? '' }}"
-                                data-initial-text="{{ optional($relatedparty->advisoryConsultation)->title ?? '' }}">
-                            <option></option>
-                        </select>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
+                        <input type="text" name="advisory_id" value="{{ $relatedparty->advisory_id }}"
+                               class="w-full p-2 border rounded bg-white">
                         @errorText('advisory_id')
                     </div>
                 </div>

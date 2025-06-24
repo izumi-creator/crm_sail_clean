@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RelatedParty;
 use App\Models\Consultation;
+use App\Models\Client;
+use App\Models\Business;
+use App\Models\AdvisoryConsultation;
 use Illuminate\Validation\Rule;
 
 class RelatedPartyController extends Controller
@@ -56,6 +59,33 @@ class RelatedPartyController extends Controller
             if ($consultation) {
                 $request->merge([
                     'consultation_name_display' => $consultation->title,
+                ]);
+            }
+        }
+
+        if ($request->has('client_id')) {
+            $client = Client::find($request->input('client_id'));
+            if ($client) {
+                $request->merge([
+                    'client_name_display' => $client->name_kanji,
+                ]);
+            }
+        }
+
+        if ($request->has('business_id')) {
+            $business = Business::find($request->input('business_id'));
+            if ($business) {
+                $request->merge([
+                    'business_name_display' => $business->title,
+                ]);
+            }
+        }
+
+        if ($request->has('advisory_id')) {
+            $advisoryConsultation = AdvisoryConsultation::find($request->input('advisory_id'));
+            if ($advisoryConsultation) {
+                $request->merge([
+                    'advisory_name_display' => $advisoryConsultation->title,
                 ]);
             }
         }
@@ -124,9 +154,8 @@ class RelatedPartyController extends Controller
     // 関係者詳細表示
     public function show(RelatedParty $relatedparty)
     {
-        $relatedparty->load('consultation'); // ← 相談とのリレーションを読み込む
-        $relatedparty->load('client'); // ← クライアントとのリレーションを読み込む
-
+        $relatedparty->load(['consultation', 'client', 'business', 'advisoryConsultation']);
+    
         return view('relatedparty.show', compact('relatedparty'));
     }
 

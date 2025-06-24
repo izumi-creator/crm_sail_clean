@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Consultation extends Model
+class Business extends Model
 {
     use HasFactory;
-    
+
     /**
      * 一括代入可能な属性（フォームからの保存対象）
      */
+
     protected $fillable = [
         'client_id',
-        'business_id',
+        'consultation_id',
         'advisory_id',
         'consultation_party',
         'title',
@@ -22,21 +23,14 @@ class Consultation extends Model
         'status_detail',
         'case_summary',
         'special_notes',
-        'inquirycontent',
-        'firstchoice_datetime',
-        'secondchoice_datetime',
         'inquirytype',
         'consultationtype',
         'case_category',
         'case_subcategory',
-        'opponent_confliction',
-        'consultation_receptiondate',
-        'consultation_firstdate',
-        'enddate',
-        'consultation_notreason',
-        'consultation_feedback',
-        'reason_termination',
-        'reason_termination_detail',
+        'appointment_date',
+        'close_date',
+        'close_notreason',
+        'status_limitday',
         'office_id',
         'lawyer_id',
         'lawyer2_id',
@@ -44,6 +38,7 @@ class Consultation extends Model
         'paralegal_id',
         'paralegal2_id',
         'paralegal3_id',
+        'duedate_memo',
         'feefinish_prospect',
         'feesystem',
         'sales_prospect',
@@ -51,15 +46,36 @@ class Consultation extends Model
         'sales_reason_updated',
         'enddate_prospect',
         'enddate_prospect_initialvalue',
+        'delay_check',
+        'deposit',
+        'performance_reward',
+        'difference',
+        'requestfee_initialvalue',
+        'requestfee',
+        'requestfee_balance',
+        'childsupport_collect',
+        'childsupport_phase',
+        'childsupport_monthly_fee',
+        'childsupport_monthly_remuneration',
+        'childsupport_notcollected_amount',
+        'childsupport_remittance_amount',
+        'childsupport_payment_date',
+        'childsupport_start_payment',
+        'childsupport_end_payment',
+        'childsupport_deposit_account',
+        'childsupport_deposit_date',
+        'childsupport_transfersource_name',
+        'childsupport_repayment_date',
+        'childsupport_financialinstitution_name',
+        'childsupport_refundaccount_name',
+        'childsupport_temporary_payment',
+        'childsupport_memo',
         'route',
         'routedetail',
         'introducer',
         'introducer_others',
-    ];
-
-    protected $casts = [
-        'firstchoice_datetime' => 'datetime',
-        'secondchoice_datetime' => 'datetime',
+        'comment',
+        'progress_comment',
     ];
 
     /**
@@ -69,20 +85,12 @@ class Consultation extends Model
     {
         return $this->belongsTo(Client::class);
     }
-
     /**
-     * 受任案件とのリレーション
+     * 相談とのリレーション
      */
-    public function business()
+    public function consultation()
     {
-        return $this->belongsTo(Business::class);
-    }
-    /**
-     * 関係者とのリレーション
-     */
-    public function relatedParties()
-    {
-        return $this->hasMany(RelatedParty::class);
+        return $this->belongsTo(Consultation::class);
     }
     /**
      * ユーザとのリレーション
@@ -116,5 +124,18 @@ class Consultation extends Model
     {
         return $this->belongsTo(User::class, 'paralegal3_id');
     }
-
+    /**
+     * 関係者とのリレーション
+     */
+    public function relatedParties()
+    {
+        return $this->hasMany(RelatedParty::class);
+    }
+    /**
+     * 裁判所対応とのリレーション
+     */
+    public function courtTasks()
+    {
+        return $this->hasMany(CourtTask::class);
+    }
 }

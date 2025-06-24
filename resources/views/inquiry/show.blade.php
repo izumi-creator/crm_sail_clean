@@ -385,7 +385,7 @@
                     <!-- お問合せ内容 -->
                     <div class="col-span-2">
                         <label class="block font-semibold mb-1">お問合せ内容</label>
-                        <textarea name="inquirycontent" rows="4" maxlength="1000"
+                        <textarea name="inquirycontent" rows="3" maxlength="1000"
                                   class="w-full p-2 border rounded bg-white resize-y">{{ $inquiry->inquirycontent }}</textarea>
                         @errorText('inquirycontent')
                     </div>

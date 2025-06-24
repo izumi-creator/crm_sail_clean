@@ -260,25 +260,51 @@
                             data-old-id="{{ old('consultation_id') }}"
                             data-old-text="{{ old('consultation_name_display') }}"> 
                             <option></option>
-                        @errorText('consultation_id')
                     </select>
-
                     @endif
-                    
                     @errorText('consultation_id')
                 </div>
-                <!-- 受任案件ID -->
+                <!-- 受任案件（select2連携：相談詳細画面から来たときは固定） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件ID</label>
-                    <input type="text" name="business_id" value="{{ old('business_id') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件：件名</label>
+
+                    @if (request('business_id'))
+                        {{-- 相談詳細画面から遷移：hidden + readonly表示 --}}
+                        <input type="hidden" name="business_id" value="{{ request('business_id') }}">
+                        <input type="text"
+                               value="{{ \App\Models\Business::find(request('business_id'))?->title ?? '（不明）' }}"
+                               class="w-full p-2 border rounded bg-gray-100 text-gray-500"
+                               readonly>
+                    @else
+                        {{-- 通常時：select2で検索して選択 --}}
+                    <select name="business_id"
+                            class="select-business w-full"
+                            data-old-id="{{ old('business_id') }}"
+                            data-old-text="{{ old('business_name_display') }}"> 
+                            <option></option>
+                    </select>
+                    @endif
                     @errorText('business_id')
                 </div>
-                <!-- 顧問相談ID -->
+                <!-- 顧問相談ID（select2連携：顧問相談詳細画面から来たときは固定） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
-                    <input type="text" name="advisory_id" value="{{ old('advisory_id') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談：件名</label>
+                    @if (request('advisory_id'))
+                        {{-- 顧問相談詳細画面から遷移：hidden + readonly表示 --}}
+                        <input type="hidden" name="advisory_id" value="{{ request('advisory_id') }}">
+                        <input type="text"
+                               value="{{ \App\Models\AdvisoryConsultation::find(request('advisory_id'))?->title ?? '（不明）' }}"
+                               class="w-full p-2 border rounded bg-gray-100 text-gray-500"
+                               readonly>
+                    @else
+                        {{-- 通常時：select2で検索して選択 --}}
+                    <select name="advisory_id"
+                            class="select-advisory-consultation w-full"
+                            data-old-id="{{ old('advisory_id') }}"
+                            data-old-text="{{ old('advisory_name_display') }}"> 
+                            <option></option>
+                    </select>
+                    @endif
                     @errorText('advisory_id')
                 </div>
             </div>

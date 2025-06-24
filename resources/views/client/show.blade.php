@@ -80,13 +80,13 @@
                 相談一覧（{{ $consultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-case">
-                受任案件一覧（2件）
+                受任案件一覧（{{ $businesses->count() }}件）
             </button>
-            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-tasks">
-                顧問契約一覧（1件）
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory">
+                顧問契約一覧（{{ $advisoryContracts->count() }}件）
             </button>
-            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-tasks">
-                顧問相談一覧（1件）
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory_consultations">
+                顧問相談一覧（{{ $advisoryConsultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
                 会計一覧（0件）
@@ -393,23 +393,139 @@
             @endif
         </div>
     </div>
-    </div>
     <!-- ▼ 受任案件一覧タブ -->
     <div id="tab-case" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
-            <p>受任案件一覧の内容（今はダミー）</p>
+            @if ($businesses->isEmpty())
+                <p class="text-sm text-gray-500">受任案件は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                    <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">事件分野</th>
+                        <th class="border p-2 w-2/12">事件分野（詳細）</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                    </tr>
+                </thead>
+                    <tbody class="text-sm">
+                    @foreach ($businesses as $business)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $business->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                <a href="{{ route('business.show', $business->id) }}" class="text-blue-500">
+                                    {{ $business->title }}
+                                </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $business->case_category ? config('master.case_categories')[$business->case_category] : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $business->case_subcategory ? config('master.case_subcategories')[$business->case_subcategory] : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
     <!-- ▼ 顧問契約一覧タブ -->
-    <div id="tab-tasks" class="tab-content hidden">
+    <div id="tab-advisory" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
-            <p>顧問契約一覧の内容（今はダミー）</p>
+            <div class="mb-4 flex justify-end space-x-2">
+                <a href="{{ route('advisory.create', ['client_id' => $client->id]) }}"
+                   class="bg-green-500 text-white px-4 py-2 rounded">
+                    新規登録
+                </a>
+            </div>
+            @if ($advisoryContracts->isEmpty())
+                <p class="text-sm text-gray-500">顧問契約は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                    <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">契約開始日</th>
+                        <th class="border p-2 w-2/12">契約終了日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                    </tr>
+                </thead>
+                    <tbody class="text-sm">
+                    @foreach ($advisoryContracts as $advisoryContract)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $advisoryContract->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                <a href="{{ route('advisory.show', $advisoryContract->id) }}" class="text-blue-500">
+                                    {{ $advisoryContract->title }}
+                                </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryContract->advisory_start_date ? $advisoryContract->advisory_start_date : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryContract->advisory_end_date ? $advisoryContract->advisory_end_date : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryContract->status ? config('master.advisory_contracts_statuses')[$advisoryContract->status] : '&nbsp;' !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
     <!-- ▼ 顧問相談一覧タブ -->
-    <div id="tab-consultation" class="tab-content hidden">
+    <div id="tab-advisory_consultations" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
-            <p>顧問相談一覧の内容（今はダミー）</p>
+            <div class="mb-4 flex justify-end space-x-2">
+                <a href="{{ route('advisory_consultation.create', ['client_id' => $client->id]) }}"
+                   class="bg-green-500 text-white px-4 py-2 rounded">
+                    新規登録
+                </a>
+            </div>
+            @if ($advisoryConsultations->isEmpty())
+                <p class="text-sm text-gray-500">顧問相談は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                    <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">相談開始日</th>
+                        <th class="border p-2 w-2/12">相談終了日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                    </tr>
+                </thead>
+                    <tbody class="text-sm">
+                    @foreach ($advisoryConsultations as $advisoryConsultation)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $advisoryConsultation->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                <a href="{{ route('advisory_consultation.show', $advisoryConsultation->id) }}" class="text-blue-500">
+                                    {{ $advisoryConsultation->title }}
+                                </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryConsultation->consultation_start_date ? $advisoryConsultation->consultation_start_date : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryConsultation->consultation_end_date ? $advisoryConsultation->consultation_end_date : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $advisoryConsultation->status ? config('master.advisory_consultations_statuses')[$advisoryConsultation->status] : '&nbsp;' !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
     <!-- ▼ 会計一覧タブ -->

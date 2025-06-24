@@ -51,7 +51,7 @@
                         <input type="hidden" name="client_id" value="{{ request('client_id') }}">
 
                         <div class="col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント（固定）</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
                             <input type="text"
                                    value="{{ \App\Models\Client::find(request('client_id'))?->name_kanji ?? '（不明）' }}"
                                    class="w-full p-2 border rounded bg-gray-100 text-gray-500"

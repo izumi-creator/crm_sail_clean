@@ -60,25 +60,25 @@
                 <div class="col-span-2">
                     <span class="font-semibold">取引先責任者名:</span>
                     <span class="ml-2">
-                        {{ $consultation->client->contact_last_name_kanji }}　{{ $consultation->client->contact_first_name_kanji }}
-                        （{{ $consultation->client->contact_last_name_kana }}　{{ $consultation->client->contact_first_name_kana }}）
+                        {{ optional($consultation->client)->contact_last_name_kanji }}　{{ optional($consultation->client)->contact_first_name_kanji }}
+                        （{{ optional($consultation->client)->contact_last_name_kana }}　{{ optional($consultation->client)->contact_first_name_kana }}）
                     </span>
                 </div>
                 <div>
                     <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! $consultation->client->first_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">{!! optional($consultation->client)->first_contact_number ?: '&nbsp;' !!}</span>
                 </div>
                 <div>
                     <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! $consultation->client->second_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">{!! optional($consultation->client)->second_contact_number ?: '&nbsp;' !!}</span>
                 </div>
                 <div>
                     <span class="font-semibold">取引先責任者_メール1:</span>
-                    <span class="ml-2">{!! $consultation->client->contact_email1 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">{!! optional($consultation->client)->contact_email1 ?: '&nbsp;' !!}</span>
                 </div>
                 <div>
                     <span class="font-semibold">取引先責任者_メール2:</span>
-                    <span class="ml-2">{!! $consultation->client->contact_email2 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">{!! optional($consultation->client)->contact_email2 ?: '&nbsp;' !!}</span>
                 </div>
                 <div>
                     <span class="font-semibold">担当弁護士:</span>
@@ -99,7 +99,7 @@
                 詳細情報
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-relatedparty">
-                関係者一覧（{{ $relatedparties->count() }}件）
+                関係者一覧（{{ $consultation->relatedParties->count() }}件）
             </button>
         </div>
     </div>
@@ -353,11 +353,11 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">紹介者</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->feefinish_prospect ?: '&nbsp;' !!}</div>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->introducer ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">紹介者その他</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->feesystem ?: '&nbsp;' !!}</div>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->introducer_others ?: '&nbsp;' !!}</div>
                                 </div>
                             </div>
                         </div>
@@ -369,14 +369,22 @@
                         </div>
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
+                                <!-- 受任案件：件名-->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->client->name_kanji ?: '&nbsp;' !!}</div>
-                                </div>
-                                <div></div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件ID</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->business_id ?: '&nbsp;' !!}</div>
+                                    <label class="font-bold">受任案件：件名</label>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                                        @if ($consultation->business)
+                                            <a href="{{ route('business.show', $consultation->business->id) }}"
+                                               class="text-blue-600 underline hover:text-blue-800">
+                                                {{ $consultation->business->title }}
+                                            </a>
+                                        @elseif ($consultation->business_id)
+                                            <span class="text-gray-400">（削除された受任案件）</span>
+                                        @else
+                                            {{-- 空白（何も表示しない） --}}
+                                            &nbsp;
+                                        @endif
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
@@ -477,20 +485,18 @@
                         <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
                              基本情報
                          </div>
-                    <div>
+                         <div class="col-span-2 bg-blue-50 border border-blue-300 text-blue-800 text-sm rounded px-4 py-3 mb-2">
+                            <p class="mt-1">
+                                ステータスを「受任案件へ移行」に変更すると、<strong>受任案件が自動作成</strong>されます。<br>
+                                また、関係者が設定されている場合は、<strong>受任案件にも自動で紐づけ</strong>されます。<br>
+                                すでに作成済みの場合は作成・紐づけはされません。<br>
+                                
+                            </p>
+                        </div>
+                    <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
                         <input type="text" name="title" value="{{ $consultation->title }}" class="w-full p-2 border rounded bg-white" required>
                         @errorText('title')
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>区分</label>
-                        <select name="consultation_party" class="w-full p-2 border rounded bg-white" required>
-                            <option value="">-- 選択してください --</option>
-                            @foreach (config('master.consultation_parties') as $key => $value)
-                                <option value="{{ $key }}" {{ $consultation->consultation_party == $key ? 'selected' : '' }}>{{ $value }}</option>
-                            @endforeach
-                        </select>
-                        @errorText('consultation_party')
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>ステータス</label>
@@ -613,7 +619,7 @@
                                     @errorText('consultationtype')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
                                     <select name="case_category" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.case_categories') as $key => $value)
@@ -623,7 +629,7 @@
                                     @errorText('case_category')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
                                     <select name="case_subcategory" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.case_subcategories') as $key => $value)
@@ -692,7 +698,7 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>取扱事務所</label>
                                     <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.offices_id') as $key => $value)
@@ -702,7 +708,7 @@
                                     @errorText('office_id')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当弁護士</label>
                                     <select name="lawyer_id"
                                             class="select-user-edit w-full"
                                             data-initial-id="{{ $consultation->lawyer_id }}"
@@ -712,7 +718,7 @@
                                     @errorText('lawyer_id')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当パラリーガル</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当パラリーガル</label>
                                     <select name="paralegal_id"
                                             class="select-user-edit w-full"
                                             data-initial-id="{{ $consultation->paralegal_id }}"
@@ -849,13 +855,13 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">紹介者</label>
-                                    <input type="text" name="referrer" value="{{ $consultation->referrer }}" class="mt-1 p-2 border rounded w-full bg-white">
-                                    @errorText('referrer')
+                                    <input type="text" name="introducer" value="{{ $consultation->introducer }}" class="mt-1 p-2 border rounded w-full bg-white">
+                                    @errorText('introducer')
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">紹介者その他</label>
-                                    <input type="text" name="referrer_other" value="{{ $consultation->referrer_other }}" class="mt-1 p-2 border rounded w-full bg-white">
-                                    @errorText('referrer_other')
+                                    <input type="text" name="introducer_others" value="{{ $consultation->introducer_others }}" class="mt-1 p-2 border rounded w-full bg-white">
+                                    @errorText('introducer_others')
                                 </div>
                             </div>
                         </div>
@@ -865,15 +871,24 @@
                             <span>クライアント変更（クリックで開閉）</span>
                             <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
                         </div>
-                        
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>区分</label>
+                                    <select name="consultation_party" class="w-full p-2 border rounded bg-white" required>
+                                        <option value="">-- 選択してください --</option>
+                                        @foreach (config('master.consultation_parties') as $key => $value)
+                                            <option value="{{ $key }}" {{ $consultation->consultation_party == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                        @endforeach
+                                    </select>
+                                    @errorText('consultation_party')
+                                </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
                                     <select name="client_id"
                                             class="select-client-edit w-full"
                                             data-initial-id="{{ $consultation->client->id }}"
-                                            data-initial-text="{{ $consultation->client->name_kanji }}">
+                                            data-initial-text="{{ optional($consultation->client)->name_kanji }}">
                                     </select>
                                     <option></option>
                                     @errorText('client_id')
@@ -897,9 +912,16 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件ID</label>
-                                    <input type="text" name="business_id" value="{{ $consultation->business_id }}" class="mt-1 p-2 border rounded w-full bg-white">
-                                    @errorText('business_id')
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件</label>
+                                
+                                    <input type="text"
+                                           class="w-full p-2 border rounded bg-gray-100 text-gray-700"
+                                           value="{!! optional($consultation->business)->title ?: '&nbsp;' !!}"
+                                           disabled>
+                                
+                                    <input type="hidden"
+                                           name="consultation_id"
+                                           value="{{ optional($consultation->business)->id }}">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>

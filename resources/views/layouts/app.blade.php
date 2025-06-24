@@ -140,6 +140,130 @@
                 }
             });
 
+            // ▼ 受任案件
+            $('.select-business').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: '受任案件を検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する受任案件は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("businesses.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 裁判所
+            $('.select-court').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: '裁判所を検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する裁判所は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("courts.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 顧問契約
+            $('.select-advisory').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: '顧問契約を検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する顧問契約は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("advisory.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 顧問相談
+            $('.select-advisory-consultation').each(function () {
+                const $select = $(this);
+                const oldId = $select.data('old-id');
+                const oldText = $select.data('old-text');
+            
+                $select.select2({
+                    width: 'resolve',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    placeholder: '顧問相談を検索してください',
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する顧問相談は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("advisory_consultation.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results }),
+                    }
+                });
+            
+                if (oldId && oldText) {
+                    const option = new Option(oldText, oldId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
             // ▼ ユーザー（担当弁護士・パラリーガルなど）
             $('.select-user-edit').each(function () {
                 const $select = $(this);
@@ -235,7 +359,139 @@
                     const option = new Option(initialText, initialId, true, true);
                     $select.append(option).trigger('change');
                 }
-            });           
+            });
+            
+             // ▼ 受任案件
+            $('.select-business-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: '受任案件を検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必須
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する受任案件は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("businesses.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                // 初期値を選択済み状態に反映
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+            
+            // ▼ 裁判所
+            $('.select-court-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: '裁判所を検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必須
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する裁判所は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("courts.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                // 初期値を選択済み状態に反映
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 顧問契約
+            $('.select-advisory-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: '顧問契約を検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必須
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する顧問契約は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("advisory.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                // 初期値を選択済み状態に反映
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
+
+            // ▼ 顧問相談
+            $('.select-advisory-consultation-edit').each(function () {
+                const $select = $(this);
+                const initialId = $select.data('initial-id');
+                const initialText = $select.data('initial-text');
+            
+                $select.select2({
+                    width: '100%',
+                    placeholder: '顧問相談を検索',
+                    minimumInputLength: 1,
+                    allowClear: true,
+                    dropdownParent: $('#editModal'), // ← モーダル内なら必須
+                    language: {
+                        inputTooShort: () => '1文字以上入力してください',
+                        searching: () => '検索中...',
+                        noResults: () => '一致する顧問相談は見つかりません'
+                    },
+                    ajax: {
+                        url: '{{ route("advisory_consultation.search") }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data.results })
+                    }
+                });
+            
+                // 初期値を選択済み状態に反映
+                if (initialId && initialText) {
+                    const option = new Option(initialText, initialId, true, true);
+                    $select.append(option).trigger('change');
+                }
+            });
         });
     </script>
     <style>

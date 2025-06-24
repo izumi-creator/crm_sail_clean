@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Consultation;
+use App\Models\Business;
+use App\Models\AdvisoryContract;
+use App\Models\AdvisoryConsultation;
 use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
@@ -190,8 +193,11 @@ class ClientController extends Controller
     {
 
         $consultations = Consultation::where('client_id', $client->id)->get();
+        $businesses = Business::where('client_id', $client->id)->get();
+        $advisoryContracts = AdvisoryContract::where('client_id', $client->id)->get();
+        $advisoryConsultations = AdvisoryConsultation::where('client_id', $client->id)->get();
 
-        return view('client.show', compact('client', 'consultations'));
+        return view('client.show', compact('client', 'consultations', 'businesses', 'advisoryContracts', 'advisoryConsultations'));
     }
     
     // 編集処理
