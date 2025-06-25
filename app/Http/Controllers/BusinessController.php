@@ -233,11 +233,7 @@ class BusinessController extends Controller
             'relatedParties',
         ]);
 
-        return view('business.show', [
-            'business' => $business,
-            'relatedparties' => $business->relatedParties,
-            'courtTasks' => $business->courtTasks,
-        ]);
+        return view('business.show', compact('business'));
     }
 
     // 受任案件編集画面
@@ -247,7 +243,6 @@ class BusinessController extends Controller
         $validator = Validator::make($request->all(), [
             'client_id' => 'nullable|exists:clients,id',
             'consultation_id' => 'nullable|exists:consultations,id',
-            'advisory_id' => 'nullable|integer',
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.business_statuses'))),
             'status_detail' => 'nullable|string|max:255',
@@ -344,7 +339,6 @@ class BusinessController extends Controller
         $business->update([
             'client_id' => $validated['client_id'],
             'consultation_id' => $validated['consultation_id'],
-            'advisory_id' => $validated['advisory_id'],
             'title' => $validated['title'],
             'status' => $validated['status'],
             'status_detail' => $validated['status_detail'],

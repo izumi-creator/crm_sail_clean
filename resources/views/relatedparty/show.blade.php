@@ -265,7 +265,7 @@
                                class="text-blue-600 underline hover:text-blue-800">
                                 {{ $relatedparty->advisoryConsultation->title }}
                             </a>
-                        @elseif ($relatedparty->advisory_id)
+                        @elseif ($relatedparty->advisory_consultation_id)
                             <span class="text-gray-400">（削除された顧問相談）</span>
                         @else
                             {{-- 空白（何も表示しない） --}}
@@ -546,13 +546,13 @@
                     <!-- 顧問相談：件名 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談：件名</label>
-                        <select name="advisory_id"
+                        <select name="advisory_consultation_id"
                                 class="select-advisory-consultation-edit w-full"
-                                data-initial-id="{{ $relatedparty->advisory_id ?? '' }}"
+                                data-initial-id="{{ $relatedparty->advisory_consultation_id ?? '' }}"
                                 data-initial-text="{{ optional($relatedparty->advisoryConsultation)->title ?? '' }}">
                             <option></option>
                         </select>
-                        @errorText('advisory_id')
+                        @errorText('advisory_consultation_id')
                     </div>
                 </div>
                 <!-- ボタン -->

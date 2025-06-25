@@ -8,6 +8,7 @@ use App\Models\AdvisoryConsultation;
 use App\Models\AdvisoryContract;
 use App\Models\User;
 use App\Models\Consultation;
+use App\Models\RelatedParty;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -95,8 +96,8 @@ class AdvisoryConsultationController extends Controller
         }
 
         // ▼ Select2の初期テキスト表示対応（顧問契約）
-        if ($request->has('advisory_id')) {
-            $advisoryContract = AdvisoryContract::find($request->input('advisory_id'));
+        if ($request->has('advisory_contract_id')) {
+            $advisoryContract = AdvisoryContract::find($request->input('advisory_contract_id'));
             if ($advisoryContract) {
                 $request->merge([
                     'advisory_contract_name_display' => $advisoryContract->name,
@@ -118,7 +119,7 @@ class AdvisoryConsultationController extends Controller
 
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'advisory_id' => 'required|exists:advisory_contracts,id',
+            'advisory_contract_id' => 'required|exists:advisory_contracts,id',
             'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_consultations_statuses'))),
@@ -137,19 +138,19 @@ class AdvisoryConsultationController extends Controller
         ]);
 
         // カスタムチェック
-        $exists = AdvisoryContract::where('id', $request->advisory_id)
+        $exists = AdvisoryContract::where('id', $request->advisory_contract_id)
             ->where('client_id', $request->client_id)
             ->exists();
 
         if (! $exists) {
             throw ValidationException::withMessages([
-                'advisory_id' => '選択された顧問契約はこのクライアントに属していません。',
+                'advisory_contract_id' => '選択された顧問契約はこのクライアントに属していません。',
             ]);
         }
 
         AdvisoryConsultation::create([
             'client_id' => $validated['client_id'],
-            'advisory_id' => $validated['advisory_id'],
+            'advisory_contract_id' => $validated['advisory_contract_id'],
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
             'status' => $validated['status'],
@@ -181,7 +182,7 @@ class AdvisoryConsultationController extends Controller
             'paralegal',
             'paralegal2',
             'paralegal3',
-            'advisory',
+            'advisoryContract',
             'consultation',
             'relatedParties',
         ]);
@@ -192,6 +193,8 @@ class AdvisoryConsultationController extends Controller
     // 顧問相談編集画面
     public function update(Request $request, AdvisoryConsultation $advisory_consultation)
     {
+
+        $before_status = $advisory_consultation->status;
 
         // ▼ クライアントから client_type を取得し advisory_party に設定
         if ($request->filled('client_id')) {
@@ -207,7 +210,7 @@ class AdvisoryConsultationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'client_id' => 'required|exists:clients,id',
-            'advisory_id' => 'required|exists:advisory_contracts,id',
+            'advisory_contract_id' => 'required|exists:advisory_contracts,id',
             'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_consultations_statuses'))),
@@ -227,13 +230,13 @@ class AdvisoryConsultationController extends Controller
         ]);
 
         // カスタムチェック
-        $exists = AdvisoryContract::where('id', $request->advisory_id)
+        $exists = AdvisoryContract::where('id', $request->advisory_contract_id)
             ->where('client_id', $request->client_id)
             ->exists();
 
         if (! $exists) {
             throw ValidationException::withMessages([
-                'advisory_id' => '選択された顧問契約はこのクライアントに属していません。',
+                'advisory_contract_id' => '選択された顧問契約はこのクライアントに属していません。',
             ]);
         }
 
@@ -269,13 +272,19 @@ class AdvisoryConsultationController extends Controller
                     $validator->errors()->add('close_reason', '「解決理由」を選択してください。');
                 }
             }
+
+            if ((int)$request->status === 4) {
+                if ((int)$request->close_reason !== 3) {
+                    $validator->errors()->add('close_reason', '「解決理由」は「相談（受任案件）へ移行」を選択してください。');
+                }
+            }
         });
 
         $validated = $validator->validate();
 
         $advisory_consultation->update([
             'client_id' => $validated['client_id'],
-            'advisory_id' => $validated['advisory_id'],
+            'advisory_contract_id' => $validated['advisory_contract_id'],
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
             'status' => $validated['status'],
@@ -294,8 +303,69 @@ class AdvisoryConsultationController extends Controller
             'paralegal3_id' => $validated['paralegal3_id'],
         ]);
 
-            return redirect()->route('advisory_consultation.show', $advisory_consultation->id)->with('success', '顧問契約が更新されました。');
+        $messages = ['顧問契約が更新されました。'];
+
+        $before_status = (int) $before_status;
+        $after_status = (int) $validated['status'];
+
+        if ($before_status !== 4 && $after_status === 4) {
+            $consultation = $this->migrateToConsultation($advisory_consultation);
+
+            if ($consultation->wasRecentlyCreated) {
+                $messages[] = "▶ 相談が新規作成されました（相談ID: #{$consultation->id}）。";
+
+                $count = RelatedParty::where('consultation_id', $consultation->id)->count();
+                if ($count > 0) {
+                    $messages[] = "▶ 関係者{$count}名に相談を自動設定しました。";
+                }
+            } else {
+                $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$consultation->id}）。";
+            }
+        }
+
+        return redirect()
+            ->route('advisory_consultation.show', $advisory_consultation->id)
+            ->with('success', implode("\n", $messages));
     }
+
+    private function migrateToConsultation(AdvisoryConsultation $advisory_consultation)
+    {
+
+    $consultation = Consultation::firstOrCreate(
+        ['advisory_consultation_id' => $advisory_consultation->id],
+        [
+            'client_id' => $advisory_consultation->client_id,
+            'consultation_party' => $advisory_consultation->advisory_party,
+            'status' => 1, // 初期ステータス
+            'title' => $advisory_consultation->title,
+            'case_summary' => $advisory_consultation->case_summary,
+            'special_notes' => $advisory_consultation->special_notes,
+            'inquirytype' => 4, // その他
+            'consultationtype'  => 4, // その他
+            'opponent_confliction' => 1, // 実施済
+            'office_id' => $advisory_consultation->office_id,
+            'lawyer_id' => $advisory_consultation->lawyer_id,
+            'paralegal_id' => $advisory_consultation->paralegal_id,
+            'lawyer2_id' => $advisory_consultation->lawyer2_id,
+            'paralegal2_id' => $advisory_consultation->paralegal2_id,
+            'lawyer3_id' => $advisory_consultation->lawyer3_id,
+            'paralegal3_id' => $advisory_consultation->paralegal3_id,
+        ]
+        );
+
+        // 顧問相談に consultation_id を紐づけ（新規作成時のみ）
+        $advisory_consultation->consultation_id = $consultation->id;
+        $advisory_consultation->save();
+
+        // 関係者に advisory_consultation_id を紐づけ（新規作成時のみ）
+        if ($consultation->wasRecentlyCreated) {
+            RelatedParty::where('advisory_consultation_id', $advisory_consultation->id)
+                ->update(['consultation_id' => $consultation->id]);
+        }
+
+        return $consultation;
+    }
+
 
     // 顧問相談削除処理
     public function destroy(AdvisoryConsultation $advisory_consultation)

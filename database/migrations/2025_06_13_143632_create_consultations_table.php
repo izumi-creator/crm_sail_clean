@@ -10,12 +10,10 @@ return new class extends Migration {
         Schema::create('consultations', function (Blueprint $table) {
             $table->bigIncrements('id'); // 相談ID
 
-            // 先に存在している clients テーブルへの外部キー
+            // 外部キー20250625見直し
             $table->foreignId('client_id')->constrained(); // クライアントID（外部キー）
-
-            // 未作成のテーブルへの外部キーは今は定義しない
-            $table->unsignedBigInteger('business_id')->nullable();
-            $table->unsignedBigInteger('advisory_id')->nullable();
+            $table->foreignId('business_id')->nullable()->constrained();
+            $table->foreignId('advisory_consultation_id')->nullable()->constrained();
 
             $table->tinyInteger('consultation_party'); // 区分
             $table->string('title', 255); // 件名
@@ -60,8 +58,8 @@ return new class extends Migration {
 
             // インデックス
             $table->index('client_id');
-            //$table->index('business_id');
-            //$table->index('advisory_id');
+            $table->index('business_id');
+            $table->index('advisory_consultation_id');
             $table->index('consultation_party');
             $table->index('inquirytype');
             $table->index('title');

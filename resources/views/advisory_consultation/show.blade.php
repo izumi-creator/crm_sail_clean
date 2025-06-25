@@ -125,11 +125,26 @@
                 <!-- 内容 -->
                 <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
                     <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                        基本情報
+                        顧問契約
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">顧問契約：件名</label>
-                        <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($advisory_consultation->advisory)->title ?: '&nbsp;' !!}</div>
+                        <label class="font-bold">顧問契約：件名</label>
+                        <div class="mt-1 p-2 border rounded bg-gray-50">
+                            @if ($advisory_consultation->advisoryContract)
+                                <a href="{{ route('advisory.show', $advisory_consultation->advisoryContract->id) }}"
+                                   class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $advisory_consultation->advisoryContract->title }}
+                                </a>
+                            @elseif ($advisory_consultation->advisory_contract_id)
+                                <span class="text-gray-400">（削除された顧問契約）</span>
+                            @else
+                                {{-- 空白（何も表示しない） --}}
+                                &nbsp;
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                        基本情報
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
@@ -225,6 +240,32 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-span-2 mt-2 -mx-6">
+                        <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
+                            <span>関連情報（クリックで開閉）</span>
+                            <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content hidden pt-4 px-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="font-bold">相談に移行</label>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                                        @if ($advisory_consultation->consultation)
+                                            <a href="{{ route('consultation.show', $advisory_consultation->consultation->id) }}"
+                                               class="text-blue-600 underline hover:text-blue-800">
+                                                {{ $advisory_consultation->consultation->title }}
+                                            </a>
+                                        @elseif ($advisory_consultation->consultation_id)
+                                            <span class="text-gray-400">（削除された相談）</span>
+                                        @else
+                                            <span class="text-gray-400">（移行されていません）</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- ✅ 外枠の外に表示 -->
@@ -241,7 +282,7 @@
     <div id="tab-relatedparty" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('relatedparty.create', ['advisory_id' => $advisory_consultation->id]) }}"
+                <a href="{{ route('relatedparty.create', ['advisory_consultation_id' => $advisory_consultation->id]) }}"
                    class="bg-green-500 text-white px-4 py-2 rounded">
                     新規登録
                 </a>
@@ -317,7 +358,14 @@
                 <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
                     <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
                          基本情報
-                     </div>                     
+                     </div>
+                     <div class="col-span-2 bg-blue-50 border border-blue-300 text-blue-800 text-sm rounded px-4 py-3 mb-2">
+                        <p class="mt-1">
+                            ステータスを「相談（受任案件）へ移行」に変更すると、<strong>相談が自動作成</strong>されます。<br>
+                            また、関係者が設定されている場合は、<strong>相談にも自動で紐づけ</strong>されます。<br>
+                            すでに作成済みの場合は作成・紐づけはされません。<br>                           
+                        </p>
+                    </div>                     
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
                         <input type="text" name="title" value="{{ $advisory_consultation->title }}" class="w-full p-2 border rounded bg-white" required>
@@ -485,13 +533,13 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">顧問契約</label>
-                                    <select name="advisory_id"
+                                    <select name="advisory_contract_id"
                                             class="select-advisory-edit w-full"
-                                            data-initial-id="{{ $advisory_consultation->advisory->id }}"
-                                            data-initial-text="{{ optional($advisory_consultation->advisory)->title }}">
+                                            data-initial-id="{{ $advisory_consultation->advisoryContract->id }}"
+                                            data-initial-text="{{ optional($advisory_consultation->advisoryContract)->title }}">
+                                        <option></option>
                                     </select>
-                                    <option></option>
-                                    @errorText('advisory_id')
+                                    @errorText('advisory_contract_id')
                                 </div>
                                 <div class="col-span-2 mt-0 p-4 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800">
                                     データ整合性の観点より、クライアントの変更は不可となります。

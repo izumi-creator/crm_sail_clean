@@ -522,10 +522,6 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->advisory_id ?: '&nbsp;' !!}</div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -550,7 +546,7 @@
                     新規登録
                 </a>
             </div>
-            @if ($relatedparties->isEmpty())
+            @if ($business->relatedparties->isEmpty())
                 <p class="text-sm text-gray-500">関係者は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -565,7 +561,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-sm">
-                        @foreach ($relatedparties as $relatedparty)
+                        @foreach ($business->relatedparties as $relatedparty)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $relatedparty->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -603,7 +599,7 @@
                 </a>
             </div>
 
-            @if ($courtTasks->isEmpty())
+            @if ($business->courtTasks->isEmpty())
                 <p class="text-sm text-gray-500">裁判所対応は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -619,7 +615,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-sm">
-                        @foreach ($courtTasks as $courtTask)
+                        @foreach ($business->courtTasks as $courtTask)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $courtTask->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -1232,16 +1228,7 @@
                                            value="{!! optional($business->consultation)->title ?: '&nbsp;' !!}"
                                            disabled>
                                     <input type="hidden" name="consultation_id" value="{{ optional($business->consultation)->id }}">
-                                </div>
-                            
-                                <!-- 顧問相談ID（あとでselect2化） -->
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
-                                    <input type="text" name="advisory_id"
-                                           value="{{ $business->advisory_id }}"
-                                           class="w-full p-2 border rounded bg-white">
-                                    @errorText('advisory_id')
-                                </div>                            
+                                </div>                      
                             </div>
                         </div>
                     </div>

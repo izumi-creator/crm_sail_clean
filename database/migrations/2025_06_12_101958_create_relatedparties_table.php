@@ -10,14 +10,12 @@ return new class extends Migration {
         Schema::create('related_parties', function (Blueprint $table) {
             $table->id(); // 関係者ID
 
-            // 先に存在している clients テーブルへの外部キー
-            // $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
+            // 外部キー
+            // 20250625見直し、client_idは不要であれば後で削除
             $table->foreignId('client_id')->nullable()->constrained();
-            
-            // 未作成のテーブルへの外部キーは今は定義しない
-            $table->unsignedBigInteger('consultation_id')->nullable();
-            $table->unsignedBigInteger('business_id')->nullable();
-            $table->unsignedBigInteger('advisory_id')->nullable();
+            $table->foreignId('consultation_id')->nullable()->constrained();
+            $table->foreignId('business_id')->nullable()->constrained();
+            $table->foreignId('advisory_consultation_id')->nullable()->constrained();
 
             // 区分・分類・種別・立場
             $table->tinyInteger('relatedparties_party');
@@ -49,9 +47,9 @@ return new class extends Migration {
 
             // インデックス
             $table->index('client_id');
-            //$table->index('consultation_id');
-            //$table->index('business_id');
-            //$table->index('advisoryconsultation_id');
+            $table->index('consultation_id');
+            $table->index('business_id');
+            $table->index('advisory_consultation_id');
             $table->index('relatedparties_class');
             $table->index('relatedparties_type');
             $table->index('relatedparties_position');
@@ -60,6 +58,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('relatedparties');
+        Schema::dropIfExists('related_parties');
     }
 };

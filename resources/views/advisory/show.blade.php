@@ -329,7 +329,7 @@
     <div id="tab-advisory_consultations" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('advisory_consultation.create', ['advisory_id' => $advisory->id, 'client_id' => $advisory->client_id]) }}"
+                <a href="{{ route('advisory_consultation.create', ['advisory_contract_id' => $advisory->id, 'client_id' => $advisory->client_id]) }}"
                    class="bg-green-500 text-white px-4 py-2 rounded">
                     新規登録
                 </a>

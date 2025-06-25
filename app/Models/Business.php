@@ -16,7 +16,6 @@ class Business extends Model
     protected $fillable = [
         'client_id',
         'consultation_id',
-        'advisory_id',
         'consultation_party',
         'title',
         'status',

@@ -387,8 +387,20 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
-                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->advisory_id ?: '&nbsp;' !!}</div>
+                                    <label class="font-bold">顧問相談：件名</label>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                                        @if ($consultation->advisoryConsultation)
+                                            <a href="{{ route('advisory_consultation.show', $consultation->advisoryConsultation->id) }}"
+                                               class="text-blue-600 underline hover:text-blue-800">
+                                                {{ $consultation->advisoryConsultation->title }}
+                                            </a>
+                                        @elseif ($consultation->advisory_consultation_id)
+                                            <span class="text-gray-400">（削除された顧問相談）</span>
+                                        @else
+                                            {{-- 空白（何も表示しない） --}}
+                                            &nbsp;
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -414,7 +426,7 @@
                 新規登録
             </a>
         </div>
-            @if ($relatedparties->isEmpty())
+            @if ($consultation->relatedparties->isEmpty())
                 <p class="text-sm text-gray-500">関係者は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -429,7 +441,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-sm">
-                        @foreach ($relatedparties as $relatedparty)
+                        @foreach ($consultation->relatedparties as $relatedparty)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $relatedparty->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -489,8 +501,7 @@
                             <p class="mt-1">
                                 ステータスを「受任案件へ移行」に変更すると、<strong>受任案件が自動作成</strong>されます。<br>
                                 また、関係者が設定されている場合は、<strong>受任案件にも自動で紐づけ</strong>されます。<br>
-                                すでに作成済みの場合は作成・紐づけはされません。<br>
-                                
+                                すでに作成済みの場合は作成・紐づけはされません。<br>                               
                             </p>
                         </div>
                     <div class="col-span-2">
@@ -920,13 +931,20 @@
                                            disabled>
                                 
                                     <input type="hidden"
-                                           name="consultation_id"
+                                           name="business_id"
                                            value="{{ optional($consultation->business)->id }}">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談ID</label>
-                                    <input type="text" name="advisory_id" value="{{ $consultation->advisory_id }}" class="mt-1 p-2 border rounded w-full bg-white">
-                                    @errorText('advisory_id')
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談</label>
+                                
+                                    <input type="text"
+                                           class="w-full p-2 border rounded bg-gray-100 text-gray-700"
+                                           value="{!! optional($consultation->advisoryConsultation)->title ?: '&nbsp;' !!}"
+                                           disabled>
+                                
+                                    <input type="hidden"
+                                           name="advisory_consultation_id"
+                                           value="{{ optional($consultation->advisoryConsultation)->id }}">
                                 </div>
                             </div>
                         </div>

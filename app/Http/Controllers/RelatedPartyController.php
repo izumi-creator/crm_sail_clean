@@ -81,8 +81,8 @@ class RelatedPartyController extends Controller
             }
         }
 
-        if ($request->has('advisory_id')) {
-            $advisoryConsultation = AdvisoryConsultation::find($request->input('advisory_id'));
+        if ($request->has('advisory_consultation_id')) {
+            $advisoryConsultation = AdvisoryConsultation::find($request->input('advisory_consultation_id'));
             if ($advisoryConsultation) {
                 $request->merge([
                     'advisory_name_display' => $advisoryConsultation->title,
@@ -93,8 +93,8 @@ class RelatedPartyController extends Controller
         $request->validate([
             'client_id' => 'nullable|exists:clients,id',
             'consultation_id' => 'nullable|exists:consultations,id',
-            'business_id' => 'nullable|integer',
-            'advisory_id' => 'nullable|integer',
+            'business_id' => 'nullable|exists:businesses,id',
+            'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
             'relatedparties_party' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_parties'))),
             'relatedparties_class' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_classes'))),
             'relatedparties_type' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_types'))),
@@ -123,7 +123,7 @@ class RelatedPartyController extends Controller
             'client_id' => $request->client_id,
             'consultation_id' => $request->consultation_id,
             'business_id' => $request->business_id,
-            'advisory_id' => $request->advisory_id,
+            'advisory_consultation_id' => $request->advisory_consultation_id,
             'relatedparties_party' => $request->relatedparties_party,
             'relatedparties_class' => $request->relatedparties_class,
             'relatedparties_type' => $request->relatedparties_type,
@@ -164,9 +164,9 @@ class RelatedPartyController extends Controller
     {
         $request->validate([
             'client_id' => 'nullable|exists:clients,id',
-            'consultation_id' => 'nullable|integer',
-            'business_id' => 'nullable|integer',
-            'advisory_id' => 'nullable|integer',
+            'consultation_id' => 'nullable|exists:consultations,id',
+            'business_id' => 'nullable|exists:businesses,id',
+            'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
             'relatedparties_party' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_parties'))),
             'relatedparties_class' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_classes'))),
             'relatedparties_type' => 'required|in:' . implode(',', array_keys(config('master.relatedparties_types'))),
@@ -194,7 +194,7 @@ class RelatedPartyController extends Controller
             'client_id' => $request->client_id,
             'consultation_id' => $request->consultation_id,
             'business_id' => $request->business_id,
-            'advisory_id' => $request->advisory_id,
+            'advisory_consultation_id' => $request->advisory_consultation_id,
             'relatedparties_party' => $request->relatedparties_party,
             'relatedparties_class' => $request->relatedparties_class,
             'relatedparties_type' => $request->relatedparties_type,

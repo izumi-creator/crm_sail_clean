@@ -63,4 +63,40 @@ class Client extends Model
         'contact_email2',
         'contact_fax',
     ];
+
+    /**
+     * クライアントとのリレーション
+     */
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class);
+    }
+    /**
+     * 受任案件とのリレーション
+     */
+    public function businesses()
+    {
+        return $this->hasMany(Business::class);
+    }
+    /**
+     * 関係者とのリレーション
+     */
+    public function relatedParties()
+    {
+        return $this->hasMany(RelatedParty::class);
+    }
+    /**
+     * 顧問契約とのリレーション
+     */
+    public function advisoryContracts()
+    {
+        return $this->hasMany(AdvisoryContract::class);
+    }
+    /**
+     * 顧問相談とのリレーション
+     */
+    public function advisoryConsultations()
+    {
+        return $this->hasMany(AdvisoryConsultation::class);
+    }
 }

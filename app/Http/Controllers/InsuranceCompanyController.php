@@ -71,7 +71,7 @@ class InsuranceCompanyController extends Controller
             return redirect()->route('insurance.index')->with('success', '保険会社を追加しました！');
         }
     
-    // ユーザ詳細表示
+    // 保険会社詳細表示
     public function show(InsuranceCompany $insurance)
     {
         return view('insurance.show', compact('insurance'));
@@ -102,15 +102,15 @@ class InsuranceCompanyController extends Controller
             'email2' => $request->email2,
             'importantnotes' => $request->importantnotes,
         ]);
-    
-        return redirect()->route('insurance.show', $insurance->id)->with('success', 'ユーザ情報を更新しました！');
+
+        return redirect()->route('insurance.show', $insurance->id)->with('success', '保険会社情報を更新しました！');
     }
 
-    // ユーザ削除
+    // 保険会社削除
     public function destroy(InsuranceCompany $insurance)
     {
         $insurance->delete();
-        return redirect()->route('insurance.index')->with('success', 'ユーザを削除しました！');
+        return redirect()->route('insurance.index')->with('success', '保険会社を削除しました！');
     }
 
 }

@@ -15,7 +15,7 @@ class Consultation extends Model
     protected $fillable = [
         'client_id',
         'business_id',
-        'advisory_id',
+        'advisory_consultation_id',
         'consultation_party',
         'title',
         'status',
@@ -69,13 +69,19 @@ class Consultation extends Model
     {
         return $this->belongsTo(Client::class);
     }
-
     /**
      * 受任案件とのリレーション
      */
     public function business()
     {
-        return $this->belongsTo(Business::class);
+        return $this->hasOne(Business::class);
+    }
+    /**
+     * 相談案件とのリレーション
+     */
+    public function advisoryConsultation()
+    {
+        return $this->belongsTo(AdvisoryConsultation::class);
     }
     /**
      * 関係者とのリレーション

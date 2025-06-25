@@ -14,7 +14,7 @@ class AdvisoryConsultation extends Model
      */
     protected $fillable = [
         'client_id',
-        'advisory_id',
+        'advisory_contract_id',
         'consultation_id',
         'advisory_party',
         'title',
@@ -75,22 +75,22 @@ class AdvisoryConsultation extends Model
     /**
      * 顧問契約とのリレーション
      */
-    public function advisory()
+    public function advisoryContract()
     {
-        return $this->belongsTo(AdvisoryContract::class, 'advisory_id');
+        return $this->belongsTo(AdvisoryContract::class);
     }
     /**
      * 相談とのリレーション
      */
     public function consultation()
     {
-        return $this->belongsTo(Consultation::class);
+        return $this->hasOne(Consultation::class, 'advisory_consultation_id');
     }
     /**
      * 関係者とのリレーション
      */
     public function relatedParties()
     {
-        return $this->hasMany(RelatedParty::class, 'advisory_id');
+        return $this->hasMany(RelatedParty::class);
     }
 }

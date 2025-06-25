@@ -192,12 +192,14 @@ class ClientController extends Controller
     public function show(Client $client)
     {
 
-        $consultations = Consultation::where('client_id', $client->id)->get();
-        $businesses = Business::where('client_id', $client->id)->get();
-        $advisoryContracts = AdvisoryContract::where('client_id', $client->id)->get();
-        $advisoryConsultations = AdvisoryConsultation::where('client_id', $client->id)->get();
+    $client->load([
+        'consultations',
+        'businesses',
+        'advisoryContracts',
+        'advisoryConsultations',
+    ]);
 
-        return view('client.show', compact('client', 'consultations', 'businesses', 'advisoryContracts', 'advisoryConsultations'));
+        return view('client.show', compact('client'));
     }
     
     // 編集処理

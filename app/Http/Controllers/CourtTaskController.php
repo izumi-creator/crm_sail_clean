@@ -100,11 +100,8 @@ class CourtTaskController extends Controller
         }
 
         CourtTask::create([
-            'client_id' => $request->client_id,
-            'consultation_id' => $request->consultation_id,
-            'business_id' => $request->business_id,
-            'advisory_id' => $request->advisory_id,
             'court_id' => $request->court_id,
+            'business_id' => $request->business_id,
             'status' => $request->status,
             'status_detail' => $request->status_detail,
             'department' => $request->department,

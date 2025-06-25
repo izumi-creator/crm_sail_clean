@@ -77,16 +77,16 @@
                 詳細情報
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-consultation">
-                相談一覧（{{ $consultations->count() }}件）
+                相談一覧（{{ $client->consultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-case">
-                受任案件一覧（{{ $businesses->count() }}件）
+                受任案件一覧（{{ $client->businesses->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory">
-                顧問契約一覧（{{ $advisoryContracts->count() }}件）
+                顧問契約一覧（{{ $client->advisoryContracts->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory_consultations">
-                顧問相談一覧（{{ $advisoryConsultations->count() }}件）
+                顧問相談一覧（{{ $client->advisoryConsultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
                 会計一覧（0件）
@@ -355,7 +355,7 @@
                     新規登録
                 </a>
             </div>
-            @if ($consultations->isEmpty())
+            @if ($client->consultations->isEmpty())
                 <p class="text-sm text-gray-500">相談は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -369,7 +369,7 @@
                     </tr>
                 </thead>
                     <tbody class="text-sm">
-                    @foreach ($consultations as $consultation)
+                    @foreach ($client->consultations as $consultation)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $consultation->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -396,7 +396,7 @@
     <!-- ▼ 受任案件一覧タブ -->
     <div id="tab-case" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
-            @if ($businesses->isEmpty())
+            @if ($client->businesses->isEmpty())
                 <p class="text-sm text-gray-500">受任案件は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -410,7 +410,7 @@
                     </tr>
                 </thead>
                     <tbody class="text-sm">
-                    @foreach ($businesses as $business)
+                    @foreach ($client->businesses as $business)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $business->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -443,7 +443,7 @@
                     新規登録
                 </a>
             </div>
-            @if ($advisoryContracts->isEmpty())
+            @if ($client->advisoryContracts->isEmpty())
                 <p class="text-sm text-gray-500">顧問契約は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -457,7 +457,7 @@
                     </tr>
                 </thead>
                     <tbody class="text-sm">
-                    @foreach ($advisoryContracts as $advisoryContract)
+                    @foreach ($client->advisoryContracts as $advisoryContract)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $advisoryContract->id }}</td>
                             <td class="border px-2 py-[6px] truncate">
@@ -490,7 +490,7 @@
                     新規登録
                 </a>
             </div>
-            @if ($advisoryConsultations->isEmpty())
+            @if ($client->advisoryConsultations->isEmpty())
                 <p class="text-sm text-gray-500">顧問相談は登録されていません。</p>
             @else
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
@@ -504,7 +504,7 @@
                     </tr>
                 </thead>
                     <tbody class="text-sm">
-                    @foreach ($advisoryConsultations as $advisoryConsultation)
+                    @foreach ($client->advisoryConsultations as $advisoryConsultation)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $advisoryConsultation->id }}</td>
                             <td class="border px-2 py-[6px] truncate">

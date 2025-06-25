@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\User;
 use App\Models\RelatedParty;
 use App\Models\Business;
+use App\Models\AdvisoryConsultation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -233,13 +234,10 @@ class ConsultationController extends Controller
             'paralegal3',
             'business',
             'relatedParties',
+            'advisoryConsultation',
         ]);
 
-        return view('consultation.show', [
-            'consultation' => $consultation,
-            'relatedparties' => $consultation->relatedParties,
-            'business' => $consultation->business,
-        ]);
+        return view('consultation.show',  compact('consultation'));
 
     }
     
@@ -251,8 +249,8 @@ class ConsultationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'client_id' => 'required|exists:clients,id',
-            'business_id' => 'nullable|integer',
-            'advisory_id' => 'nullable|integer',
+            'business_id' => 'nullable|exists:businesses,id',
+            'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
             'consultation_party' => 'required|in:' . implode(',', array_keys(config('master.consultation_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.consultation_statuses'))),
@@ -400,7 +398,7 @@ class ConsultationController extends Controller
         $consultation->update([
             'client_id' => $validated['client_id'],
             'business_id' => $validated['business_id'],
-            'advisory_id' => $validated['advisory_id'],
+            'advisory_consultation_id' => $validated['advisory_consultation_id'],
             'consultation_party' => $validated['consultation_party'],
             'title' => $validated['title'],
             'status' => $validated['status'],
@@ -475,7 +473,7 @@ class ConsultationController extends Controller
         ['consultation_id' => $consultation->id],
         [
             'client_id' => $consultation->client_id,
-            'advisory_id' => $consultation->advisory_id,
+            'advisory_consultation_id' => $consultation->advisory_consultation_id,
             'consultation_party' => $consultation->consultation_party,
             'status' => 1, // 初期ステータス
             'title' => $consultation->title,

@@ -88,6 +88,6 @@ class AdvisoryContract extends Model
      */
     public function advisoryConsultation()
     {
-        return $this->hasMany(AdvisoryConsultation::class, 'advisory_id');
+        return $this->hasMany(AdvisoryConsultation::class);
     }
 }

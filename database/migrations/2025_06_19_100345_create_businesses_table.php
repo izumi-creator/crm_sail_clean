@@ -16,8 +16,8 @@ return new class extends Migration {
             // 必須項目であるが、トラブル時を想定してnullableとする
             $table->foreignId('consultation_id')->nullable()->constrained();
 
-            // 未作成のテーブルへの外部キーは今は定義しない
-            $table->unsignedBigInteger('advisory_id')->nullable();
+            // 不要
+            //$table->unsignedBigInteger('advisory_id')->nullable();
 
             $table->tinyInteger('consultation_party'); // 区分
             $table->string('title', 255); // 件名
@@ -86,7 +86,7 @@ return new class extends Migration {
             // インデックス
             $table->index('client_id');
             $table->index('consultation_id');
-            // 未作成テーブル
+            // 不要
             //$table->index('advisory_id');
             $table->index('title');
             $table->index('status');

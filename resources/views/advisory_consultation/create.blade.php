@@ -59,21 +59,21 @@
                 <!-- 顧問契約 -->
                 <div id="existing-advisory-area">
                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>顧問契約検索</label>
-                    @if (request('advisory_id'))
-                        <input type="hidden" name="advisory_id" value="{{ request('advisory_id') }}">
+                    @if (request('advisory_contract_id'))
+                        <input type="hidden" name="advisory_contract_id" value="{{ request('advisory_contract_id') }}">
                         <input type="text"
-                               value="{{ \App\Models\AdvisoryContract::find(request('advisory_id'))?->title ?? '（不明）' }}"
+                               value="{{ \App\Models\AdvisoryContract::find(request('advisory_contract_id'))?->title ?? '（不明）' }}"
                                class="w-full p-2 border rounded bg-gray-100 text-gray-500"
                                readonly>
                     @else
-                        <select name="advisory_id"
+                        <select name="advisory_contract_id"
                                 class="select-advisory w-full"
-                                data-old-id="{{ old('advisory_id') }}"
+                                data-old-id="{{ old('advisory_contract_id') }}"
                                 data-old-text="{{ old('advisory_contract_name_display') }}">
                             <option></option>
                         </select>
                     @endif
-                    @errorText('advisory_id')
+                    @errorText('advisory_contract_id')
                 </div>
 
                 <div class="mt-0 p-4 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800">    

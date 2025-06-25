@@ -10,7 +10,9 @@ return new class extends Migration {
         Schema::create('advisory_consultations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('client_id')->constrained();
-            $table->foreignId('advisory_id')->constrained('advisory_contracts');
+
+            // 見直しadvisory_id⇒advisory_contract_id
+            $table->foreignId('advisory_contract_id')->nullable()->constrained();
             $table->foreignId('consultation_id')->nullable()->constrained();
             $table->tinyInteger('advisory_party');
             $table->string('title', 255);
@@ -32,7 +34,7 @@ return new class extends Migration {
 
             // インデックス
             $table->index('client_id');
-            $table->index('advisory_id');
+            $table->index('advisory_contract_id');
             $table->index('consultation_id');
             $table->index('advisory_party');
             $table->index('title');

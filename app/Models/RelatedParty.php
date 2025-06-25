@@ -16,7 +16,7 @@ class RelatedParty extends Model
         'client_id',
         'consultation_id',
         'business_id',
-        'advisory_id',
+        'advisory_consultation_id',
         'relatedparties_party',
         'relatedparties_class',
         'relatedparties_type',
@@ -61,6 +61,6 @@ class RelatedParty extends Model
 
     public function advisoryConsultation()
     {
-        return $this->belongsTo(AdvisoryConsultation::class, 'advisory_id');
+        return $this->belongsTo(AdvisoryConsultation::class);
     }
 }
