@@ -93,4 +93,11 @@ class AdvisoryConsultation extends Model
     {
         return $this->hasMany(RelatedParty::class);
     }
+    /**
+     * タスクとのリレーション
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }

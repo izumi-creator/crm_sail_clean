@@ -14,6 +14,9 @@ use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CourtTaskController;
 use App\Http\Controllers\AdvisoryContractController;
 use App\Http\Controllers\AdvisoryConsultationController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\NegotiationController;
+
 
 Route::get('/', function () {
     return redirect()->route('dashboard'); // ログイン後はダッシュボードへ
@@ -104,10 +107,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/advisory_consultations/search', [AdvisoryConsultationController::class, 'search'])->name('advisory_consultation.search');
 
     //task
-    Route::get('/task', function () {return view('task.index');})->name('task.index');
+    Route::get('/task', [TaskController::class, 'index'])->name('task.index');
+    Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
+    Route::post('/task', [TaskController::class, 'store'])->name('task.store');
+    Route::get('/task/{task}', [TaskController::class, 'show'])->name('task.show');
+    Route::put('/task/{task}', [TaskController::class, 'update'])->name('task.update');
+    Route::delete('/task/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
 
     //negotiation
-    Route::get('/negotiation', function () {return view('negotiation.index');})->name('negotiation.index');
+    Route::get('/negotiation/create', [NegotiationController::class, 'create'])->name('negotiation.create');
+    Route::post('/negotiation', [NegotiationController::class, 'store'])->name('negotiation.store');
+    Route::get('/negotiation/{negotiation}', [NegotiationController::class, 'show'])->name('negotiation.show');
+    Route::put('/negotiation/{negotiation}', [NegotiationController::class, 'update'])->name('negotiation.update');
+    Route::delete('/negotiation/{negotiation}', [NegotiationController::class, 'destroy'])->name('negotiation.destroy');
 
     //accountancy
     Route::get('/accountancy', function () {return view('accountancy.index');})->name('accountancy.index');

@@ -54,7 +54,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: 'ユーザーを検索してください',
@@ -85,7 +85,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: 'クライアントを検索してください',
@@ -116,7 +116,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: '相談を検索してください',
@@ -147,7 +147,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: '受任案件を検索してください',
@@ -178,7 +178,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: '裁判所を検索してください',
@@ -209,7 +209,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: '顧問契約を検索してください',
@@ -240,7 +240,7 @@
                 const oldText = $select.data('old-text');
             
                 $select.select2({
-                    width: 'resolve',
+                    width: '100%',
                     minimumInputLength: 1,
                     allowClear: true,
                     placeholder: '顧問相談を検索してください',
@@ -500,20 +500,25 @@
             overflow: hidden;
         }
 
-        .select2-container .select2-selection--single {
-            height: 2.5rem !important;         /* h-10 相当 = 40px */
-            padding: 0.5rem 0.75rem !important; /* px-3 py-2 相当 */
+        /* 高さ・余白などを明示して揃える */
+        .select2-container--default .select2-selection--single {
+            height: 2.5rem !important;          /* h-10 相当 = 40px */
+            padding: 0.5rem 0.75rem !important; /* py-2 px-3 */
             border: 1px solid #d1d5db !important;
             border-radius: 0.25rem !important;
-            font-size: 0.875rem;               /* text-sm 相当 */
+            font-size: 0.875rem;
             background-color: #fff;
+            box-sizing: border-box;
         }
         
-        .select2-selection__rendered {
+        /* 内側テキストの高さ調整 */
+        .select2-container--default .select2-selection__rendered {
             line-height: 1.5 !important;
+            padding-left: 0 !important;
         }
         
-        .select2-selection__arrow {
+        /* ▼アイコン部分の高さ調整 */
+        .select2-container--default .select2-selection__arrow {
             height: 2.5rem !important;
         }
     </style>

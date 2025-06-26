@@ -101,6 +101,9 @@
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory_consultations">
                 顧問相談一覧（{{ $advisory->advisoryConsultation->count() }}件）
             </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
+                タスク一覧（{{ $advisory->tasks->count() }}件）
+            </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
                 会計一覧（0件）
             </button>
@@ -372,6 +375,37 @@
             @endif
         </div>
     </div>
+
+    <!-- ▼ タスク一覧タブ -->
+    <div id="tab-task" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+        <div class="mb-4 flex justify-end space-x-2">
+            <a href="{{ route('task.create', ['related_party' => 3, 'advisory_contract_id' => $advisory->id]) }}"
+               class="bg-green-500 text-white px-4 py-2 rounded">
+                新規登録
+            </a>
+        </div>
+            @if ($advisory->tasks->isEmpty())
+                <p class="text-sm text-gray-500">タスクは登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                        <tr>
+                            <th class="border p-2 w-1/12">ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        @foreach ($advisory->tasks as $task)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $task->id }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
+
     <!-- ▼ 会計一覧タブ -->
     <div id="tab-documents" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">

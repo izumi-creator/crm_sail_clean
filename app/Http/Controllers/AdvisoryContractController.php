@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\AdvisoryContract;
 use App\Models\User;
+use App\Models\Task;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -185,6 +186,7 @@ class AdvisoryContractController extends Controller
             'paralegal2',
             'paralegal3',
             'advisoryConsultation',
+            'tasks',
         ]);
 
         return view('advisory.show', compact('advisory'));

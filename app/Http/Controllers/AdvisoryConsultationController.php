@@ -9,6 +9,7 @@ use App\Models\AdvisoryContract;
 use App\Models\User;
 use App\Models\Consultation;
 use App\Models\RelatedParty;
+use App\Models\Task;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -185,6 +186,7 @@ class AdvisoryConsultationController extends Controller
             'advisoryContract',
             'consultation',
             'relatedParties',
+            'tasks',
         ]);
 
         return view('advisory_consultation.show', compact('advisory_consultation'));

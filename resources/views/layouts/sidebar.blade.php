@@ -37,7 +37,6 @@
             <li class="mb-1"><a href="{{ route('advisory.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問契約</a></li>
             <li class="mb-1"><a href="{{ route('advisory_consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問相談</a></li>
             <li class="mb-1"><a href="{{ route('task.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">タスク</a></li>
-            <li class="mb-1"><a href="{{ route('negotiation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">折衝履歴</a></li>
             <li class="mb-1"><a href="{{ route('accountancy.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">会計</a></li>
             <li class="mb-1"><a href="{{ route('court.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">裁判所マスタ</a></li>
             <li class="mb-1"><a href="{{ route('insurance.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">保険会社マスタ</a></li>

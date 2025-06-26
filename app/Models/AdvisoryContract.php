@@ -90,4 +90,11 @@ class AdvisoryContract extends Model
     {
         return $this->hasMany(AdvisoryConsultation::class);
     }
+    /**
+     * タスクとのリレーション
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }

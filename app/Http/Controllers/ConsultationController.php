@@ -7,6 +7,7 @@ use App\Models\Consultation;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\RelatedParty;
+use App\Models\Task;
 use App\Models\Business;
 use App\Models\AdvisoryConsultation;
 use Illuminate\Support\Facades\Validator;
@@ -235,6 +236,7 @@ class ConsultationController extends Controller
             'business',
             'relatedParties',
             'advisoryConsultation',
+            'tasks',
         ]);
 
         return view('consultation.show',  compact('consultation'));

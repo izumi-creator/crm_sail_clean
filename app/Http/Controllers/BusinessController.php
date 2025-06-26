@@ -8,6 +8,7 @@ use App\Models\Consultation;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\RelatedParty;
+use App\Models\Task;
 use App\Models\CourtTask;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -231,6 +232,7 @@ class BusinessController extends Controller
             'paralegal3',
             'courtTasks',
             'relatedParties',
+            'tasks',
         ]);
 
         return view('business.show', compact('business'));

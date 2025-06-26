@@ -91,6 +91,13 @@ class Consultation extends Model
         return $this->hasMany(RelatedParty::class);
     }
     /**
+     * タスクとのリレーション
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+    /**
      * ユーザとのリレーション
      */
     public function lawyer()
