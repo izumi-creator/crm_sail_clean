@@ -147,8 +147,13 @@ class RelatedPartyController extends Controller
             'manager_post' => $request->manager_post,
             'manager_department' => $request->manager_department,
         ]);
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', '関係者を登録しました！');
+        }
+
         // 関係者の関連情報があればここで保存処理を追加
-        return redirect()->route('relatedparty.index')->with('success', '関係者を追加しました！');
+        return redirect()->route('relatedparty.index')->with('success', '関係者を登録しました！');
     }
 
     // 関係者詳細表示

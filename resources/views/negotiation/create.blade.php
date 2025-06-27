@@ -14,12 +14,12 @@
 @endif
 
 <!-- タイトル -->
-<h2 class="text-2xl font-bold mb-4 text-gray-800">タスク登録</h2>
+<h2 class="text-2xl font-bold mb-4 text-gray-800">折衝履歴登録</h2>
 
 <!-- 外枠カード -->
 <div class="p-6 border rounded-lg shadow bg-white">
 
-    <form action="{{ route('task.store') }}" method="POST">
+    <form action="{{ route('negotiation.store') }}" method="POST">
     @csrf
 
     <input type="hidden" name="redirect_url" value="{{ request('redirect_url') }}">
@@ -28,7 +28,7 @@
         <div class="border border-gray-300 overflow-hidden">
 
             <!-- ヘッダー -->
-            <div class="bg-sky-700 text-white px-4 py-2 font-bold border-b">タスク情報</div>
+            <div class="bg-sky-700 text-white px-4 py-2 font-bold border-b">折衝履歴情報</div>
 
                 @if ($errors->any())
                     <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
@@ -171,9 +171,7 @@
                     <select name="status" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.task_statuses') as $key => $label)
-                                @if (in_array($key, [1, 2, 3])) {{-- 登録時に選べる値だけ --}}
-                                    <option value="{{ $key }}" @selected(old('status') == $key)>{{ $label }}</option>
-                                @endif
+                            <option value="{{ $key }}" @selected(old('status') == $key)>{{ $label }}</option>
                         @endforeach
                     </select>
                     @errorText('status')
@@ -252,32 +250,6 @@
                     </select>
                     @errorText('worker_id')
                 </div>
-                <!-- 期限日 -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">期限日</label>
-                    <input type="date" name="deadline_date"
-                           value="{{ old('deadline_date') }}"
-                           class="w-full p-2 border rounded bg-white">
-                    @errorText('deadline_date')
-                </div>
-                <!-- 期限日：時間 -->
-                 <div>
-                    <label class="block font-semibold mb-1">期限日：時間</label>
-                    <select name="deadline_time" class="w-full p-2 border rounded bg-white">
-                        <option value="">-- 時間を選択 --</option>
-                        @for ($h = 9; $h <= 20; $h++)
-                            @foreach (['00', '15', '30', '45'] as $m)
-                                @php
-                                    $time = sprintf('%02d:%s', $h, $m);
-                                @endphp
-                                <option value="{{ $time }}" {{ old('deadline_time') == $time ? 'selected' : '' }}>
-                                    {{ $time }}
-                                </option>
-                            @endforeach
-                        @endfor
-                    </select>
-                    @errorText('deadline_time')
-                </div>
 
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                   内容
@@ -342,28 +314,6 @@
                     <input type="text" name="link3" value="{{ old('link3') }}"
                            class="w-full p-2 border rounded bg-white required">
                     @errorText('link3')
-                </div>
-                <!-- 運送業者 -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        運送業者
-                    </label>
-                    <select name="carrier" class="w-full p-2 border rounded bg-white required">
-                        <option value="">-- 未選択 --</option>
-                        @foreach (config('master.carriers') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('carrier') == $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @errorText('carrier')
-                </div>
-                <!-- 追跡番号 -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        追跡番号
-                    </label>
-                    <input type="text" name="tracking_number" value="{{ old('tracking_number') }}"
-                           class="w-full p-2 border rounded bg-white required">
-                    @errorText('tracking_number')
                 </div>
 
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
@@ -456,7 +406,7 @@
         </div>
         <!-- ボタン -->
         <div class="flex justify-between items-center mt-6">
-            <a href="{{ route('task.index') }}" class="text-blue-600 hover:underline hover:text-blue-800">
+            <a href="{{ route('negotiation.index') }}" class="text-blue-600 hover:underline hover:text-blue-800">
                 一覧に戻る
             </a>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">

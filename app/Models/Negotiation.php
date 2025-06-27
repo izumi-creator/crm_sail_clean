@@ -18,13 +18,12 @@ class Negotiation extends Model
         'business_id',
         'advisory_contract_id',
         'advisory_consultation_id',
-        'task_id',
         'record1',
         'record2',
         'title',
+        'status',
+        'already_read',
         'record_date',
-        'deadline_date',
-        'deadline_time',
         'content',
         'orderer_id',
         'worker_id',
@@ -34,14 +33,15 @@ class Negotiation extends Model
         'link1',
         'link2',
         'link3',
-        'carrier',
-        'tracking_number',
+        'phone_request',
+        'notify_type',
         'record_to',
         'phone_number',
         'phone_to',
         'phone_from',
         'naisen_to',
         'naisen_from',
+        'notify_person_in',
     ];
 
     /**
@@ -86,13 +86,6 @@ class Negotiation extends Model
     public function advisoryConsultation()
     {
         return $this->belongsTo(AdvisoryConsultation::class);
-    }
-    /**
-     * タスク管理とのリレーション
-     */
-    public function task()
-    {
-        return $this->belongsTo(Task::class);
     }
 
 }

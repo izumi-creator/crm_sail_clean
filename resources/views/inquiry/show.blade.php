@@ -26,169 +26,195 @@
         <div class="bg-sky-700 text-white px-4 py-2 font-bold border">問合せ情報</div>
 
         <!-- 内容 -->
-        <div class="grid grid-cols-2 gap-6 p-4 text-sm">
+        <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
+            <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                基本情報
+            </div>
 
-        <!-- 問合せ日 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span>問合せ日</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {{ $inquiry->receptiondate ? $inquiry->receptiondate->format('Y-m-d H:i') : '―' }}
+            <!-- 問合せ日 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    問合せ日</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {{ $inquiry->receptiondate ? $inquiry->receptiondate->format('Y-m-d H:i') : '―' }}
+                </div>
+            </div>
+            <!-- ステータス -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    ステータス</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->status ? config('master.inquiry_status')[$inquiry->status] : '&nbsp;' !!}
+                </div>
+            </div>
+
+            <!-- 流入経路 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 流入経路</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->route ? config('master.routes')[$inquiry->route] : '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 流入経路詳細 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 流入経路詳細</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->routedetail ? config('master.routedetails')[$inquiry->routedetail] : '&nbsp;' !!}
+                </div>
+            </div>
+
+            <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                詳細情報
+            </div>
+            <!-- 氏名（2カラム使用） -->
+            <div class="col-span-2">
+               <label class="block text-sm font-semibold text-gray-700 mb-1">
+                   お名前（漢字）
+              </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->inquiries_name_kanji ?: '&nbsp;' !!}
+                 </div>
+            </div>
+            <div class="col-span-2">
+               <label class="block text-sm font-semibold text-gray-700 mb-1">
+                   お名前（かな）
+              </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->inquiries_name_kana ?: '&nbsp;' !!}
+                 </div>
+            </div>
+            <!-- 姓（漢字） -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    姓（漢字）
+                </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->last_name_kanji ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 名（漢字） -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    名（漢字）
+                </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->first_name_kanji ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 姓（ふりがな） -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    姓（かな）
+                </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->last_name_kana ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 名（ふりがな） -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    名（かな）
+                </label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->first_name_kana ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 会社名 -->
+            <div class="col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 会社名</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->corporate_name ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 電話番号 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 電話番号</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->phone_number ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- メールアドレス -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> メールアドレス</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->email ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 都道府県 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 都道府県</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->state ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <div></div>
+            <!-- 第一希望日 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 第一希望日</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {{ $inquiry->firstchoice_datetime ? $inquiry->firstchoice_datetime->format('Y-m-d H:i') : '―' }}
+                </div>
+            </div>
+            <!-- 第二希望日 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 第二希望日</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {{ $inquiry->secondchoice_datetime ? $inquiry->secondchoice_datetime->format('Y-m-d H:i') : '―' }}
+                </div>
+            </div>
+            <!-- お問合せ内容 -->
+            <div class="col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
+                <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $inquiry->inquirycontent }}</pre>
+            </div>
+
+            <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                その他情報
+            </div>
+
+            <!-- 1週間当たりの平均残業時間 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 1週間当たりの平均残業時間</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->averageovertimehoursperweek ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 月収 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 月収</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->monthlyincome ?: '&nbsp;' !!}
+                </div>
+            </div>
+            <!-- 勤続年数 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"> 勤続年数</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    {!! $inquiry->lengthofservice ?: '&nbsp;' !!}
+                </div>
+            </div>
+
+            <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                関係先
+            </div>
+            <!-- 相談：件名-->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">相談：件名</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">
+                    @if ($inquiry->consultation)
+                        <a href="{{ route('consultation.show', $inquiry->consultation->id) }}"
+                           class="text-blue-600 underline hover:text-blue-800">
+                            {{ $inquiry->consultation->title }}
+                        </a>
+                    @elseif ($inquiry->consultation_id)
+                        <span class="text-gray-400">（削除された相談）</span>
+                    @else
+                        {{-- 空白（何も表示しない） --}}
+                        &nbsp;
+                    @endif
+                </div>
             </div>
         </div>
-        <!-- ステータス -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span>ステータス</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->status ? config('master.inquiry_status')[$inquiry->status] : '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 氏名（2カラム使用） -->
-        <div class="col-span-2">
-           <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> お名前（漢字）
-          </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->inquiries_name_kanji ?: '&nbsp;' !!}
-             </div>
-        </div>
-        <div class="col-span-2">
-           <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> お名前（かな）
-          </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->inquiries_name_kana ?: '&nbsp;' !!}
-             </div>
-        </div>
-        <!-- 姓（漢字） -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 姓（漢字）
-            </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->last_name_kanji ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 名（漢字） -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 名（漢字）
-            </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->first_name_kanji ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 姓（ふりがな） -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 姓（かな）
-            </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->last_name_kana ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 名（ふりがな） -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 名（かな）
-            </label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->first_name_kana ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 会社名 -->
-        <div class="col-span-2">
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 会社名</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->corporate_name ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 電話番号 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 電話番号</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->phone_number ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- メールアドレス -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> メールアドレス</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->email ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 都道府県 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 都道府県</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->state ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <div></div>
-        <!-- 第一希望日 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 第一希望日</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {{ $inquiry->firstchoice_datetime ? $inquiry->firstchoice_datetime->format('Y-m-d H:i') : '―' }}
-            </div>
-        </div>
-        <!-- 第二希望日 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 第二希望日</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {{ $inquiry->secondchoice_datetime ? $inquiry->secondchoice_datetime->format('Y-m-d H:i') : '―' }}
-            </div>
-        </div>
-        <!-- お問合せ内容 -->
-        <div class="col-span-2">
-            <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
-            <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $inquiry->inquirycontent }}</pre>
-        </div>
-        <!-- 流入経路 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 流入経路</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->route ? config('master.routes')[$inquiry->route] : '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 流入経路詳細 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 流入経路詳細</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->routedetail ? config('master.routedetails')[$inquiry->routedetail] : '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 1週間当たりの平均残業時間 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 1週間当たりの平均残業時間</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->averageovertimehoursperweek ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 月収 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 月収</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->monthlyincome ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <!-- 勤続年数 -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 勤続年数</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->lengthofservice ?: '&nbsp;' !!}
-            </div>
-        </div>
-        <div></div>
-        <!-- 相談ID -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1"> 相談ID</label>
-            <div class="mt-1 p-2 border rounded bg-gray-50">
-                {!! $inquiry->consultation_id ?: '&nbsp;' !!}
-            </div>
-        </div>
-    </div>
     </div>
     <!-- ✅ 外枠の外に表示 -->
     <div class="relative mt-6 h-10">
@@ -222,7 +248,10 @@
                 @endif
 
                 <!-- 入力フィールド -->
-                <div class="grid grid-cols-2 gap-6 p-6 text-sm">
+                <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
+                    <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
+                        基本情報
+                    </div>
                     <!-- 問合せ日時 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
@@ -244,6 +273,32 @@
                             @endforeach
                         </select>
                         @errorText('status')
+                    </div>
+                    <!-- 流入経路 -->
+                    <div>
+                        <label class="block font-semibold mb-1">流入経路</label>
+                        <select name="route" class="w-full p-2 border rounded bg-white">
+                            <option value="">-- 未選択 --</option>
+                            @foreach (config('master.routes') as $key => $label)
+                                <option value="{{ $key }}" @selected($inquiry->route == $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @errorText('route')
+                    </div>
+                    <!-- 流入経路（詳細） -->
+                    <div>
+                        <label class="block font-semibold mb-1">流入経路（詳細）</label>
+                        <select name="routedetail" class="w-full p-2 border rounded bg-white">
+                            <option value="">-- 未選択 --</option>
+                            @foreach (config('master.routedetails') as $key => $label)
+                                <option value="{{ $key }}" @selected($inquiry->routedetail == $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @errorText('routedetail')
+                    </div>
+
+                    <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
+                        詳細情報
                     </div>
 
                     <div class="col-span-2">
@@ -389,28 +444,11 @@
                                   class="w-full p-2 border rounded bg-white resize-y">{{ $inquiry->inquirycontent }}</textarea>
                         @errorText('inquirycontent')
                     </div>
-                    <!-- 流入経路 -->
-                    <div>
-                        <label class="block font-semibold mb-1">流入経路</label>
-                        <select name="route" class="w-full p-2 border rounded bg-white">
-                            <option value="">-- 未選択 --</option>
-                            @foreach (config('master.routes') as $key => $label)
-                                <option value="{{ $key }}" @selected($inquiry->route == $key)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @errorText('route')
+
+                    <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
+                        その他情報
                     </div>
-                    <!-- 流入経路（詳細） -->
-                    <div>
-                        <label class="block font-semibold mb-1">流入経路（詳細）</label>
-                        <select name="routedetail" class="w-full p-2 border rounded bg-white">
-                            <option value="">-- 未選択 --</option>
-                            @foreach (config('master.routedetails') as $key => $label)
-                                <option value="{{ $key }}" @selected($inquiry->routedetail == $key)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @errorText('routedetail')
-                    </div>
+
                     <!-- 1週間当たりの平均残業時間 -->
                     <div>
                         <label class="block font-semibold mb-1">1週間当たりの平均残業時間</label>
@@ -435,12 +473,20 @@
                                class="w-full p-2 border rounded bg-white">
                         @errorText('lengthofservice')
                     </div>
-                    <div></div>
-                    <!-- 相談ID -->
+
+                    <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
+                        関係先
+                    </div>
+
+                    <!-- 相談: 件名 -->
                     <div>
-                        <label class="block font-semibold mb-1">相談ID</label>
-                        <input type="text" name="consultation_id" value="{{ $inquiry->consultation_id }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">相談: 件名</label>
+                        <select name="consultation_id"
+                                class="select-consultation-edit w-full"
+                                data-initial-id="{{ $inquiry->consultation_id ?? '' }}"
+                                data-initial-text="{{ optional($inquiry->consultation)->title ?? '' }}">
+                            <option></option>
+                        </select>
                         @errorText('consultation_id')
                     </div>
                 </div>

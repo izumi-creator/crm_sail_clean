@@ -77,7 +77,7 @@ class Consultation extends Model
         return $this->hasOne(Business::class);
     }
     /**
-     * 相談案件とのリレーション
+     * 顧問相談とのリレーション
      */
     public function advisoryConsultation()
     {
@@ -96,6 +96,13 @@ class Consultation extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+    /**
+     * 折衝履歴とのリレーション
+     */
+    public function negotiations()
+    {
+        return $this->hasMany(Negotiation::class);
     }
     /**
      * ユーザとのリレーション

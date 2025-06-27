@@ -168,7 +168,12 @@ class AdvisoryConsultationController extends Controller
             'gift' => $validated['gift'] ?? null,
             'newyearscard' => $validated['newyearscard'] ?? null,
         ]);
-        return redirect()->route('advisory_consultation.index')->with('success', '顧問相談が作成されました。');
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', '顧問相談を登録しました！');
+        }
+
+        return redirect()->route('advisory_consultation.index')->with('success', '顧問相談を登録しました！');
     }
 
     // 顧問相談詳細処理
@@ -187,6 +192,7 @@ class AdvisoryConsultationController extends Controller
             'consultation',
             'relatedParties',
             'tasks',
+            'negotiations',
         ]);
 
         return view('advisory_consultation.show', compact('advisory_consultation'));

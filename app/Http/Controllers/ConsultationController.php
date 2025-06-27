@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\User;
 use App\Models\RelatedParty;
 use App\Models\Task;
+use App\Models\Negotiation;
 use App\Models\Business;
 use App\Models\AdvisoryConsultation;
 use Illuminate\Support\Facades\Validator;
@@ -217,6 +218,11 @@ class ConsultationController extends Controller
             $message = '相談・関係者を追加しました！';
         }
 
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', $message);
+        }
+
         return redirect()->route('consultation.index')->with('success', $message);
 
     }
@@ -237,6 +243,7 @@ class ConsultationController extends Controller
             'relatedParties',
             'advisoryConsultation',
             'tasks',
+            'negotiations',
         ]);
 
         return view('consultation.show',  compact('consultation'));

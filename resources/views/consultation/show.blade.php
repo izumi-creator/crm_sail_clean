@@ -104,6 +104,12 @@
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
                 タスク一覧（{{ $consultation->tasks->count() }}件）
             </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-negotiations">
+                折衝履歴一覧（{{ $consultation->negotiations->count() }}件）
+            </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
+                会計一覧（ダミー）
+            </button>
         </div>
     </div>
 
@@ -131,11 +137,11 @@
                         基本情報
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">件名</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->title ?: '&nbsp;' !!}</div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>ステータス</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">ステータス</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
                             {!! $consultation->status ? config('master.consultation_statuses')[$consultation->status] : '&nbsp;' !!}
                         </div>
@@ -145,7 +151,7 @@
                         <div class="mt-1 p-2 border rounded bg-gray-50">{!! $consultation->status_detail ?: '&nbsp;' !!}</div>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">事件概要</label>
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $consultation->case_summary }}</pre>
                     </div>
                     <div class="col-span-2">
@@ -153,7 +159,7 @@
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $consultation->special_notes }}</pre>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>お問合せ内容</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $consultation->inquirycontent }}</pre>
                     </div>
                     <div>
@@ -259,18 +265,19 @@
                         </div>
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2">
+                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $consultation->office_id ? config('master.offices_id')[$consultation->office_id] : '&nbsp;' !!}
                                     </div>
                                 </div>
+                                <div></div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当弁護士</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($consultation->lawyer)->name ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当パラリーガル</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当パラリーガル</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($consultation->paralegal)->name ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
@@ -424,10 +431,11 @@
     <div id="tab-relatedparty" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
         <div class="mb-4 flex justify-end space-x-2">
-            <a href="{{ route('relatedparty.create', ['consultation_id' => $consultation->id]) }}"
-               class="bg-green-500 text-white px-4 py-2 rounded">
-                新規登録
-            </a>
+            <a href="{{ route('relatedparty.create', [
+                'consultation_id' => $consultation->id,
+                'redirect_url' => route('consultation.show', ['consultation' => $consultation->id]) . '#tab-relatedparty'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
         </div>
             @if ($consultation->relatedparties->isEmpty())
                 <p class="text-sm text-gray-500">関係者は登録されていません。</p>
@@ -476,10 +484,12 @@
     <div id="tab-task" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
         <div class="mb-4 flex justify-end space-x-2">
-            <a href="{{ route('task.create', ['related_party' => 1, 'consultation_id' => $consultation->id]) }}"
-               class="bg-green-500 text-white px-4 py-2 rounded">
-                新規登録
-            </a>
+            <a href="{{ route('task.create', [
+                'related_party' => 1,
+                'consultation_id' => $consultation->id,
+                'redirect_url' => route('consultation.show', ['consultation' => $consultation->id]) . '#tab-task'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
         </div>
             @if ($consultation->tasks->isEmpty())
                 <p class="text-sm text-gray-500">タスクは登録されていません。</p>
@@ -487,13 +497,33 @@
                 <table class="w-full border-collapse border border-gray-300 table-fixed">
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
-                            <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">大区分</th>
+                        <th class="border p-2 w-2/12">worker名</th>
+                        <th class="border p-2 w-2/12">期限日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         @foreach ($consultation->tasks as $task)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $task->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('task.show', $task->id) }}" class="text-blue-500">
+                                {{ $task->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$task->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($task->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $task->deadline_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$task->status] ?? '未設定' }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -501,6 +531,66 @@
             @endif
         </div>
     </div>
+
+    <!-- ▼ 折衝履歴タブ -->
+    <div id="tab-negotiations" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+        <div class="mb-4 flex justify-end space-x-2">
+            <a href="{{ route('negotiation.create', [
+                'related_party' => 1,
+                'consultation_id' => $consultation->id,
+                'redirect_url' => route('consultation.show', ['consultation' => $consultation->id]) . '#tab-negotiations'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
+        </div>
+            @if ($consultation->negotiations->isEmpty())
+                <p class="text-sm text-gray-500">折衝履歴は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                        <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">大区分</th>
+                        <th class="border p-2 w-2/12">worker名</th>
+                        <th class="border p-2 w-2/12">登録日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        @foreach ($consultation->negotiations as $negotiation)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-500">
+                                {{ $negotiation->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$negotiation->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($negotiation->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->record_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$negotiation->status] ?? '未設定' }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
+
+    <!-- ▼ 会計一覧タブ -->
+    <div id="tab-documents" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+            <p>会計一覧の内容（今はダミー）</p>
+        </div>
+    </div>
+
 
     <!-- 編集モーダル -->
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -1050,29 +1140,56 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ▽ 0. モーダル表示
+    // ▽ タブ切り替え関数（初期用・クリック共通）
+    function activateTab(tabId) {
+        // ボタンのクラス切り替え
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove(
+                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
+            );
+            b.classList.add('text-gray-700');
+        });
+
+        const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add(
+                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
+            );
+            activeBtn.classList.remove('text-gray-700');
+        }
+
+        // コンテンツ切り替え
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        const targetContent = document.getElementById(tabId);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+        }
+    }
+
+    // ▼ 初期表示でURLのハッシュ（#tab-courtTask 等）に応じてタブを切り替える
+    const hash = window.location.hash;
+    if (hash) {
+        const tabId = hash.replace('#', '');
+        activateTab(tabId);
+    } else {
+        // ハッシュがない場合は最初のタブを有効にする
+        const firstTab = document.querySelector('.tab-btn')?.dataset.tab;
+        if (firstTab) {
+            activateTab(firstTab);
+        }
+    }
+
+    // ▽ タブクリックイベント登録
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const selectedTab = btn.dataset.tab;
+            activateTab(selectedTab);
 
-            // ボタンのクラス切り替え
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove(
-                    'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
-                );
-                b.classList.add('text-gray-700');
-            });
-
-            btn.classList.add(
-                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
-            );
-            btn.classList.remove('text-gray-700');
-
-            // コンテンツ切り替え
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(selectedTab)?.classList.remove('hidden');
+            // ハッシュも更新（履歴に残る）
+            history.replaceState(null, null, '#' + selectedTab);
         });
     });
 

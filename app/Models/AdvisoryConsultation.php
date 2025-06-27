@@ -100,4 +100,11 @@ class AdvisoryConsultation extends Model
     {
         return $this->hasMany(Task::class);
     }
+    /**
+     * 折衝履歴とのリレーション
+     */
+    public function negotiations()
+    {
+        return $this->hasMany(Negotiation::class);
+    }
 }

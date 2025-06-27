@@ -89,7 +89,10 @@
                 顧問相談一覧（{{ $client->advisoryConsultations->count() }}件）
             </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
-                会計一覧（0件）
+                会計一覧（ダミー）
+            </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-dummy">
+                交際情報履歴（ダミー）
             </button>
         </div>
     </div>
@@ -350,10 +353,11 @@
     <div id="tab-consultation" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('consultation.create', ['client_id' => $client->id]) }}"
-                   class="bg-green-500 text-white px-4 py-2 rounded">
-                    新規登録
-                </a>
+                <a href="{{ route('consultation.create', [
+                    'client_id' => $client->id,
+                    'redirect_url' => route('client.show', ['client' => $client->id]) . '#tab-consultation'
+                ]) }}"
+                class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
             </div>
             @if ($client->consultations->isEmpty())
                 <p class="text-sm text-gray-500">相談は登録されていません。</p>
@@ -438,10 +442,11 @@
     <div id="tab-advisory" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('advisory.create', ['client_id' => $client->id]) }}"
-                   class="bg-green-500 text-white px-4 py-2 rounded">
-                    新規登録
-                </a>
+                <a href="{{ route('advisory.create', [
+                    'client_id' => $client->id,
+                    'redirect_url' => route('client.show', ['client' => $client->id]) . '#tab-advisory'
+                ]) }}"
+                class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
             </div>
             @if ($client->advisoryContracts->isEmpty())
                 <p class="text-sm text-gray-500">顧問契約は登録されていません。</p>
@@ -532,6 +537,12 @@
     <div id="tab-documents" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <p>会計一覧の内容（今はダミー）</p>
+        </div>
+    </div>
+    <!-- ▼ 交際情報履歴タブ -->
+    <div id="tab-dummy" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+            <p>交際情報履歴の内容（今はダミー）</p>
         </div>
     </div>
 
@@ -1180,29 +1191,56 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ▽ 0. モーダル表示
+    // ▽ タブ切り替え関数（初期用・クリック共通）
+    function activateTab(tabId) {
+        // ボタンのクラス切り替え
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove(
+                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
+            );
+            b.classList.add('text-gray-700');
+        });
+
+        const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add(
+                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
+            );
+            activeBtn.classList.remove('text-gray-700');
+        }
+
+        // コンテンツ切り替え
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        const targetContent = document.getElementById(tabId);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+        }
+    }
+
+    // ▼ 初期表示でURLのハッシュ（#tab-courtTask 等）に応じてタブを切り替える
+    const hash = window.location.hash;
+    if (hash) {
+        const tabId = hash.replace('#', '');
+        activateTab(tabId);
+    } else {
+        // ハッシュがない場合は最初のタブを有効にする
+        const firstTab = document.querySelector('.tab-btn')?.dataset.tab;
+        if (firstTab) {
+            activateTab(firstTab);
+        }
+    }
+
+    // ▽ タブクリックイベント登録
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const selectedTab = btn.dataset.tab;
+            activateTab(selectedTab);
 
-            // ボタンのクラス切り替え
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove(
-                    'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
-                );
-                b.classList.add('text-gray-700');
-            });
-
-            btn.classList.add(
-                'bg-white', 'text-sky-700', 'font-bold', 'border-x', 'border-t', 'border-b-0'
-            );
-            btn.classList.remove('text-gray-700');
-
-            // コンテンツ切り替え
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(selectedTab)?.classList.remove('hidden');
+            // ハッシュも更新（履歴に残る）
+            history.replaceState(null, null, '#' + selectedTab);
         });
     });
 

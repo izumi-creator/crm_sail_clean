@@ -104,6 +104,9 @@
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
                 タスク一覧（{{ $advisory_consultation->tasks->count() }}件）
             </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-negotiations">
+                折衝履歴一覧（{{ $advisory_consultation->negotiations->count() }}件）
+            </button>
         </div>
     </div>
 
@@ -150,11 +153,11 @@
                         基本情報
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">件名</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">{!! $advisory_consultation->title ?: '&nbsp;' !!}</div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>ステータス</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">ステータス</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
                             {!! $advisory_consultation->status ? config('master.advisory_consultations_statuses')[$advisory_consultation->status] : '&nbsp;' !!}
                         </div>
@@ -210,12 +213,13 @@
                         </div>
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2">
+                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $advisory_consultation->office_id ? config('master.offices_id')[$advisory_consultation->office_id] : '&nbsp;' !!}
                                     </div>
                                 </div>
+                                <div></div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($advisory_consultation->lawyer)->name ?: '&nbsp;' !!}</div>
@@ -285,10 +289,11 @@
     <div id="tab-relatedparty" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('relatedparty.create', ['advisory_consultation_id' => $advisory_consultation->id]) }}"
-                   class="bg-green-500 text-white px-4 py-2 rounded">
-                    新規登録
-                </a>
+                <a href="{{ route('relatedparty.create', [
+                    'advisory_consultation_id' => $advisory_consultation->id,
+                    'redirect_url' => route('advisory_consultation.show', ['advisory_consultation' => $advisory_consultation->id]) . '#tab-relatedparty'
+                ]) }}"
+                class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>   
             </div>
             @if ($advisory_consultation->relatedParties->isEmpty())
                 <p class="text-sm text-gray-500">関係者は登録されていません。</p>
@@ -337,10 +342,12 @@
     <div id="tab-task" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
         <div class="mb-4 flex justify-end space-x-2">
-            <a href="{{ route('task.create', ['related_party' => 4, 'advisory_consultation_id' => $advisory_consultation->id]) }}"
-               class="bg-green-500 text-white px-4 py-2 rounded">
-                新規登録
-            </a>
+            <a href="{{ route('task.create', [
+                'related_party' => 4,
+                'advisory_consultation_id' => $advisory_consultation->id,
+                'redirect_url' => route('advisory_consultation.show', ['advisory_consultation' => $advisory_consultation->id]) . '#tab-task'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
         </div>
             @if ($advisory_consultation->tasks->isEmpty())
                 <p class="text-sm text-gray-500">タスクは登録されていません。</p>
@@ -349,12 +356,84 @@
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
                             <th class="border p-2 w-1/12">ID</th>
+                            <th class="border p-2 w-5/12">件名</th>
+                            <th class="border p-2 w-2/12">大区分</th>
+                            <th class="border p-2 w-2/12">worker名</th>
+                            <th class="border p-2 w-2/12">期限日</th>
+                            <th class="border p-2 w-2/12">ステータス</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         @foreach ($advisory_consultation->tasks as $task)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $task->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('task.show', $task->id) }}" class="text-blue-500">
+                                {{ $task->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$task->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($task->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $task->deadline_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$task->status] ?? '未設定' }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
+
+    <!-- ▼ 折衝履歴タブ -->
+    <div id="tab-negotiations" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+        <div class="mb-4 flex justify-end space-x-2">
+            <a href="{{ route('negotiation.create', [
+                'related_party' => 4,
+                'advisory_consultation_id' => $advisory_consultation->id,
+                'redirect_url' => route('advisory_consultation.show', ['advisory_consultation' => $advisory_consultation->id]) . '#tab-negotiations'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
+        </div>
+            @if ($advisory_consultation->negotiations->isEmpty())
+                <p class="text-sm text-gray-500">折衝履歴は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                        <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">大区分</th>
+                        <th class="border p-2 w-2/12">worker名</th>
+                        <th class="border p-2 w-2/12">登録日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        @foreach ($advisory_consultation->negotiations as $negotiation)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-500">
+                                {{ $negotiation->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$negotiation->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($negotiation->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->record_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$negotiation->status] ?? '未設定' }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

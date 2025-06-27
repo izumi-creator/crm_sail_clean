@@ -104,8 +104,14 @@
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
                 タスク一覧（{{ $business->tasks->count() }}件）
             </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-negotiations">
+                折衝履歴一覧（{{ $business->negotiations->count() }}件）
+            </button>
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-courtTask">
                 裁判所対応（{{ $business->courtTasks->count() }}件）
+            </button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
+                会計一覧（ダミー）
             </button>
         </div>
     </div>
@@ -134,11 +140,11 @@
                         基本情報
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>件名</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">件名</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->title ?: '&nbsp;' !!}</div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>ステータス</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">ステータス</label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
                             {!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}
                         </div>
@@ -148,7 +154,7 @@
                         <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->status_detail ?: '&nbsp;' !!}</div>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">事件概要</label>
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $business->case_summary }}</pre>
                     </div>
                     <div class="col-span-2">
@@ -164,31 +170,31 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>問い合せ形態</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">問い合せ形態</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->inquirytype ? config('master.inquirytypes')[$business->inquirytype] : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>相談形態</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談形態</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->consultationtype ? config('master.consultation_types')[$business->consultationtype] : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->case_category ? config('master.case_categories')[$business->case_category] : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->case_subcategory ? config('master.case_subcategories')[$business->case_subcategory] : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>受任日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任日</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->appointment_date ?: '&nbsp;' !!}
                                     </div>
@@ -221,18 +227,19 @@
                         </div>
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>取扱事務所</label>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->office_id ? config('master.offices_id')[$business->office_id] : '&nbsp;' !!}
                                     </div>
                                 </div>
+                                <div></div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当弁護士</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($business->lawyer)->name ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当パラリーガル</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">担当パラリーガル</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($business->paralegal)->name ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
@@ -262,36 +269,36 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>見込理由</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">見込理由</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->feefinish_prospect ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>報酬体系</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">報酬体系</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->feesystem ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->sales_prospect !== null ? '¥' . number_format($business->sales_prospect) : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込更新日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込更新日</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->sales_reason_updated ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込（初期値）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込（初期値）</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->feesystem_initialvalue !== null ? '¥' . number_format($business->feesystem_initialvalue) : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div></div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">終了時期見込</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->enddate_prospect ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込（初期値）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">終了時期見込（初期値）</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! $business->enddate_prospect_initialvalue ?: '&nbsp;' !!}</div>
                                 </div>
                                 <div>
@@ -462,13 +469,13 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->route ? config('master.routes')[$business->route] : '&nbsp;' !!}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路（詳細）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路（詳細）</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->routedetail ? config('master.routedetails')[$business->routedetail] : '&nbsp;' !!}
                                     </div>
@@ -544,10 +551,11 @@
     <div id="tab-relatedparty" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
             <div class="mb-4 flex justify-end space-x-2">
-                <a href="{{ route('relatedparty.create', ['business_id' => $business->id]) }}"
-                   class="bg-green-500 text-white px-4 py-2 rounded">
-                    新規登録
-                </a>
+                <a href="{{ route('relatedparty.create', [
+                    'business_id' => $business->id,
+                    'redirect_url' => route('business.show', ['business' => $business->id]) . '#tab-relatedparty'
+                ]) }}"
+                class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>                
             </div>
             @if ($business->relatedparties->isEmpty())
                 <p class="text-sm text-gray-500">関係者は登録されていません。</p>
@@ -596,10 +604,12 @@
     <div id="tab-task" class="tab-content hidden">
         <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
         <div class="mb-4 flex justify-end space-x-2">
-            <a href="{{ route('task.create', ['related_party' => 2, 'business_id' => $business->id]) }}"
-               class="bg-green-500 text-white px-4 py-2 rounded">
-                新規登録
-            </a>
+            <a href="{{ route('task.create', [
+                'related_party' => 2,
+                'business_id' => $business->id,
+                'redirect_url' => route('business.show', ['business' => $business->id]) . '#tab-task'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
         </div>
             @if ($business->tasks->isEmpty())
                 <p class="text-sm text-gray-500">タスクは登録されていません。</p>
@@ -608,12 +618,32 @@
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
                             <th class="border p-2 w-1/12">ID</th>
+                            <th class="border p-2 w-5/12">件名</th>
+                            <th class="border p-2 w-2/12">大区分</th>
+                            <th class="border p-2 w-2/12">worker名</th>
+                            <th class="border p-2 w-2/12">期限日</th>
+                            <th class="border p-2 w-2/12">ステータス</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         @foreach ($business->tasks as $task)
                         <tr>
                             <td class="border px-2 py-[6px] truncate">{{ $task->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('task.show', $task->id) }}" class="text-blue-500">
+                                {{ $task->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$task->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($task->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $task->deadline_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$task->status] ?? '未設定' }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -622,6 +652,57 @@
         </div>
     </div>
 
+    <!-- ▼ 折衝履歴タブ -->
+    <div id="tab-negotiations" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+        <div class="mb-4 flex justify-end space-x-2">
+            <a href="{{ route('negotiation.create', [
+                'related_party' => 2,
+                'business_id' => $business->id,
+                'redirect_url' => route('business.show', ['business' => $business->id]) . '#tab-negotiations'
+            ]) }}"
+            class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
+        </div>
+            @if ($business->negotiations->isEmpty())
+                <p class="text-sm text-gray-500">折衝履歴は登録されていません。</p>
+            @else
+                <table class="w-full border-collapse border border-gray-300 table-fixed">
+                    <thead class="bg-sky-700 text-white text-sm shadow-md">
+                        <tr>
+                        <th class="border p-2 w-1/12">ID</th>
+                        <th class="border p-2 w-5/12">件名</th>
+                        <th class="border p-2 w-2/12">大区分</th>
+                        <th class="border p-2 w-2/12">worker名</th>
+                        <th class="border p-2 w-2/12">登録日</th>
+                        <th class="border p-2 w-2/12">ステータス</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        @foreach ($business->negotiations as $negotiation)
+                        <tr>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->id }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                            <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-500">
+                                {{ $negotiation->title }}
+                            </a>
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.records_1')[$negotiation->record1] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! optional($negotiation->worker)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">{{ $negotiation->record_date }}</td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {{ config('master.task_statuses')[$negotiation->status] ?? '未設定' }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
 
     <!-- ▼ 裁判所対応タブ -->
     <div id="tab-courtTask" class="tab-content hidden">
@@ -678,6 +759,13 @@
                     </tbody>
                 </table>
             @endif
+        </div>
+    </div>
+
+    <!-- ▼ 会計一覧タブ -->
+    <div id="tab-documents" class="tab-content hidden">
+        <div class="p-6 border rounded-lg shadow bg-white text-gray-700">
+            <p>会計一覧の内容（今はダミー）</p>
         </div>
     </div>
 

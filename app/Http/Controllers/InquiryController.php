@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inquiry;
+use App\Models\Consultation;
 use Illuminate\Validation\Rule;
 
 class InquiryController extends Controller
@@ -73,9 +74,6 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => 'nullable|string|max:10',
             'monthlyincome' => 'nullable|string|max:10',
             'lengthofservice' => 'nullable|string|max:10',
-            // 一時的にexistsをコメントアウト
-            // 'consultation_id' => 'nullable|exists:consultations,id',
-            'consultation_id' => 'nullable|integer',
             ],
         );
 
@@ -110,8 +108,6 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => $request->averageovertimehoursperweek,
             'monthlyincome' => $request->monthlyincome,
             'lengthofservice' => $request->lengthofservice,
-            'consultation_id' => $request->consultation_id,
-
         ]);
 
         return redirect()->route('inquiry.index')->with('success', '問合せを追加しました！');
@@ -120,6 +116,12 @@ class InquiryController extends Controller
     // 問い合わせ詳細
     public function show(Inquiry $inquiry)
     {
+
+        $inquiry->load([
+            'consultation',
+        ]);
+
+
         return view('inquiry.show', compact('inquiry'));
     }
     // 問い合わせ編集処理

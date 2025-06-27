@@ -41,4 +41,12 @@ class Inquiry extends Model
     'firstchoice_datetime' => 'datetime',
     'secondchoice_datetime' => 'datetime',
     ];
+
+    /**
+     * 相談とのリレーション
+     */
+    public function consultation()
+    {
+        return $this->belongsTo(Consultation::class);
+    }
 }

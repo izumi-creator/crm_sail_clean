@@ -33,7 +33,7 @@
                 <!-- 区分 -->
                <div>
                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                       <span class="text-red-500">*</span> 区分
+                       区分
                   </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
                         {!! config('master.relatedparties_parties')[$relatedparty->relatedparties_party] ?? '&nbsp;' !!}
@@ -42,7 +42,7 @@
                 <!-- 分類 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 分類
+                        分類
                     </label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
                         {!! config('master.relatedparties_classes')[$relatedparty->relatedparties_class] ?? '&nbsp;' !!}
@@ -51,7 +51,7 @@
                 <!-- 種別 -->
                <div>
                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                       <span class="text-red-500">*</span> 種別
+                       種別
                   </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
                         {!! config('master.relatedparties_types')[$relatedparty->relatedparties_type] ?? '&nbsp;' !!}
@@ -60,7 +60,7 @@
                 <!-- 立場 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 立場
+                        立場
                     </label>
                         <div class="mt-1 p-2 border rounded bg-gray-50">
                         {!! config('master.relatedparties_positions')[$relatedparty->relatedparties_position] ?? '&nbsp;' !!}
@@ -93,7 +93,7 @@
                 <!-- 関係者名（漢字） -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span> 関係者名（漢字）
+                        関係者名（漢字）
                     </label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
                         {!! $relatedparty->relatedparties_name_kanji ?: '&nbsp;' !!}

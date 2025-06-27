@@ -26,6 +26,7 @@ class TaskController extends Controller
         }
     }
 
+    // タスク一覧画面
     public function index(Request $request)
     {
         $query = Task::query();
@@ -199,8 +200,12 @@ class TaskController extends Controller
             'naisen_from' => $validated['naisen_from'],
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
         ]);
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', 'タスクを登録しました！');
+        }
         
-        return redirect()->route('task.index')->with('success', 'タスクが作成されました。');
+        return redirect()->route('task.index')->with('success', 'タスクを登録しました！');
     }
 
     // タスク詳細処理
@@ -285,7 +290,7 @@ class TaskController extends Controller
             'naisen_from' => $validated['naisen_from'],
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
         ]);
-
+        
         return redirect()->route('task.show', $task)->with('success', 'タスクを更新しました！');
     }
     // タスク削除画面

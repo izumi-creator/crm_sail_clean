@@ -16,6 +16,8 @@
     <form action="{{ route('relatedparty.store') }}" method="POST">
     @csrf
 
+    <input type="hidden" name="redirect_url" value="{{ request('redirect_url') }}">
+
         <!-- ✅見出し＋内容を枠で囲む -->
         <div class="border border-gray-300 overflow-hidden">
 

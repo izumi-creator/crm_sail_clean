@@ -28,7 +28,7 @@
         <!-- 氏名（2カラム使用） -->
        <div>
            <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> 保険会社名
+               保険会社名
           </label>
             <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $insurance->insurance_name ?: '&nbsp;' !!}
@@ -38,7 +38,7 @@
         <!-- 保険会社種類 -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 保険会社区分
+                保険会社区分
             </label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! config('master.insurance_types')[$insurance->insurance_type] ?? '&nbsp;' !!}

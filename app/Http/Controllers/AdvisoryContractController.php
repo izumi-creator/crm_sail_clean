@@ -170,7 +170,12 @@ class AdvisoryContractController extends Controller
             'gift' => $validated['gift'],
             'newyearscard' => $validated['newyearscard'],
         ]);
-        return redirect()->route('advisory.index')->with('success', '顧問契約が作成されました。');
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', '顧問契約を作成しました！');
+        }
+
+        return redirect()->route('advisory.index')->with('success', '顧問契約を作成しました！');
     }
 
     // 顧問契約詳細処理
@@ -187,6 +192,7 @@ class AdvisoryContractController extends Controller
             'paralegal3',
             'advisoryConsultation',
             'tasks',
+            'negotiations',
         ]);
 
         return view('advisory.show', compact('advisory'));

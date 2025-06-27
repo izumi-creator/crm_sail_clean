@@ -13,27 +13,31 @@
 <!-- 外枠カード -->
 <div class="p-6 border rounded-lg shadow bg-white">
 
-    <!-- ヘッダー -->
-    <div class="bg-sky-700 text-white px-4 py-2 font-bold border-b">
-        問合せ情報
-    </div>
+    <form action="{{ route('inquiry.store') }}" method="POST">
+    @csrf
 
-    <!-- 入力フィールド -->
-    <div class="p-6 border border-gray-300 border-t-0 text-sm">
-        @if ($errors->any())
-            <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
-                <ul class="list-disc pl-6">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <!-- ✅見出し＋内容を枠で囲む -->
+        <div class="border border-gray-300 overflow-hidden">
 
-        <form action="{{ route('inquiry.store') }}" method="POST">
-            @csrf
+            <!-- ヘッダー -->
+            <div class="bg-sky-700 text-white px-4 py-2 font-bold border-b">問合せ情報</div>
 
-            <div class="grid grid-cols-2 gap-6">
+                @if ($errors->any())
+                    <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
+                        <ul class="list-disc pl-6">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+            <!-- 入力フィールド -->
+            <div class="grid grid-cols-2 gap-6 pt-0 pb-6 px-6 text-sm">
+
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                    基本情報
+                </div>
                 <!-- 問合せ日時 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
@@ -56,6 +60,33 @@
                         @endforeach
                     </select>
                     @errorText('status')
+                </div>
+
+                <!-- 流入経路 -->
+                <div>
+                    <label class="block font-semibold mb-1">流入経路</label>
+                    <select name="route" class="w-full p-2 border rounded bg-white">
+                        <option value="">-- 未選択 --</option>
+                        @foreach (config('master.routes') as $key => $label)
+                            <option value="{{ $key }}" @selected(old('route') == $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @errorText('route')
+                </div>
+                <!-- 流入経路（詳細） -->
+                <div>
+                    <label class="block font-semibold mb-1">流入経路（詳細）</label>
+                    <select name="routedetail" class="w-full p-2 border rounded bg-white">
+                        <option value="">-- 未選択 --</option>
+                        @foreach (config('master.routedetails') as $key => $label)
+                            <option value="{{ $key }}" @selected(old('routedetail') == $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @errorText('routedetail')
+                </div>
+
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                    詳細情報
                 </div>
 
                 <div class="col-span-2">
@@ -190,6 +221,7 @@
                     </select>
                     @errorText('secondchoice_time')
                 </div>
+
                 <!-- お問合せ内容 -->
                 <div class="col-span-2">
                     <label class="block font-semibold mb-1">お問合せ内容</label>
@@ -197,28 +229,11 @@
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('inquirycontent') }}</textarea>
                     @errorText('inquirycontent')
                 </div>
-                <!-- 流入経路 -->
-                <div>
-                    <label class="block font-semibold mb-1">流入経路</label>
-                    <select name="route" class="w-full p-2 border rounded bg-white">
-                        <option value="">-- 未選択 --</option>
-                        @foreach (config('master.routes') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('route') == $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @errorText('route')
+
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                    その他情報
                 </div>
-                <!-- 流入経路（詳細） -->
-                <div>
-                    <label class="block font-semibold mb-1">流入経路（詳細）</label>
-                    <select name="routedetail" class="w-full p-2 border rounded bg-white">
-                        <option value="">-- 未選択 --</option>
-                        @foreach (config('master.routedetails') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('routedetail') == $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @errorText('routedetail')
-                </div>
+
                 <!-- 1週間当たりの平均残業時間 -->
                 <div>
                     <label class="block font-semibold mb-1">1週間当たりの平均残業時間</label>
@@ -243,27 +258,18 @@
                            class="w-full p-2 border rounded bg-white">
                     @errorText('lengthofservice')
                 </div>
-                <div></div>
-                <!-- 相談ID -->
-                <div>
-                    <label class="block font-semibold mb-1">相談ID</label>
-                    <input type="text" name="consultation_id" value="{{ old('consultation_id') }}"
-                           class="w-full p-2 border rounded bg-white">
-                    @errorText('consultation_id')
-                </div>
             </div>
-
-            <!-- ボタン -->
-            <div class="flex justify-between items-center mt-6">
-                <a href="{{ route('inquiry.index') }}" class="text-blue-600 hover:underline hover:text-blue-800">
-                    一覧に戻る
-                </a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    登録する
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>  
+        <!-- ボタン -->
+        <div class="flex justify-between items-center mt-6">
+            <a href="{{ route('inquiry.index') }}" class="text-blue-600 hover:underline hover:text-blue-800">
+                一覧に戻る
+            </a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                登録する
+            </button>
+        </div>
+    </form>
 </div>
 
 <script>

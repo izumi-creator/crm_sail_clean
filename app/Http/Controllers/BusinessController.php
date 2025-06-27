@@ -233,6 +233,7 @@ class BusinessController extends Controller
             'courtTasks',
             'relatedParties',
             'tasks',
+            'negotiations',
         ]);
 
         return view('business.show', compact('business'));

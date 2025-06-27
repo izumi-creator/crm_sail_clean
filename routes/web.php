@@ -115,6 +115,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/task/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
 
     //negotiation
+    Route::get('/negotiation', [NegotiationController::class, 'index'])->name('negotiation.index');
     Route::get('/negotiation/create', [NegotiationController::class, 'create'])->name('negotiation.create');
     Route::post('/negotiation', [NegotiationController::class, 'store'])->name('negotiation.store');
     Route::get('/negotiation/{negotiation}', [NegotiationController::class, 'show'])->name('negotiation.show');
