@@ -358,9 +358,6 @@ class ConsultationController extends Controller
                 if (empty($request->route)) {
                     $validator->errors()->add('route', '「流入経路」を入力してください。');
                 }
-                if (empty($request->routedetail)) {
-                    $validator->errors()->add('routedetail', '「流入経路（詳細）」を入力してください。');
-                }
             }
 
             if ((int)$request->status === 6) {
@@ -378,9 +375,6 @@ class ConsultationController extends Controller
                 }
                 if (empty($request->route)) {
                     $validator->errors()->add('route', '「流入経路」を入力してください。');
-                }
-                if (empty($request->routedetail)) {
-                    $validator->errors()->add('routedetail', '「流入経路（詳細）」を入力してください。');
                 }
             }
         });
@@ -420,7 +414,7 @@ class ConsultationController extends Controller
             'inquirytype' => $validated['inquirytype'],
             'consultationtype' => $validated['consultationtype'],
             'case_category' => $validated['case_category'],
-            'case_subcategory' => $validated['case_subcategory'],
+            'case_subcategory' => $validated['case_subcategory'] ?? null,
             'opponent_confliction' => $validated['opponent_confliction'],
             'consultation_receptiondate' => $validated['consultation_receptiondate'],
             'consultation_firstdate' => $validated['consultation_firstdate'],
@@ -444,7 +438,7 @@ class ConsultationController extends Controller
             'enddate_prospect' => $validated['enddate_prospect'],
             'enddate_prospect_initialvalue' => $validated['enddate_prospect_initialvalue'],
             'route' => $validated['route'],
-            'routedetail' => $validated['routedetail'],
+            'routedetail' => $validated['routedetail'] ?? null,
             'introducer' => $validated['introducer'],
             'introducer_others' => $validated['introducer_others'],
         ]);

@@ -94,14 +94,14 @@
                 </div>
                 <!-- 事件概要 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">説明</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
                     <textarea name="explanation" rows="4" maxlength="1000"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('explanation') }}</textarea>
                     @errorText('explanation')
                 </div>
                 <!-- 特記事項 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">特記事項</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">特記事項</label>
                     <textarea name="special_notes" rows="4" maxlength="1000"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
@@ -265,12 +265,12 @@
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     ソース
                 </div>
-                <!-- ソース -->
+                <!-- 親：ソース -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        ソース
+                        <span class="text-red-500">*</span>ソース
                     </label>
-                    <select name="source" class="w-full p-2 border rounded bg-white required">
+                    <select  id="source" name="source" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.routes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('source') == $key)>{{ $label }}</option>
@@ -278,16 +278,12 @@
                     </select>
                     @errorText('source')
                 </div>
-                <!-- ソース（詳細） -->
+                <!-- 子：ソース（詳細） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        ソース（詳細）
-                    </label>
-                    <select name="source_detail" class="w-full p-2 border rounded bg-white required">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">ソース（詳細）</label>
+                    <select id="source_detail" name="source_detail" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
-                        @foreach (config('master.routedetails') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('source_detail') == $key)>{{ $label }}</option>
-                        @endforeach
+                        {{-- JSで動的に上書き --}}
                     </select>
                     @errorText('source_detail')
                 </div>
@@ -398,6 +394,47 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ▼ 流入経路（ソース）の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        // ここに court_branch など他の構成も後で追加できる
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'source', 'source_detail',
+        'routedetail',
+        "{{ old('source_detail', optional($advisory ?? null)->source_detail) }}"
+    );
+
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
+
 });
 
 </script>

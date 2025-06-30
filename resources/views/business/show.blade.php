@@ -590,7 +590,7 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="font-bold">相談：件名</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談：件名</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         @if ($business->consultation)
                                             <a href="{{ route('consultation.show', $business->consultation->id) }}"
@@ -930,23 +930,24 @@
                                     </select>
                                     @errorText('consultationtype')
                                 </div>
+                                <!-- 親：事件分野 -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
-                                    <select name="case_category" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.case_categories') as $key => $value)
-                                            <option value="{{ $key }}" {{ $business->case_category == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <select id="case_category" name="case_category" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        @foreach (config('master.case_categories') as $key => $label)
+                                            <option value="{{ $key }}" @selected($business->case_category == $key)>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                     @errorText('case_category')
                                 </div>
+                            
+                                <!-- 子：事件分野（詳細） -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
-                                    <select name="case_subcategory" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.case_subcategories') as $key => $value)
-                                            <option value="{{ $key }}" {{ $business->case_subcategory == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                                    <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        {{-- JSで上書き --}}
                                     </select>
                                     @errorText('case_subcategory')
                                 </div>
@@ -1333,23 +1334,24 @@
                         
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
+                                <!-- 親：流入経路 -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
-                                    <select name="route" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routes') as $key => $value)
-                                            <option value="{{ $key }}" {{ $business->route == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路</label>
+                                    <select id="route" name="route" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        @foreach (config('master.routes') as $key => $label)
+                                            <option value="{{ $key }}" @selected($business->route == $key)>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                     @errorText('route')
                                 </div>
+                            
+                                <!-- 子：流入経路（詳細） -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路（詳細）</label>
-                                    <select name="routedetail" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routedetails') as $key => $value)
-                                            <option value="{{ $key }}" {{ $business->routedetail == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
+                                    <select id="routedetail" name="routedetail" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        {{-- JSで上書き --}}
                                     </select>
                                     @errorText('routedetail')
                                 </div>
@@ -1612,6 +1614,52 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ▼ 流入経路、事件分野の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        casedetail: @json($casedetailOptions ?? []),
+        // 他の動的セレクトがあればここに追加
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'route', 'routedetail',
+        'routedetail',
+        "{{ old('routedetail', optional($business ?? null)->routedetail) }}"
+    );
+
+    setupDependentSelect(
+        'case_category', 'case_subcategory',
+        'casedetail',
+        "{{ old('case_subcategory', optional($business ?? null)->case_subcategory) }}"
+    );
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
 
 });
 </script>

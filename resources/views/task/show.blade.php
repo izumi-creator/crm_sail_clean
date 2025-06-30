@@ -409,24 +409,28 @@
                         <input type="date" name="record_date" value="{{ $task->record_date }}" class="mt-1 p-2 border rounded w-full bg-white">
                         @errorText('record_date')
                     </div>
+
+                    <!-- 親：大区分 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>大区分</label>
-                        <select name="record1" class="mt-1 p-2 border rounded w-full bg-white" required>
-                            @foreach (config('master.records_1') as $key => $value)
-                                <option value="{{ $key }}" {{ $task->record1 == $key ? 'selected' : '' }}>{{ $value }}</option>
+                        <select id="record1" name="record1" class="w-full p-2 border rounded bg-white">
+                            <option value="">-- 未選択 --</option>
+                            @foreach (config('master.records_1') as $key => $label)
+                                <option value="{{ $key }}" @selected($task->record1 == $key)>{{ $label }}</option>
                             @endforeach
                         </select>
                         @errorText('record1')
-                    </div>
+                    </div>               
+                    <!-- 子：小区分 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>小区分</label>
-                        <select name="record2" class="mt-1 p-2 border rounded w-full bg-white" required>
-                            @foreach (config('master.records_2') as $key => $value)
-                                <option value="{{ $key }}" {{ $task->record2 == $key ? 'selected' : '' }}>{{ $value }}</option>
-                            @endforeach
+                        <select id="record2" name="record2" class="w-full p-2 border rounded bg-white">
+                            <option value="">-- 未選択 --</option>
+                            {{-- JSで上書き --}}
                         </select>
                         @errorText('record2')
                     </div>
+
                     <div>
                         <label class="inline-flex items-center">
                             <input type="hidden" name="already_read" value="0">
@@ -717,6 +721,44 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // ▼ record1 → record2 の動的連動処理（Vanilla JS）
+
+    const dynamicOptions = {
+        record2: @json($record2Options ?? []),
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    setupDependentSelect(
+        'record1',
+        'record2',
+        'record2',
+        "{{ old('record2', optional($task ?? null)->record2) }}"
+    );
+
 });
 </script>
 @endsection

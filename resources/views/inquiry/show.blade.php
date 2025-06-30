@@ -274,10 +274,11 @@
                         </select>
                         @errorText('status')
                     </div>
-                    <!-- 流入経路 -->
+
+                    <!-- 親：流入経路 -->
                     <div>
-                        <label class="block font-semibold mb-1">流入経路</label>
-                        <select name="route" class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
+                        <select id="route" name="route" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 未選択 --</option>
                             @foreach (config('master.routes') as $key => $label)
                                 <option value="{{ $key }}" @selected($inquiry->route == $key)>{{ $label }}</option>
@@ -285,14 +286,13 @@
                         </select>
                         @errorText('route')
                     </div>
-                    <!-- 流入経路（詳細） -->
+
+                    <!-- 子：流入経路（詳細） -->
                     <div>
-                        <label class="block font-semibold mb-1">流入経路（詳細）</label>
-                        <select name="routedetail" class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路（詳細）</label>
+                        <select id="routedetail" name="routedetail" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 未選択 --</option>
-                            @foreach (config('master.routedetails') as $key => $label)
-                                <option value="{{ $key }}" @selected($inquiry->routedetail == $key)>{{ $label }}</option>
-                            @endforeach
+                            {{-- JSで上書き --}}
                         </select>
                         @errorText('routedetail')
                     </div>
@@ -352,7 +352,7 @@
 
                     <!-- 会社名 -->
                     <div class="col-span-2">
-                        <label class="block font-semibold mb-1">会社名</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">会社名</label>
                         <input type="text" name="corporate_name" value="{{ $inquiry->corporate_name }}"
                                class="w-full p-2 border rounded bg-white">
                         @errorText('corporate_name')
@@ -360,7 +360,7 @@
 
                     <!-- 電話番号 -->
                     <div>
-                        <label class="block font-semibold mb-1">電話番号</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号</label>
                         <input type="text" name="phone_number" value="{{ $inquiry->phone_number }}"
                                 placeholder="ハイフンなしで入力（例: 09012345678）"
                                class="w-full p-2 border rounded bg-white">
@@ -368,14 +368,14 @@
                     </div>
                     <!-- メールアドレス -->
                     <div>
-                        <label class="block font-semibold mb-1">メールアドレス</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス</label>
                         <input type="email" name="email" value="{{ $inquiry->email }}"
                                class="w-full p-2 border rounded bg-white">
                         @errorText('email')
                     </div>
                     <!-- 都道府県 -->
                     <div>
-                        <label class="block font-semibold mb-1">都道府県</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">都道府県</label>
                         <select name="state" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 選択してください --</option>
                             @foreach (config('prefectures') as $prefecture)
@@ -387,14 +387,14 @@
                     <div></div>
                     <!-- 第一希望 -->
                     <div>
-                        <label class="block font-semibold mb-1">第一希望：年月日</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">第一希望：年月日</label>
                         <input type="date" name="firstchoice_date"
                                value="{{ $inquiry->firstchoice_datetime ? $inquiry->firstchoice_datetime->format('Y-m-d') : '' }}"
                                class="w-full p-2 border rounded bg-white">
                         @errorText('firstchoice_date')
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">第一希望：時間</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">第一希望：時間</label>
                         <select name="firstchoice_time" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 時間を選択 --</option>
                             @for ($h = 9; $h <= 20; $h++)
@@ -413,14 +413,14 @@
                     </div>
                     <!-- 第二希望 -->
                     <div>
-                        <label class="block font-semibold mb-1">第二希望：年月日</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">第二希望：年月日</label>
                         <input type="date" name="secondchoice_date"
                                value="{{ $inquiry->secondchoice_datetime ? $inquiry->secondchoice_datetime->format('Y-m-d') : '' }}"
                                class="w-full p-2 border rounded bg-white">
                         @errorText('secondchoice_date')
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">第二希望：時間</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">第二希望：時間</label>
                         <select name="secondchoice_time" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 時間を選択 --</option>
                             @for ($h = 9; $h <= 20; $h++)
@@ -439,7 +439,7 @@
                     </div>
                     <!-- お問合せ内容 -->
                     <div class="col-span-2">
-                        <label class="block font-semibold mb-1">お問合せ内容</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
                         <textarea name="inquirycontent" rows="3" maxlength="1000"
                                   class="w-full p-2 border rounded bg-white resize-y">{{ $inquiry->inquirycontent }}</textarea>
                         @errorText('inquirycontent')
@@ -451,7 +451,7 @@
 
                     <!-- 1週間当たりの平均残業時間 -->
                     <div>
-                        <label class="block font-semibold mb-1">1週間当たりの平均残業時間</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">1週間当たりの平均残業時間</label>
                         <input type="text" name="averageovertimehoursperweek" value="{{ $inquiry->averageovertimehoursperweek }}"
                             placeholder="〇〇時間（例: 10時間）"
                             class="w-full p-2 border rounded bg-white">
@@ -459,7 +459,7 @@
                     </div>
                     <!-- 月収 -->
                     <div>
-                        <label class="block font-semibold mb-1">月収</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">月収</label>
                         <input type="text" name="monthlyincome" value="{{ $inquiry->monthlyincome }}"
                                 placeholder="〇〇万円（例: 30万円）"
                                class="w-full p-2 border rounded bg-white">
@@ -467,7 +467,7 @@
                     </div>
                     <!-- 勤続年数 -->
                     <div>
-                        <label class="block font-semibold mb-1">勤続年数</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">勤続年数</label>
                         <input type="text" name="lengthofservice" value="{{ $inquiry->lengthofservice }}"
                                 placeholder="〇〇年〇〇ヶ月（例: 5年10ヶ月）"
                                class="w-full p-2 border rounded bg-white">
@@ -582,6 +582,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     [lastNameKanji, firstNameKanji].forEach(el => el?.addEventListener('input', updateFullNameKanji));
     [lastNameKana, firstNameKana].forEach(el => el?.addEventListener('input', updateFullNameKana));
+
+    // ▼ 流入経路の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        // ここに court_branch など他の構成も後で追加できる
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'route', 'routedetail',
+        'routedetail',
+        "{{ old('routedetail', optional($inquiry ?? null)->routedetail) }}"
+    );
+
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
+
 });
 </script>
 @endsection

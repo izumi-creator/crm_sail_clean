@@ -321,32 +321,27 @@
                         </select>
                         @errorText('relatedparties_party')
                     </div>
-                    <!-- 分類 -->
+                    <!-- 親：分類 -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 分類
-                        </label>
-                        <select name="relatedparties_class" class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>分類</label>
+                        <select id="relatedparties_class" name="relatedparties_class" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 未選択 --</option>
                             @foreach (config('master.relatedparties_classes') as $key => $label)
                                 <option value="{{ $key }}" @selected($relatedparty->relatedparties_class == $key)>{{ $label }}</option>
                             @endforeach
                         </select>
                         @errorText('relatedparties_class')
-                    </div>
-                    <!-- 種別 -->
+                    </div>               
+                    <!-- 子：種別 -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 種別
-                        </label>
-                        <select name="relatedparties_type" class="w-full p-2 border rounded bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>種別</label>
+                        <select id="relatedparties_type" name="relatedparties_type" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 未選択 --</option>
-                            @foreach (config('master.relatedparties_types') as $key => $label)
-                                <option value="{{ $key }}" @selected($relatedparty->relatedparties_type == $key)>{{ $label }}</option>
-                            @endforeach
+                            {{-- JSで上書き --}}
                         </select>
                         @errorText('relatedparties_type')
                     </div>
+                    
                     <!-- 立場 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
@@ -596,11 +591,57 @@
 @endsection
 
 @section('scripts')
+
 @if ($errors->any())
 <script>
-    window.onload = function () {
-        document.getElementById('editModal').classList.remove('hidden');
-    };
+    window.addEventListener('load', function () {
+        document.getElementById('editModal')?.classList.remove('hidden');
+    });
 </script>
 @endif
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ▼ 動的更新
+    const dynamicOptions = {
+        relatedtype: @json($relatedtypeOptions ?? []),
+        // 他の動的セレクトがあればここに追加
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'relatedparties_class',
+        'relatedparties_type',
+        'relatedtype',
+        "{{ old('relatedparties_type', optional($relatedparty ?? null)->relatedparties_type) }}"
+    );
+
+});
+</script>
 @endsection

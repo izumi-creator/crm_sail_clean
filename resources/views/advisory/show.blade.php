@@ -794,23 +794,23 @@
                         
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
+                                <!-- 親：ソース -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">ソース</label>
-                                    <select name="source" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routes') as $key => $value)
-                                            <option value="{{ $key }}" {{ $advisory->source == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <label class="block font-semibold mb-1"><span class="text-red-500">*</span>ソース</label>
+                                    <select id="source" name="source" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        @foreach (config('master.routes') as $key => $label)
+                                            <option value="{{ $key }}" @selected($advisory->source == $key)>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                     @errorText('source')
-                                </div>
+                                </div>                            
+                                <!-- 子：ソース（詳細） -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">ソース（詳細）</label>
-                                    <select name="source_detail" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routedetails') as $key => $value)
-                                            <option value="{{ $key }}" {{ $advisory->source_detail == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
+                                    <label class="block font-semibold mb-1">ソース（詳細）</label>
+                                    <select id="source_detail" name="source_detail" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        {{-- JSで上書き --}}
                                     </select>
                                     @errorText('source_detail')
                                 </div>
@@ -1062,6 +1062,47 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ▼ 流入経路（ソース）の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        // ここに court_branch など他の構成も後で追加できる
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'source', 'source_detail',
+        'routedetail',
+        "{{ old('source_detail', optional($advisory ?? null)->source_detail) }}"
+    );
+
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
+
 });
 </script>
 @endsection

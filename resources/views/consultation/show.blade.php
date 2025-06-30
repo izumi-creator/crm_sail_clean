@@ -455,7 +455,7 @@
                             <div class="grid grid-cols-2 gap-6">
                                 <!-- 受任案件：件名-->
                                 <div>
-                                    <label class="font-bold">受任案件：件名</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任案件：件名</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         @if ($consultation->business)
                                             <a href="{{ route('business.show', $consultation->business->id) }}"
@@ -471,7 +471,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="font-bold">顧問相談：件名</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">顧問相談：件名</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         @if ($consultation->advisoryConsultation)
                                             <a href="{{ route('advisory_consultation.show', $consultation->advisoryConsultation->id) }}"
@@ -738,6 +738,7 @@
                     </div>
                     <div>
                         <label class="inline-flex items-center">
+                            <input type="hidden" name="opponent_confliction" value="0">
                             <input type="checkbox" name="opponent_confliction" value="1"
                                 {{ $consultation->opponent_confliction == 1 ? 'checked' : '' }}
                                 class="form-checkbox text-blue-600">
@@ -756,14 +757,14 @@
                             <div class="grid grid-cols-2 gap-6">
                                 <!-- 第一希望 -->
                                 <div>
-                                    <label class="block font-semibold mb-1">第一希望：年月日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">第一希望：年月日</label>
                                     <input type="date" name="firstchoice_date"
                                            value="{{ $consultation->firstchoice_datetime ? $consultation->firstchoice_datetime->format('Y-m-d') : '' }}"
                                            class="w-full p-2 border rounded bg-white">
                                     @errorText('firstchoice_date')
                                 </div>
                                 <div>
-                                    <label class="block font-semibold mb-1">第一希望：時間</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">第一希望：時間</label>
                                     <select name="firstchoice_time" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 時間を選択 --</option>
                                         @for ($h = 9; $h <= 20; $h++)
@@ -782,14 +783,14 @@
                                 </div>
                                 <!-- 第二希望 -->
                                 <div>
-                                    <label class="block font-semibold mb-1">第二希望：年月日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">第二希望：年月日</label>
                                     <input type="date" name="secondchoice_date"
                                            value="{{ $consultation->secondchoice_datetime ? $consultation->secondchoice_datetime->format('Y-m-d') : '' }}"
                                            class="w-full p-2 border rounded bg-white">
                                     @errorText('secondchoice_date')
                                 </div>
                                 <div>
-                                    <label class="block font-semibold mb-1">第二希望：時間</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">第二希望：時間</label>
                                     <select name="secondchoice_time" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 時間を選択 --</option>
                                         @for ($h = 9; $h <= 20; $h++)
@@ -826,23 +827,24 @@
                                     </select>
                                     @errorText('consultationtype')
                                 </div>
+                                <!-- 親：事件分野 -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
-                                    <select name="case_category" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.case_categories') as $key => $value)
-                                            <option value="{{ $key }}" {{ $consultation->case_category == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <select id="case_category" name="case_category" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        @foreach (config('master.case_categories') as $key => $label)
+                                            <option value="{{ $key }}" @selected($consultation->case_category == $key)>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                     @errorText('case_category')
                                 </div>
+                            
+                                <!-- 子：事件分野（詳細） -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
-                                    <select name="case_subcategory" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.case_subcategories') as $key => $value)
-                                            <option value="{{ $key }}" {{ $consultation->case_subcategory == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                                    <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        {{-- JSで上書き --}}
                                     </select>
                                     @errorText('case_subcategory')
                                 </div>
@@ -1041,23 +1043,24 @@
                         
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
+                                <!-- 親：流入経路 -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
-                                    <select name="route" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routes') as $key => $value)
-                                            <option value="{{ $key }}" {{ $consultation->route == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <select id="route" name="route" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        @foreach (config('master.routes') as $key => $label)
+                                            <option value="{{ $key }}" @selected($consultation->route == $key)>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                     @errorText('route')
                                 </div>
+                            
+                                <!-- 子：流入経路（詳細） -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路（詳細）</label>
-                                    <select name="routedetail" class="mt-1 p-2 border rounded w-full bg-white">
-                                        <option value="">-- 選択してください --</option>
-                                        @foreach (config('master.routedetails') as $key => $value)
-                                            <option value="{{ $key }}" {{ $consultation->routedetail == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                        @endforeach
+                                    <select id="routedetail" name="routedetail" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- 未選択 --</option>
+                                        {{-- JSで上書き --}}
                                     </select>
                                     @errorText('routedetail')
                                 </div>
@@ -1302,6 +1305,53 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ▼ 流入経路、事件分野の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        casedetail: @json($casedetailOptions ?? []),
+        // 他の動的セレクトがあればここに追加
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'route', 'routedetail',
+        'routedetail',
+        "{{ old('routedetail', optional($consultation ?? null)->routedetail) }}"
+    );
+
+    setupDependentSelect(
+        'case_category', 'case_subcategory',
+        'casedetail',
+        "{{ old('case_subcategory', optional($consultation ?? null)->case_subcategory) }}"
+    );
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
+
 
 });
 </script>

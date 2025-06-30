@@ -83,6 +83,9 @@ return [
     
         // ✅ FortifyServiceProvider を追加
         App\Providers\FortifyServiceProvider::class,
+
+        // ✅ ViewServiceProvider を追加
+        App\Providers\ViewServiceProvider::class,
     ],
 
 ];

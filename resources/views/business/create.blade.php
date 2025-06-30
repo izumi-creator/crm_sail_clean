@@ -109,14 +109,14 @@
                 </div>
                 <!-- 事件概要 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1"><span class="text-red-500">*</span>事件概要</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
                     <textarea name="case_summary" rows="4" maxlength="1000"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('case_summary') }}</textarea>
                     @errorText('case_summary')
                 </div>
                 <!-- 特記事項 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">特記事項</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">特記事項</label>
                     <textarea name="special_notes" rows="4" maxlength="1000"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
@@ -152,32 +152,28 @@
                     </select>
                     @errorText('consultationtype')
                 </div>
-                <!-- 事件分野 -->
+
+                <!-- 事件分野（親） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>事件分野
-                    </label>
-                    <select name="case_category" class="w-full p-2 border rounded bg-white required">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
+                    <select id="case_category" name="case_category" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.case_categories') as $key => $label)
                             <option value="{{ $key }}" @selected(old('case_category') == $key)>{{ $label }}</option>
                         @endforeach
                     </select>
                     @errorText('case_category')
-                </div>                
-                <!-- 事件分野（詳細） -->
+                </div>
+                <!-- 子：事件分野（詳細） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>事件分野（詳細）
-                    </label>
-                    <select name="case_subcategory" class="w-full p-2 border rounded bg-white required">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                    <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
-                        @foreach (config('master.case_subcategories') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('case_subcategory') == $key)>{{ $label }}</option>
-                        @endforeach
+                        {{-- JSで動的に上書き --}}
                     </select>
                     @errorText('case_subcategory')
                 </div>
+
                 <!-- 受任日 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>受任日</label>
@@ -282,8 +278,7 @@
                     @errorText('enddate_prospect')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold
-                    text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込（初期値）</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込（初期値）</label>
                     <input type="date" name="enddate_prospect_initialvalue" value="{{ old('enddate_prospect_initialvalue') }}" class="mt-1 p-2 border rounded w-full bg-white">
                     @errorText('enddate_prospect_initialvalue')
                 </div>                
@@ -354,32 +349,27 @@
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     流入経路
                 </div>
-                <!-- 流入経路 -->
+                <!-- 親：流入経路 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>流入経路
-                    </label>
-                    <select name="route" class="w-full p-2 border rounded bg-white required">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路</label>
+                    <select id="route" name="route" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.routes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('route') == $key)>{{ $label }}</option>
                         @endforeach
                     </select>
                     @errorText('route')
-                </div>                
-                <!-- 流入経路（詳細） -->
+                </div>
+                <!-- 子：流入経路（詳細） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>流入経路（詳細）
-                    </label>
-                    <select name="routedetail" class="w-full p-2 border rounded bg-white required">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路（詳細）</label>
+                    <select id="routedetail" name="routedetail" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
-                        @foreach (config('master.routedetails') as $key => $label)
-                            <option value="{{ $key }}" @selected(old('routedetail') == $key)>{{ $label }}</option>
-                        @endforeach
+                        {{-- JSで動的に上書き --}}
                     </select>
                     @errorText('routedetail')
                 </div>
+
                 <!-- 紹介者 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
@@ -490,6 +480,52 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ▼ 流入経路、事件分野の動的更新
+    const dynamicOptions = {
+        routedetail: @json($routedetailOptions ?? []),
+        casedetail: @json($casedetailOptions ?? []),
+        // 他の動的セレクトがあればここに追加
+    };
+
+    function setupDependentSelect(parentId, childId, optionKey, selectedValue = null) {
+        const parent = document.getElementById(parentId);
+        const child = document.getElementById(childId);
+        if (!parent || !child || !dynamicOptions[optionKey]) return;
+
+        function update() {
+            const selected = parent.value;
+            const options = dynamicOptions[optionKey][selected] || [];
+            child.innerHTML = '<option value="">-- 未選択 --</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.textContent = opt.label;
+                child.appendChild(el);
+            });
+            if (selectedValue) {
+                child.value = selectedValue;
+            }
+        }
+
+        parent.addEventListener('change', update);
+        update(); // 初期化
+    }
+
+    // ▼ 呼び出し例（初期値も渡せる）
+    setupDependentSelect(
+        'route', 'routedetail',
+        'routedetail',
+        "{{ old('routedetail', optional($business ?? null)->routedetail) }}"
+    );
+
+    setupDependentSelect(
+        'case_category', 'case_subcategory',
+        'casedetail',
+        "{{ old('case_subcategory', optional($business ?? null)->case_subcategory) }}"
+    );
+    // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
+    // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
 
 });
 </script>
