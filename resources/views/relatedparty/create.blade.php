@@ -97,16 +97,16 @@
                 </div>
                 <!-- 立場詳細 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">立場詳細</label>
-                    <input type="text" name="relatedparties_position_details" value="{{ old('relatedparties_position_details') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">立場詳細</label>
+                    <textarea name="relatedparties_position_details" rows="4" maxlength="1000"
+                              class="w-full p-2 border rounded bg-white resize-y">{{ old('relatedparties_position_details') }}</textarea>
                     @errorText('relatedparties_position_details')
                 </div>
                 <!-- 説明 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">説明</label>
-                    <input type="text" name="relatedparties_explanation" value="{{ old('relatedparties_explanation') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
+                    <textarea name="relatedparties_explanation" rows="4" maxlength="1000"
+                              class="w-full p-2 border rounded bg-white resize-y">{{ old('relatedparties_explanation') }}</textarea>
                     @errorText('relatedparties_explanation')
                 </div>
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">

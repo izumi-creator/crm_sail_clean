@@ -32,7 +32,7 @@
         <!-- 氏名（2カラム使用） -->
        <div>
            <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> 氏名
+                氏名
           </label>
             <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $user->name ?: '&nbsp;' !!}
@@ -42,7 +42,7 @@
         <!-- ユーザID -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> ユーザID（ログインID）
+                ユーザID（ログインID）
             </label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                     {!! $user->user_id ?: '&nbsp;' !!}
@@ -51,7 +51,7 @@
         <!-- 従業員区分 -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 従業員区分
+                従業員区分
            </label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                     {!! config('master.employee_types')[$user->employee_type] ?? '&nbsp;' !!}
@@ -67,7 +67,7 @@
         <!-- システム権限（左カラムだけに表示） -->
         <div>
              <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> システム権限
+                システム権限
             </label>
                <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! config('master.role_types')[$user->role_type] ?? '&nbsp;' !!}

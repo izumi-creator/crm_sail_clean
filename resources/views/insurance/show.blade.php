@@ -89,12 +89,10 @@
                {!! $insurance->email2 ?: '&nbsp;' !!}
                </div>
         </div>
-            <!-- 備考 -->
-            <div class="col-span-2">
-                <label class="font-bold">備考</label>
-               <div class="mt-1 p-2 border rounded bg-gray-50">
-               {!! $insurance->importantnotes ?: '&nbsp;' !!}
-               </div>
+        <!-- 備考 -->
+        <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
+            <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $insurance->importantnotes }}</pre>
         </div>
     </div>
     </div>
@@ -208,8 +206,7 @@
                     <!-- 備考 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                        <input type="text" name="importantnotes" value="{{ $insurance->importantnotes }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $insurance->importantnotes }}</textarea>
                         @errorText('importantnotes')
                     </div>
                 </div>

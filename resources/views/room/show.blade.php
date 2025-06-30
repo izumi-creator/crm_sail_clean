@@ -28,7 +28,7 @@
         <!-- 氏名（2カラム使用） -->
        <div>
            <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> 施設名
+               施設名
           </label>
             <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $room->room_name ?: '&nbsp;' !!}
@@ -38,7 +38,7 @@
         <!-- 場所 -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 場所
+                場所
             </label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! config('master.offices_id')[$room->office_id] ?? '&nbsp;' !!}
@@ -47,18 +47,16 @@
         <!-- GoogleカレンダーID -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> GoogleカレンダーID
+                GoogleカレンダーID
             </label>
             <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $room->calendar_id ?: '&nbsp;' !!}
            </div>
         </div>
-            <!-- 備考 -->
-            <div class="col-span-2">
-                <label class="font-bold">備考</label>
-               <div class="mt-1 p-2 border rounded bg-gray-50">
-               {!! $room->importantnotes ?: '&nbsp;' !!}
-               </div>
+        <!-- 備考 -->
+        <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
+            <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $room->importantnotes }}</pre>
         </div>
     </div>
     </div>
@@ -132,8 +130,7 @@
                     <!-- 備考 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                        <input type="text" name="importantnotes" value="{{ $room->importantnotes }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $room->importantnotes }}</textarea>
                         @errorText('importantnotes')
                     </div>
                 </div>

@@ -92,6 +92,80 @@
         </div>
     </div>
 
+    <!-- ✅ タスク・折衝履歴（非対称な2列構成） -->
+    <div class="border rounded-lg shadow bg-white mb-6 overflow-hidden">
+        <!-- 見出しバー -->
+        <div class="bg-sky-700 text-white px-6 py-3 border-b border-sky-800">
+            <div class="text-md font-bold">タスク・折衝履歴</div>
+        </div>
+
+        <!-- グリッド：左がタスク、右が折衝履歴 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-4 text-sm text-gray-700">
+
+            {{-- 📋 タスク一覧 --}}
+            <div>
+                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
+                    <div>📋 タスク一覧（{{ $advisory->tasks->count() }}件）</div>
+                    <a href="{{ route('task.create', [
+                        'related_party' => 3,
+                        'advisory_contract_id' => $advisory->id,
+                        'redirect_url' => route('advisory.show', ['advisory' => $advisory->id])
+                    ]) }}"
+                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
+                        追加
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
+                    @foreach ($advisory->tasks
+                        ->sortBy('deadline_date')
+                        ->sortBy('status') as $task)
+                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
+                            <div class="font-bold text-sky-700 mb-1">{{ $task->title }}</div>
+                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$task->record1] ?? '―' }}</div>
+                            <div><span class="font-semibold">担当:</span> {{ optional($task->worker)->name }}</div>
+                            <div><span class="font-semibold">期限:</span> {{ $task->deadline_date }}</div>
+                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$task->status] ?? '―' }}</div>
+                            <div class="mt-2">
+                                <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- 📝 折衝履歴 --}}
+            <div>
+                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
+                    <div>📋 折衝履歴（{{ $advisory->negotiations->count() }}件）</div>
+                    <a href="{{ route('negotiation.create', [
+                        'related_party' => 3,
+                        'advisory_contract_id' => $advisory->id,
+                        'redirect_url' => route('advisory.show', ['advisory' => $advisory->id])
+                    ]) }}"
+                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
+                        追加
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
+                    @foreach ($advisory->negotiations
+                        ->sortBy('status') as $negotiation)
+                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
+                            <div class="font-bold text-sky-700 mb-1">{{ $negotiation->title }}</div>
+                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$negotiation->record1] ?? '―' }}</div>
+                            <div><span class="font-semibold">担当:</span> {{ optional($negotiation->worker)->name }}</div>
+                            <div><span class="font-semibold">登録日:</span> {{ $negotiation->record_date }}</div>
+                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$negotiation->status] ?? '―' }}</div>
+                            <div class="mt-2">
+                                <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- タブ切替ボタン -->
     <div class="mb-0 overflow-x-auto border-b border-gray-300 bg-gray-100 rounded-t">
         <div class="flex space-x-2 pt-2 px-6 w-fit">
@@ -101,12 +175,12 @@
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-advisory_consultations">
                 顧問相談一覧（{{ $advisory->advisoryConsultation->count() }}件）
             </button>
-            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
+            {{-- <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-task">
                 タスク一覧（{{ $advisory->tasks->count() }}件）
-            </button>
-            <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-negotiations">
+            </button> --}}
+            {{-- <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-negotiations">
                 折衝履歴一覧（{{ $advisory->negotiations->count() }}件）
-            </button>
+            </button> --}}
             <button class="tab-btn px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-t" data-tab="tab-documents">
                 会計一覧（ダミー）
             </button>

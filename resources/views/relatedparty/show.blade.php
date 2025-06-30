@@ -73,17 +73,13 @@
 
                 <!-- 立場詳細 -->
                 <div class="col-span-2">
-                    <label class="font-bold">立場詳細</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_position_details ?: '&nbsp;' !!}
-                    </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">立場詳細</label>
+                    <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $relatedparty->relatedparties_position_details }}</pre>
                 </div>
                 <!-- 説明 -->
                 <div class="col-span-2">
-                    <label class="font-bold">説明</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->relatedparties_explanation ?: '&nbsp;' !!}
-                    </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
+                    <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $relatedparty->relatedparties_explanation }}</pre>
                 </div>
 
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
@@ -372,15 +368,13 @@
                     <!-- 立場詳細 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">立場詳細</label>
-                        <input type="text" name="relatedparties_position_details" value="{{ $relatedparty->relatedparties_position_details }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <textarea name="relatedparties_position_details" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $relatedparty->relatedparties_position_details }}</textarea>
                         @errorText('relatedparties_position_details')
                     </div>
                     <!-- 説明 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
-                        <input type="text" name="relatedparties_explanation" value="{{ $relatedparty->relatedparties_explanation }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <textarea name="relatedparties_explanation" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $relatedparty->relatedparties_explanation }}</textarea>
                         @errorText('relatedparties_explanation')
                     </div>
 

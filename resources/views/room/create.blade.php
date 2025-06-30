@@ -60,7 +60,9 @@
 
                 <!-- GoogleカレンダーID -->
                 <div>
-                    <label class="block font-semibold mb-1">GoogleカレンダーID<span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <span class="text-red-500">*</span>GoogleカレンダーID
+                    </label>
                     <input type="text" name="calendar_id" value="{{ old('calendar_id') }}"
                            class="w-full p-2 border rounded bg-white">
                     @errorText('calendar_id')
@@ -68,9 +70,9 @@
                 
                 <!-- 備考 -->
                 <div class="col-span-2">
-                    <label class="block font-semibold mb-1">備考</label>
-                    <input type="text" name="importantnotes" value="{{ old('importantnotes') }}"
-                           class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
+                    <textarea name="importantnotes" rows="4" maxlength="1000"
+                              class="w-full p-2 border rounded bg-white resize-y">{{ old('importantnotes') }}</textarea>
                     @errorText('importantnotes')
                 </div>
             </div>

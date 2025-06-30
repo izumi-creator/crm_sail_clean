@@ -28,7 +28,7 @@
         <!-- 氏名（2カラム使用） -->
        <div>
            <label class="block text-sm font-semibold text-gray-700 mb-1">
-               <span class="text-red-500">*</span> 裁判所名
+               裁判所名
           </label>
             <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $court->court_name ?: '&nbsp;' !!}
@@ -38,7 +38,7 @@
         <!-- 裁判所区分 -->
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                <span class="text-red-500">*</span> 裁判所区分
+                裁判所区分
             </label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! config('master.court_types')[$court->court_type] ?? '&nbsp;' !!}
@@ -70,10 +70,8 @@
         <div></div>
         <!-- 備考 -->
         <div class="col-span-2">
-            <label class="font-bold">備考</label>
-               <div class="mt-1 p-2 border rounded bg-gray-50">
-               {!! $court->importantnotes ?: '&nbsp;' !!}
-               </div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
+            <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $court->importantnotes }}</pre>
         </div>
     </div>
     </div>
@@ -162,8 +160,7 @@
                     <!-- 備考 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                        <input type="text" name="importantnotes" value="{{ $court->importantnotes }}"
-                               class="w-full p-2 border rounded bg-white">
+                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $court->importantnotes }}</textarea>
                         @errorText('importantnotes')
                     </div>
                 </div>
