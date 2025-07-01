@@ -55,6 +55,39 @@
                     <span class="font-semibold">担当パラリーガル:</span>
                     <span class="ml-2">{!! optional($consultation->paralegal)->name ?: '&nbsp;' !!}</span>
                 </div>
+                <div>
+                    <span class="font-semibold">利益相反:</span>
+                
+                    @php
+                        $confliction = $consultation->opponent_confliction ?? 0;
+                        $conflictionDate = $consultation->opponent_confliction_date;
+                        $labels = config('master.opponent_conflictions');
+                
+                        // 表示用の色を決定
+                        $colorClass = match ((int)$confliction) {
+                            1 => 'text-green-700',
+                            2 => 'text-red-700',
+                            3 => 'text-orange-600',
+                            default => 'text-gray-500',
+                        };
+                    @endphp
+
+                    <span class="ml-2 font-semibold {{ $colorClass }}">
+                        {{ $labels[$confliction] ?? '未実施' }}
+                    </span>
+                
+                    @if ($conflictionDate)
+                        <span class="ml-2 text-sm text-gray-600">
+                            （{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）
+                        </span>
+                    @endif
+                    
+                    <a href="#"
+                       onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');"
+                       class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">
+                        利益相反検索
+                    </a>
+                </div>
             @else
                 <!-- 法人クライアント用表示 -->
                 <div class="col-span-2">
@@ -87,6 +120,39 @@
                 <div>
                     <span class="font-semibold">担当パラリーガル:</span>
                     <span class="ml-2">{!! optional($consultation->paralegal)->name ?: '&nbsp;' !!}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">利益相反:</span>
+                
+                    @php
+                        $confliction = $consultation->opponent_confliction ?? 0;
+                        $conflictionDate = $consultation->opponent_confliction_date;
+                        $labels = config('master.opponent_conflictions');
+                
+                        // 表示用の色を決定
+                        $colorClass = match ((int)$confliction) {
+                            1 => 'text-green-700',
+                            2 => 'text-red-700',
+                            3 => 'text-orange-600',
+                            default => 'text-gray-500',
+                        };
+                    @endphp
+                
+                    <span class="ml-2 font-semibold {{ $colorClass }}">
+                        {{ $labels[$confliction] ?? '未実施' }}
+                    </span>
+                
+                    @if ($conflictionDate)
+                        <span class="ml-2 text-sm text-gray-600">
+                            （{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）
+                        </span>
+                    @endif
+                    
+                    <a href="#"
+                       onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');"
+                       class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">
+                        利益相反検索
+                    </a>
                 </div>
             @endif
         </div>
@@ -235,12 +301,6 @@
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $consultation->inquirycontent }}</pre>
-                    </div>
-                    <div>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $consultation->opponent_confliction ? 'checked' : '' }}>
-                            <span class="ml-2 text-sm text-gray-700">利益相反確認</span>
-                        </label>
                     </div>
 
                     <div class="col-span-2 mt-2 -mx-6">
@@ -672,7 +732,10 @@
             <form method="POST" action="{{ route('consultation.update', $consultation->id) }}">
                 @csrf
                 @method('PUT')
-            
+
+                <input type="hidden" name="_modal" value="edit">
+                <input type="hidden" name="opponent_confliction" value="{{ $consultation->opponent_confliction }}">
+
                 <!-- モーダル見出し -->
                 <div class="bg-amber-600 text-white px-4 py-2 font-bold border-b">相談編集</div>
 
@@ -735,16 +798,6 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>お問合せ内容</label>
                         <textarea name="inquirycontent" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $consultation->inquirycontent }}</textarea>
                         @errorText('inquirycontent')
-                    </div>
-                    <div>
-                        <label class="inline-flex items-center">
-                            <input type="hidden" name="opponent_confliction" value="0">
-                            <input type="checkbox" name="opponent_confliction" value="1"
-                                {{ $consultation->opponent_confliction == 1 ? 'checked' : '' }}
-                                class="form-checkbox text-blue-600">
-                            <span class="ml-2 text-sm text-gray-700">利益相反確認</span>
-                        </label>
-                        @errorText('opponent_confliction')
                     </div>
                     <div class="col-span-2 mt-2 -mx-6">
 
@@ -1195,7 +1248,131 @@
             </form>
         </div>
     </div>
+
+    <!-- 利益相反チェックモーダル -->
+    <div id="conflictModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white shadow-lg w-full max-w-3xl rounded max-h-[90vh] overflow-y-auto">
+            <form method="POST" action="{{ route('consultation.conflict.update', $consultation->id) }}">
+                @csrf
             
+                <input type="hidden" name="_modal" value="conflict">
+
+                <!-- 見出し -->
+                <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">利益相反チェック</div>
+
+
+                <!-- ✅ エラーボックスをgrid外に出す -->
+                @if ($errors->any())
+                <div class="p-6 pt-4 -mb-4 text-sm">
+                    <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
+                        <ul class="list-disc pl-6">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                <div class="bg-blue-50 border-blue-300 text-gray-800 text-sm rounded px-4 py-3 mb-4">
+                    <p class="mb-1">以下の情報をもとに一致候補を自動抽出しています：</p>
+                    <ul class="list-disc list-inside pl-2 space-y-1">
+                        <li>
+                            <span class="font-semibold">クライアント一致候補</span>は、
+                            <span class="font-semibold">クライアント名（漢字・かな）</span>または
+                            <span class="font-semibold">取引責任者（漢字・かな）</span>と一致したものです。
+                        </li>
+                        <li>
+                            <span class="font-semibold">関係者一致候補</span>は、
+                            <span class="font-semibold">関係者名（漢字・かな）</span>または
+                            <span class="font-semibold">担当者名（漢字・かな）</span>と一致したものです。
+                        </li>
+                        <li>
+                            該当する候補が表示された場合は、
+                            <span class="font-semibold">詳細画面で内容をご確認の上、利益相反確認結果を入力</span>してください。
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 内容 -->
+                <div class="px-6 py-4 text-sm text-gray-800">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-gray-700">
+                            クライアント一致候補（{{ count($matchedClients) }}件）
+                        </h3>
+                        @if (count($matchedClients) > 0)
+                            <ul class="list-disc pl-6 text-sm text-gray-600">
+                                @foreach ($matchedClients as $client)
+                                    <li>
+                                        {{ $client->name_kanji }}（{{ $client->name_kana }}）
+                                        <a href="{{ route('client.show', $client->id) }}" class="text-blue-500 ml-2" target="_blank">詳細</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-sm text-gray-500 mt-1">一致するクライアントはありません。</p>
+                        @endif
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-gray-700">
+                            関係者一致候補（{{ count($matchedRelatedParties) }}件）
+                        </h3>
+                        @if (count($matchedRelatedParties) > 0)
+                            <ul class="list-disc pl-6 text-sm text-gray-600">
+                                @foreach ($matchedRelatedParties as $rp)
+                                    <li>
+                                        {{ $rp->relatedparties_name_kanji }}（{{ $rp->relatedparties_name_kana }}）
+                                        <a href="{{ route('relatedparty.show', $rp->id) }}" class="text-blue-500 ml-2" target="_blank">詳細</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-sm text-gray-500 mt-1">一致する関係者はありません。</p>
+                        @endif
+                    </div>
+                
+                    {{-- 結果入力 --}}
+                    <div class="mb-4">
+                        <label class="block font-semibold text-sm mb-1">利益相反確認結果</label>
+                        <select name="opponent_confliction" class="w-full border rounded p-2">
+                            <option value="">-- 選択してください --</option>
+                            @foreach(config('master.opponent_conflictions') as $key => $label)
+                                @if($key != '0')
+                                    <option value="{{ $key }}" {{ $consultation->opponent_confliction == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    @if ($consultation->opponent_confliction_date)
+                        <div class="mb-4">
+                            <label class="block font-semibold text-sm text-gray-700 mb-1">前回実施日</label>
+                            <div class="p-2 bg-gray-100 border rounded text-sm">
+                                {{ \Carbon\Carbon::parse($consultation->opponent_confliction_date)->format('Y/m/d') }}
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <div class="mb-4">
+                        <label class="block font-semibold text-sm mb-1">実施日</label>
+                        <input type="text" class="w-full p-2 border rounded bg-gray-100" value="{{ now()->format('Y-m-d') }}" readonly>
+                    </div>
+                </div>
+            
+                <!-- フッター -->
+                <div class="flex justify-end space-x-2 px-6 pb-6">
+                    <a href="{{ route('consultation.show', $consultation->id) }}"
+                       class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px] text-center">
+                       キャンセル
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 min-w-[100px]">登録</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -1203,7 +1380,16 @@
 @if ($errors->any())
 <script>
     window.addEventListener('load', function () {
-        document.getElementById('editModal')?.classList.remove('hidden');
+        const modal = '{{ old('_modal') }}';
+
+        if (modal === 'edit') {
+            document.getElementById('editModal')?.classList.remove('hidden');
+        }
+        if (modal === 'conflict') {
+            document.getElementById('conflictModal')?.classList.remove('hidden');
+        }
+
+        // 共通：アコーディオン展開（どちらでも有効にして問題なし）
         document.querySelectorAll('.accordion-content').forEach(content => {
             content.classList.remove('hidden');
             const icon = content.previousElementSibling?.querySelector('.accordion-icon');
@@ -1211,9 +1397,9 @@
         });
     });
 </script>
+
 @endif
 
-@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 

@@ -204,20 +204,6 @@
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     関連先
                 </div>
-
-                <!-- クライアント -->
-                <div>
-                    <label class="font-bold">クライアント</label>
-                    <div class="mt-1 p-2 border rounded bg-gray-50">
-                        @if ($relatedparty->client)
-                            {{ $relatedparty->client->name_kanji }}
-                        @elseif ($relatedparty->client_id)
-                            <span class="text-gray-400 italic">（削除されたクライアント）</span>
-                        @else
-                            &nbsp;
-                        @endif
-                    </div>
-                </div>
                 <!-- 相談：件名-->
                 <div>
                     <label class="font-bold">相談：件名</label>
@@ -498,18 +484,6 @@
                         関連先
                     </div>
                     
-                    <!-- クライアントID -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
-                        <select name="client_id"
-                                class="select-client-edit w-full"
-                                data-initial-id="{{ $relatedparty->client?->id }}"
-                                data-initial-text="{{ $relatedparty->client?->name_kanji ?? '' }}">
-                            <option></option>
-                        </select>
-                        <option></option>
-                        @errorText('client_id')
-                    </div>
                     <!-- 相談: 件名 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">相談: 件名</label>
@@ -600,7 +574,6 @@
 </script>
 @endif
 
-@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 

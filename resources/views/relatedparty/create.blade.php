@@ -229,17 +229,6 @@
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                   関係先
                 </div>
-                <!-- クライアントID -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
-                    <select name="client_id"
-                        class="select-client w-full"
-                        data-old-id="{{ old('client_id') }}"
-                        data-old-text="{{ old('client_name_display') }}"> {{-- ←表示名（オプション） --}}
-                        <option></option>
-                    </select>
-                    @errorText('client_id')
-                </div>
                 <!-- 相談（select2連携：相談詳細画面から来たときは固定） -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">相談：件名</label>

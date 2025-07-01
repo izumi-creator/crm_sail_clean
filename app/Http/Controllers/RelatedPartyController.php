@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RelatedParty;
 use App\Models\Consultation;
-use App\Models\Client;
 use App\Models\Business;
 use App\Models\AdvisoryConsultation;
 use Illuminate\Validation\Rule;
@@ -63,15 +62,6 @@ class RelatedPartyController extends Controller
             }
         }
 
-        if ($request->has('client_id')) {
-            $client = Client::find($request->input('client_id'));
-            if ($client) {
-                $request->merge([
-                    'client_name_display' => $client->name_kanji,
-                ]);
-            }
-        }
-
         if ($request->has('business_id')) {
             $business = Business::find($request->input('business_id'));
             if ($business) {
@@ -91,7 +81,6 @@ class RelatedPartyController extends Controller
         }
 
         $request->validate([
-            'client_id' => 'nullable|exists:clients,id',
             'consultation_id' => 'nullable|exists:consultations,id',
             'business_id' => 'nullable|exists:businesses,id',
             'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
@@ -120,7 +109,6 @@ class RelatedPartyController extends Controller
         ]);
 
         RelatedParty::create([
-            'client_id' => $request->client_id,
             'consultation_id' => $request->consultation_id,
             'business_id' => $request->business_id,
             'advisory_consultation_id' => $request->advisory_consultation_id,
@@ -159,8 +147,8 @@ class RelatedPartyController extends Controller
     // 関係者詳細表示
     public function show(RelatedParty $relatedparty)
     {
-        $relatedparty->load(['consultation', 'client', 'business', 'advisoryConsultation']);
-    
+        $relatedparty->load(['consultation', 'business', 'advisoryConsultation']);
+
         return view('relatedparty.show', compact('relatedparty'));
     }
 
@@ -168,7 +156,6 @@ class RelatedPartyController extends Controller
     public function update(Request $request, RelatedParty $relatedparty)
     {
         $request->validate([
-            'client_id' => 'nullable|exists:clients,id',
             'consultation_id' => 'nullable|exists:consultations,id',
             'business_id' => 'nullable|exists:businesses,id',
             'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
@@ -196,7 +183,6 @@ class RelatedPartyController extends Controller
             'manager_department' => 'nullable|string|max:100',
         ]);
         $relatedparty->update([
-            'client_id' => $request->client_id,
             'consultation_id' => $request->consultation_id,
             'business_id' => $request->business_id,
             'advisory_consultation_id' => $request->advisory_consultation_id,

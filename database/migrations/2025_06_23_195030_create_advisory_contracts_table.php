@@ -13,6 +13,9 @@ return new class extends Migration {
             $table->tinyInteger('advisory_party');
             $table->string('title', 255);
             $table->tinyInteger('status');
+            // 利益相反の追加20250701
+            $table->tinyInteger('opponent_confliction')->nullable(); // 利益相反確認
+            $table->date('opponent_confliction_date')->nullable(); // 利益相反実施日
             $table->string('explanation', 1000)->nullable();
             $table->string('special_notes', 1000)->nullable();
             $table->date('advisory_start_date')->nullable();

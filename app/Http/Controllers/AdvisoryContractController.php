@@ -7,6 +7,8 @@ use App\Models\Client;
 use App\Models\AdvisoryContract;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\Negotiation;
+use App\Models\RelatedParty;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -195,8 +197,46 @@ class AdvisoryContractController extends Controller
             'negotiations',
         ]);
 
-        return view('advisory.show', compact('advisory'));
+        // クライアント情報（スペース除去した比較用文字列）
+        $clientNameKanji = preg_replace('/\s/u', '', $advisory->client->name_kanji ?? '');
+        $clientNameKana  = preg_replace('/\s/u', '', $advisory->client->name_kana ?? '');
+
+        $responsibleKanji = preg_replace('/\s/u', '', 
+            ($advisory->client->contact_last_name_kanji ?? '') . ($advisory->client->contact_first_name_kanji ?? '')
+        );
+        $responsibleKana = preg_replace('/\s/u', '', 
+            ($advisory->client->contact_last_name_kana ?? '') . ($advisory->client->contact_first_name_kana ?? '')
+        );
+
+        // クライアント一致検索（自分以外）
+        $matchedClients = Client::where('id', '!=', $advisory->client_id)
+            ->where(function ($query) use ($clientNameKanji, $clientNameKana, $responsibleKanji, $responsibleKana) {
+                $query->whereRaw("REPLACE(REPLACE(name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kanji, contact_first_name_kanji), ' ', ''), '　', '') = ?", [$clientNameKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kana, contact_first_name_kana), ' ', ''), '　', '') = ?", [$clientNameKana])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kanji, contact_first_name_kanji), ' ', ''), '　', '') = ?", [$responsibleKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kana, contact_first_name_kana), ' ', ''), '　', '') = ?", [$responsibleKana]);
+            })
+            ->get();
+
+        // 関係者一致検索
+        $matchedRelatedParties = RelatedParty::where(function ($query) use ($clientNameKanji, $clientNameKana, $responsibleKanji, $responsibleKana) {
+            $query->whereRaw("REPLACE(REPLACE(relatedparties_name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(relatedparties_name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kanji, ' ', ''), '　', '') = ?", [$responsibleKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$responsibleKana]);
+        })->get();
+
+        return view('advisory.show', compact(
+            'advisory',
+            'matchedClients',
+            'matchedRelatedParties'
+        ));
     }
+
 
     // 顧問契約編集画面
     public function update(Request $request, AdvisoryContract $advisory)
@@ -272,6 +312,9 @@ class AdvisoryContractController extends Controller
             }
 
             if (in_array((int)$request->status, [3, 5, 6])) {
+                if ((int)$request->opponent_confliction !== 1) {
+                    $validator->errors()->add('opponent_confliction', '「利益相反確認」が「問題なし」以外です。');
+                }
                 if (empty($request->advisory_start_date)) {
                     $validator->errors()->add('advisory_start_date', '「契約開始日」を入力してください。');
                 }
@@ -359,6 +402,28 @@ class AdvisoryContractController extends Controller
         $this->ensureIsAdmin();
         $advisory->delete();
         return redirect()->route('advisory.index')->with('success', '顧問契約を削除しました！');
+    }
+
+    //利益相反更新処理
+    public function conflictUpdate(Request $request, AdvisoryContract $advisory)
+    {
+        // バリデーション（利益相反確認は必須）
+        $validated = $request->validate([
+            'opponent_confliction' => 'required|in:1,2,3',
+        ], [
+            'opponent_confliction.required' => '「利益相反確認結果」は必須です。',
+            'opponent_confliction.in' => '選択された「利益相反確認結果」が不正です。',
+        ]);
+    
+        // 更新処理（date型なので today() を使用）
+        $advisory->update([
+            'opponent_confliction' => $validated['opponent_confliction'],
+            'opponent_confliction_date' => \Carbon\Carbon::today(),
+        ]);
+    
+        return redirect()
+            ->route('advisory.show', $advisory->id)
+            ->with('success', '利益相反チェック結果を更新しました。');
     }
 
     /** 顧問契約検索API */

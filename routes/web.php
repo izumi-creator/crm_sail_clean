@@ -55,6 +55,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/api/consultations/search', [ConsultationController::class, 'search'])->name('consultations.search');
 
+    Route::post('/consultation/{consultation}/conflict-check', [ConsultationController::class, 'conflictUpdate'])
+    ->name('consultation.conflict.update');
+
     //business
     Route::get('/business', [BusinessController::class, 'index'])->name('business.index');
     Route::get('/business/create', [BusinessController::class, 'create'])->name('business.create');
@@ -96,6 +99,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/api/advisories/search', [AdvisoryContractController::class, 'search'])->name('advisory.search');
 
+    Route::post('/advisory/{advisory}/conflict-check', [AdvisoryContractController::class, 'conflictUpdate'])
+    ->name('advisory.conflict.update');
+
     //advisory_consultation
     Route::get('/advisory-consultation', [AdvisoryConsultationController::class, 'index'])->name('advisory_consultation.index');
     Route::get('/advisory-consultation/create', [AdvisoryConsultationController::class, 'create'])->name('advisory_consultation.create');
@@ -105,6 +111,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/advisory-consultation/{advisory_consultation}', [AdvisoryConsultationController::class, 'destroy'])->name('advisory_consultation.destroy');
     
     Route::get('/api/advisory_consultations/search', [AdvisoryConsultationController::class, 'search'])->name('advisory_consultation.search');
+
+    Route::post('/advisory-consultation/{advisory_consultation}/conflict-check', [AdvisoryConsultationController::class, 'conflictUpdate'])
+    ->name('advisory_consultation.conflict.update');
 
     //task
     Route::get('/task', [TaskController::class, 'index'])->name('task.index');

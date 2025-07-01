@@ -30,6 +30,7 @@ class Consultation extends Model
         'case_category',
         'case_subcategory',
         'opponent_confliction',
+        'opponent_confliction_date',
         'consultation_receptiondate',
         'consultation_firstdate',
         'enddate',

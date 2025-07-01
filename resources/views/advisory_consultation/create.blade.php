@@ -117,6 +117,14 @@
                     </select>
                     @errorText('status')
                 </div>
+                <!-- 相談開始日 -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談開始日</label>
+                    <input type="date" name="consultation_start_date"
+                           value="{{ old('consultation_start_date') }}"
+                           class="w-full p-2 border rounded bg-white">
+                    @errorText('consultation_start_date')
+                </div>
                 <!-- 相談概要 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">相談概要</label>
@@ -131,24 +139,7 @@
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
                 </div>
-                 <!-- 利益相反（チェックボックス） -->
-                <div>
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" name="opponentconfliction" value="1"
-                               @checked(old('opponentconfliction') == 1)>
-                        <span class="ml-2">利益相反確認</span>
-                    </label>
-                    @errorText('opponentconfliction')
-                </div>
 
-                <!-- 相談開始日 -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談開始日</label>
-                    <input type="date" name="consultation_start_date"
-                           value="{{ old('consultation_start_date') }}"
-                           class="w-full p-2 border rounded bg-white">
-                    @errorText('consultation_start_date')
-                </div>
 
                 <!-- 小見出し：担当 -->
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">

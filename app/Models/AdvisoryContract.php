@@ -17,6 +17,8 @@ class AdvisoryContract extends Model
         'advisory_party',
         'title',
         'status',
+        'opponent_confliction',
+        'opponent_confliction_date',
         'explanation',
         'special_notes',
         'advisory_start_date',

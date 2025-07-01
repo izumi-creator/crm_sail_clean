@@ -124,7 +124,6 @@ class AdvisoryConsultationController extends Controller
             'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_consultations_statuses'))),
-            'opponentconfliction' => 'nullable|in:' . implode(',', array_keys(config('master.opponent_conflictions'))),
             'case_summary' => 'nullable|string|max:1000',
             'special_notes' => 'nullable|string|max:1000',
             'consultation_start_date' => 'nullable|date',
@@ -155,7 +154,6 @@ class AdvisoryConsultationController extends Controller
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
             'status' => $validated['status'],
-            'opponentconfliction' => $validated['opponentconfliction'] ?? null,
             'case_summary' => $validated['case_summary'] ?? null,
             'special_notes' => $validated['special_notes'] ?? null,
             'consultation_start_date' => $validated['consultation_start_date'] ?? null,
@@ -195,7 +193,44 @@ class AdvisoryConsultationController extends Controller
             'negotiations',
         ]);
 
-        return view('advisory_consultation.show', compact('advisory_consultation'));
+        // クライアント情報（スペース除去した比較用文字列）
+        $clientNameKanji = preg_replace('/\s/u', '', $advisory_consultation->client->name_kanji ?? '');
+        $clientNameKana  = preg_replace('/\s/u', '', $advisory_consultation->client->name_kana ?? '');
+
+        $responsibleKanji = preg_replace('/\s/u', '', 
+            ($advisory_consultation->client->contact_last_name_kanji ?? '') . ($advisory_consultation->client->contact_first_name_kanji ?? '')
+        );
+        $responsibleKana = preg_replace('/\s/u', '', 
+            ($advisory_consultation->client->contact_last_name_kana ?? '') . ($advisory_consultation->client->contact_first_name_kana ?? '')
+        );
+
+        // クライアント一致検索（自分以外）
+        $matchedClients = Client::where('id', '!=', $advisory_consultation->client_id)
+            ->where(function ($query) use ($clientNameKanji, $clientNameKana, $responsibleKanji, $responsibleKana) {
+                $query->whereRaw("REPLACE(REPLACE(name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kanji, contact_first_name_kanji), ' ', ''), '　', '') = ?", [$clientNameKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kana, contact_first_name_kana), ' ', ''), '　', '') = ?", [$clientNameKana])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kanji, contact_first_name_kanji), ' ', ''), '　', '') = ?", [$responsibleKanji])
+                      ->orWhereRaw("REPLACE(REPLACE(CONCAT(contact_last_name_kana, contact_first_name_kana), ' ', ''), '　', '') = ?", [$responsibleKana]);
+            })
+            ->get();
+
+        // 関係者一致検索
+        $matchedRelatedParties = RelatedParty::where(function ($query) use ($clientNameKanji, $clientNameKana, $responsibleKanji, $responsibleKana) {
+            $query->whereRaw("REPLACE(REPLACE(relatedparties_name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(relatedparties_name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kanji, ' ', ''), '　', '') = ?", [$clientNameKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$clientNameKana])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kanji, ' ', ''), '　', '') = ?", [$responsibleKanji])
+                  ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$responsibleKana]);
+        })->get();
+
+        return view('advisory_consultation.show', compact(
+            'advisory_consultation',
+            'matchedClients',
+            'matchedRelatedParties'
+        ));
     }
 
     // 顧問相談編集画面
@@ -222,7 +257,6 @@ class AdvisoryConsultationController extends Controller
             'advisory_party' => 'required|in:' . implode(',', array_keys(config('master.advisory_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.advisory_consultations_statuses'))),
-            'opponentconfliction' => 'nullable|in:' . implode(',', array_keys(config('master.opponent_conflictions'))),
             'case_summary' => 'nullable|string|max:1000',
             'special_notes' => 'nullable|string|max:1000',
             'consultation_start_date' => 'nullable|date',
@@ -252,8 +286,8 @@ class AdvisoryConsultationController extends Controller
         $validator->after(function ($validator) use ($request) {
 
             if (in_array((int)$request->status, [2, 3, 4])) {
-                if ((int)$request->opponentconfliction !== 1) {
-                    $validator->errors()->add('opponentconfliction', '「利益相反確認」がチェックされておりません。');
+                if ((int)$request->opponent_confliction !== 1) {
+                    $validator->errors()->add('opponent_confliction', '「利益相反確認」が「問題なし」以外です。');
                 }
                 if (empty($request->case_summary)) {
                     $validator->errors()->add('case_summary', '「相談概要」を入力してください。');
@@ -296,7 +330,6 @@ class AdvisoryConsultationController extends Controller
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
             'status' => $validated['status'],
-            'opponentconfliction' => $validated['opponentconfliction'],
             'case_summary' => $validated['case_summary'],
             'special_notes' => $validated['special_notes'],
             'consultation_start_date' => $validated['consultation_start_date'],
@@ -351,6 +384,7 @@ class AdvisoryConsultationController extends Controller
             'inquirytype' => 4, // その他
             'consultationtype'  => 4, // その他
             'opponent_confliction' => 1, // 実施済
+            'opponent_confliction_date' => $advisory_consultation->opponent_confliction_date,
             'office_id' => $advisory_consultation->office_id,
             'lawyer_id' => $advisory_consultation->lawyer_id,
             'paralegal_id' => $advisory_consultation->paralegal_id,
@@ -382,6 +416,29 @@ class AdvisoryConsultationController extends Controller
         $advisory_consultation->delete();
         return redirect()->route('advisory_consultation.index')->with('success', '顧問契約を削除しました！');
     }
+
+    //利益相反更新処理
+    public function conflictUpdate(Request $request, AdvisoryConsultation $advisory_consultation)
+    {
+        // バリデーション（利益相反確認は必須）
+        $validated = $request->validate([
+            'opponent_confliction' => 'required|in:1,2,3',
+        ], [
+            'opponent_confliction.required' => '「利益相反確認結果」は必須です。',
+            'opponent_confliction.in' => '選択された「利益相反確認結果」が不正です。',
+        ]);
+    
+        // 更新処理（date型なので today() を使用）
+        $advisory_consultation->update([
+            'opponent_confliction' => $validated['opponent_confliction'],
+            'opponent_confliction_date' => \Carbon\Carbon::today(),
+        ]);
+    
+        return redirect()
+            ->route('advisory_consultation.show', $advisory_consultation->id)
+            ->with('success', '利益相反チェック結果を更新しました。');
+    }
+
 
 
     /** 顧問相談検索API */

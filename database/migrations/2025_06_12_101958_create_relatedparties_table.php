@@ -11,8 +11,7 @@ return new class extends Migration {
             $table->id(); // 関係者ID
 
             // 外部キー
-            // 20250625見直し、client_idは不要であれば後で削除
-            $table->foreignId('client_id')->nullable()->constrained();
+            // 20250630見直し、client_idは削除
             $table->foreignId('consultation_id')->nullable()->constrained();
             $table->foreignId('business_id')->nullable()->constrained();
             $table->foreignId('advisory_consultation_id')->nullable()->constrained();
@@ -46,7 +45,6 @@ return new class extends Migration {
             $table->timestamps();
 
             // インデックス
-            $table->index('client_id');
             $table->index('consultation_id');
             $table->index('business_id');
             $table->index('advisory_consultation_id');

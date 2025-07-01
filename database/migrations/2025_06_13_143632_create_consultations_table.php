@@ -29,6 +29,8 @@ return new class extends Migration {
             $table->tinyInteger('case_category')->nullable(); // 事件分野
             $table->tinyInteger('case_subcategory')->nullable(); // 事件分野（詳細）
             $table->tinyInteger('opponent_confliction')->nullable(); // 利益相反確認
+            // 利益相反実施日の追加20250701
+            $table->date('opponent_confliction_date')->nullable(); // 利益相反実施日
             $table->date('consultation_receptiondate')->nullable(); // 相談受付日
             $table->date('consultation_firstdate')->nullable(); // 初回相談日
             $table->date('enddate')->nullable(); // 終了日

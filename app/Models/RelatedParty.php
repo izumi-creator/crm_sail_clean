@@ -13,7 +13,6 @@ class RelatedParty extends Model
      * 一括代入可能な属性（フォームからの保存対象）
      */
     protected $fillable = [
-        'client_id',
         'consultation_id',
         'business_id',
         'advisory_consultation_id',
@@ -44,11 +43,6 @@ class RelatedParty extends Model
     /**
      * リレーション
      */
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
-
     public function consultation()
     {
         return $this->belongsTo(Consultation::class);

@@ -1492,7 +1492,6 @@
 </script>
 @endif
 
-@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
