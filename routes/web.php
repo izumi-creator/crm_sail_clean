@@ -16,6 +16,7 @@ use App\Http\Controllers\AdvisoryContractController;
 use App\Http\Controllers\AdvisoryConsultationController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\NegotiationController;
+use App\Http\Controllers\DashboardController;
 
 
 Route::get('/', function () {
@@ -25,7 +26,7 @@ Route::get('/', function () {
 // 認証が必要なルート
 Route::middleware(['auth', 'verified'])->group(function () {
     // dashboard
-    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // client
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');

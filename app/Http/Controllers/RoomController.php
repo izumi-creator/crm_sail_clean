@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Room;
 use Illuminate\Validation\Rule;
 
@@ -88,9 +89,19 @@ class RoomController extends Controller
         // 施設削除処理
         public function destroy(Room $room)
         {
+        try {
             $room->delete();
-            return redirect()->route('room.index')->with('success', '施設を削除しました！');
+            return redirect()->route('room.index')->with('success', '施設を削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
         }
 
-
+        }
 }

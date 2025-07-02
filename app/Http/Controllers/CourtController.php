@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Court;
 use Illuminate\Validation\Rule; 
 
@@ -96,8 +97,21 @@ class CourtController extends Controller
     // 裁判所削除処理
     public function destroy(Court $court)
     {
-        $court->delete();
-        return redirect()->route('court.index')->with('success', '裁判所を削除しました！');
+        try {
+            $court->delete();
+            return redirect()->route('court.index')->with('success', '裁判所を削除しました！');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
+
+
     }
 
     // 裁判所検索API

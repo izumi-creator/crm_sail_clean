@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Client;
 use App\Models\Consultation;
 use App\Models\Business;
@@ -305,8 +306,20 @@ class ClientController extends Controller
     public function destroy(Client $client)
     {
         $this->ensureIsAdmin();
-        $client->delete();
-        return redirect()->route('client.index')->with('success', 'クライアントを削除しました！');
+    
+        try {
+            $client->delete();
+            return redirect()->route('client.index')->with('success', 'クライアントを削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
     }
 
     // クライアント検索API

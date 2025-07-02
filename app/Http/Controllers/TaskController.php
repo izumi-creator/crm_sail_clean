@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Task;
 use App\Models\Consultation;
 use App\Models\Business;
@@ -297,8 +298,20 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $this->ensureIsAdmin();
-        $task->delete();
-        return redirect()->route('task.index')->with('success', 'タスクを削除しました！');
+
+        try {
+            $task->delete();
+            return redirect()->route('task.index')->with('success', '削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }        
     }
 
 }

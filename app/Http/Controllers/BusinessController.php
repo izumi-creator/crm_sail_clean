@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Business;
 use App\Models\Consultation;
 use App\Models\Client;
@@ -407,8 +408,20 @@ class BusinessController extends Controller
     public function destroy(Business $business)
     {
         $this->ensureIsAdmin();
-        $business->delete();
-        return redirect()->route('business.index')->with('success', '受任案件を削除しました！');
+
+        try {
+            $business->delete();
+            return redirect()->route('business.index')->with('success', '受任案件を削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
     }
 
     // 受任案件検索API

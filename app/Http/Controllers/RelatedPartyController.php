@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\RelatedParty;
 use App\Models\Consultation;
 use App\Models\Business;
@@ -217,7 +218,18 @@ class RelatedPartyController extends Controller
     public function destroy(RelatedParty $relatedparty)
     {
         $this->ensureIsAdmin(); // 管理者権限チェック
-        $relatedparty->delete();
-        return redirect()->route('relatedparty.index')->with('success', '関係者を削除しました！');
+        try {
+            $relatedparty->delete();
+            return redirect()->route('relatedparty.index')->with('success', '関係者を削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }        
     }
 }

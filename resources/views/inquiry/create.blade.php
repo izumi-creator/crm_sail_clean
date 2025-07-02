@@ -85,6 +85,30 @@
                 </div>
 
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                    担当者覧
+                </div>
+                <!-- 担当者 -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        担当者（名前で検索）
+                    </label>
+                    <select name="manager_id"
+                            class="select-user w-full p-2 border rounded bg-white"
+                            data-old-id="{{ old('manager_id') }}"
+                            data-old-text="{{ old('manager_name_display') }}">
+                            <option></option>
+                    </select>
+                    @errorText('manager_id')
+                </div>
+                <!-- 担当者記載欄 -->
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">説明（担当者記載欄）</label>
+                    <textarea name="explanation" rows="4" maxlength="1000"
+                              class="w-full p-2 border rounded bg-white resize-y">{{ old('explanation') }}</textarea>
+                    @errorText('explanation')
+                </div>
+
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                     詳細情報
                 </div>
 

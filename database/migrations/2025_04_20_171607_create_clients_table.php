@@ -74,6 +74,20 @@ return new class extends Migration
             $table->string('contact_fax', 15)->nullable();
 
             $table->timestamps(); // created_at / updated_at
+
+
+            // インデックス見直し20250702
+            $table->index('client_type');
+            $table->index('name_kanji');
+            $table->index('name_kana');
+            $table->index('phone_number');
+            $table->index('phone_number2');
+            $table->index('mobile_number');
+            $table->index('home_phone_number');
+            $table->index('first_contact_number');
+            $table->index('second_contact_number');
+            $table->index('email1');
+            $table->index('email2');
         });
     }
 

@@ -18,6 +18,15 @@
             </div>
         </div>
     </a>
+    <!-- ログアウトエリア（サイドメニュー最下部） -->
+    <div class="p-4 border-b border-gray-700">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="w-full text-left block p-0 text-base text-white hover:text-red-500 rounded">
+                <i class="fas fa-sign-out-alt mr-6"></i>ログアウト
+            </button>
+        </form>
+    </div>
     <!-- メニューエリア -->
     <div class="p-4 border-b border-gray-700 relative flex justify-between items-center">
         <p class="text-base font-bold text-gray-300">メニュー</p>
@@ -48,14 +57,4 @@
             <li class="mb-1"><a href="{{ route('consultation.create') }}" class="block p-1 text-base hover:bg-gray-700 rounded">★相談登録★</a></li>
         </ul>
     </nav>
-    <!-- ログアウトエリア（サイドメニュー最下部） -->
-    <div class="p-4 border-t border-gray-700 mt-auto">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="w-full text-left block p-0 text-base text-white hover:text-red-500 rounded">
-                <i class="fas fa-sign-out-alt mr-6"></i>ログアウト
-            </button>
-        </form>
-    </div>
-
 </aside>

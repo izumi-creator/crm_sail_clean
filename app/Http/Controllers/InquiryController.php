@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\Inquiry;
 use App\Models\Consultation;
 use Illuminate\Validation\Rule;
@@ -74,6 +75,8 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => 'nullable|string|max:10',
             'monthlyincome' => 'nullable|string|max:10',
             'lengthofservice' => 'nullable|string|max:10',
+            'manager_id' => 'nullable|exists:users,id',
+            'explanation' => 'nullable|string|max:1000',
             ],
         );
 
@@ -108,6 +111,8 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => $request->averageovertimehoursperweek,
             'monthlyincome' => $request->monthlyincome,
             'lengthofservice' => $request->lengthofservice,
+            'manager_id' => $request->manager_id,
+            'explanation' => $request->explanation,
         ]);
 
         return redirect()->route('inquiry.index')->with('success', '問合せを追加しました！');
@@ -119,6 +124,7 @@ class InquiryController extends Controller
 
         $inquiry->load([
             'consultation',
+            'manager',
         ]);
 
 
@@ -150,9 +156,9 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => 'nullable|string|max:10',
             'monthlyincome' => 'nullable|string|max:10',
             'lengthofservice' => 'nullable|string|max:10',
-            // 一時的にexistsをコメントアウト
-            // 'consultation_id' => 'nullable|exists:consultations,id',
-            'consultation_id' => 'nullable|integer',
+            'manager_id' => 'required|exists:users,id',
+            'explanation' => 'nullable|string|max:1000',
+            'consultation_id' => 'nullable|exists:consultations,id',
             ],
         );
 
@@ -187,6 +193,8 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => $request->averageovertimehoursperweek,
             'monthlyincome' => $request->monthlyincome,
             'lengthofservice' => $request->lengthofservice,
+            'manager_id' => $request->manager_id,
+            'explanation' => $request->explanation,
             'consultation_id' => $request->consultation_id,
 
         ]);
@@ -198,8 +206,19 @@ class InquiryController extends Controller
     public function destroy(Inquiry $inquiry)
     {
         $this->ensureIsAdmin();
-        $inquiry->delete();
-        return redirect()->route('inquiry.index')->with('success', '問合せを削除しました！');
+        try {
+            $inquiry->delete();
+            return redirect()->route('inquiry.index')->with('success', '削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
     }
 
 }

@@ -29,11 +29,20 @@
                         class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
                         required>
                     <option value="">＜データ選択＞</option>
-                    <option value="clients">クライアント管理</option>
-                    <option value="users">スタッフ管理</option>
+                    <option value="clients">クライアント</option>
+                    <option value="inquiries">問合せ</option>
+                    <option value="consultations">相談</option>
+                    <option value="businesses">受任案件</option>
+                    <option value="advisory_contracts">顧問契約</option>
+                    <option value="advisory_consultations">顧問相談</option>
+                    <option value="related_parties">関係者</option>
+                    <option value="tasks">タスク</option>
+                    <option value="negotiations">折衝履歴</option>
+                    <option value="court_tasks">裁判所タスク</option>
                     <option value="insurances">保険会社マスタ</option>
                     <option value="courts">裁判所マスタ</option>
-                    <option value="rooms">施設管理</option>
+                    <option value="users">スタッフ</option>
+                    <option value="rooms">施設</option>
                 </select>
             </div>
         

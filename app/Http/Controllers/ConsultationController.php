@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+
 use App\Models\Consultation;
 use App\Models\Client;
 use App\Models\User;
@@ -557,8 +559,19 @@ class ConsultationController extends Controller
     public function destroy(Consultation $consultation)
     {
         $this->ensureIsAdmin();
-        $consultation->delete();
-        return redirect()->route('consultation.index')->with('success', '相談を削除しました！');
+        try {
+            $consultation->delete();
+            return redirect()->route('consultation.index')->with('success', '相談を削除しました');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
     }
 
     //利益相反更新処理

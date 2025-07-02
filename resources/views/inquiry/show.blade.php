@@ -64,6 +64,20 @@
             </div>
 
             <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                担当者覧
+            </div>
+            <!-- 担当者 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">担当者</label>
+                <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($inquiry->manager)->name ?: '&nbsp;' !!}</div>
+            </div>
+            <!-- 説明 -->
+            <div class="col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">説明（担当者記載欄）</label>
+                <pre class="mt-1 p-2 min-h-[100px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $inquiry->explanation }}</pre>
+            </div>
+
+            <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
                 詳細情報
             </div>
             <!-- 氏名（2カラム使用） -->
@@ -297,6 +311,29 @@
                         @errorText('routedetail')
                     </div>
 
+
+                    <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
+                        担当者覧
+                    </div>
+                    <!-- 担当者 -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当者</label>
+                        <select name="manager_id"
+                                class="select-user-edit w-full"
+                                data-initial-id="{{ $inquiry->manager_id }}"
+                                data-initial-text="{{ optional($inquiry->manager)->name }}">
+                            <option></option>
+                        </select>
+                        @errorText('manager_id')
+                    </div>
+                    <!-- 説明 -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
+                        <textarea name="explanation" rows="3" maxlength="1000"
+                                  class="w-full p-2 border rounded bg-white resize-y">{{ $inquiry->explanation }}</textarea>
+                        @errorText('explanation')
+                    </div>
+                    
                     <div class="col-span-2 bg-orange-300 py-2 px-6 -mx-6">
                         詳細情報
                     </div>

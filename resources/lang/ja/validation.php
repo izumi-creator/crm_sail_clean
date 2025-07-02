@@ -150,6 +150,7 @@ return [
         'lengthofservice' => '勤続年数',
         'receptiondate' => '受付日',
         'status' => 'ステータス',
+        'manager_id' => '担当者',
         'client_id' => 'クライアント',
         'consultation_id' => '相談',
         'business_id' => '受任案件',

@@ -33,6 +33,8 @@ class Inquiry extends Model
         'averageovertimehoursperweek',
         'monthlyincome',
         'lengthofservice',
+        'manager_id',
+        'explanation',
         'consultation_id',
     ];
 
@@ -48,5 +50,12 @@ class Inquiry extends Model
     public function consultation()
     {
         return $this->belongsTo(Consultation::class);
+    }
+    /**
+     * ユーザとのリレーション
+     */
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 }

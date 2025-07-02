@@ -61,8 +61,9 @@
                 <thead class="sticky top-0 bg-sky-700 text-white z-10 text-sm shadow-md border-b border-gray-300">
                     <tr>
                         <th class="border p-2 w-1/12">ID</th>
-                        <th class="border p-2 w-4/12">お名前（漢字）</th>
-                        <th class="border p-2 w-3/12">問合せ日時</th>
+                        <th class="border p-2 w-3/12">お名前（漢字）</th>
+                        <th class="border p-2 w-2/12">担当者</th>
+                        <th class="border p-2 w-2/12">問合せ日時</th>
                         <th class="border p-2 w-2/12">流入経路（詳細）</th>
                         <th class="border p-2 w-2/12">ステータス</th>
                     </tr>
@@ -75,6 +76,9 @@
                             <a href="{{ route('inquiry.show', $inquiry->id) }}" class="text-blue-500">
                                 {{ $inquiry->inquiries_name_kanji }}
                             </a>
+                        </td>
+                        <td class="border px-2 py-[6px] truncate">
+                            {!! optional($inquiry->manager)->name ?: '&nbsp;' !!}
                         </td>
                         <td class="border px-2 py-[6px] truncate">{{ $inquiry->receptiondate ? $inquiry->receptiondate->format('Y-m-d H:i') : '―' }}</td>
                         <td class="border px-2 py-[6px] truncate">

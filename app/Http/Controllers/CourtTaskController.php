@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\CourtTask;
 use App\Models\Court;
 use App\Models\Business;
@@ -191,9 +192,22 @@ class CourtTaskController extends Controller
     public function destroy(CourtTask $court_task)
     {
         $this->ensureIsAdmin(); // 管理者権限チェック
-        $court_task->delete();
-        return redirect(
-            url()->route('business.show', ['business' => $court_task->business_id]) . '#tab-courtTask'
+        
+        try {
+            $court_task->delete();
+            return redirect(
+                url()->route('business.show', ['business' => $court_task->business_id]) . '#tab-courtTask'
             )->with('success', '裁判所対応を削除しました！');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
+
     }        
 }

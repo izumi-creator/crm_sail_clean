@@ -38,6 +38,9 @@ return new class extends Migration {
             $table->string('monthlyincome', 10)->nullable();
             $table->string('lengthofservice', 10)->nullable();
 
+            $table->foreignId('manager_id')->nullable()->constrained('users');
+            $table->string('explanation', 1000)->nullable();
+
             $table->unsignedBigInteger('consultation_id')->nullable();
 
             $table->timestamps();
@@ -46,6 +49,7 @@ return new class extends Migration {
             $table->index('status');
             $table->index('receptiondate');
             $table->index('routedetail');
+            $table->index('manager_id');
         });
     }
 

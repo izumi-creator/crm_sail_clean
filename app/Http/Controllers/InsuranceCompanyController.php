@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use App\Models\InsuranceCompany;
 use Illuminate\Validation\Rule;
 
@@ -109,8 +110,19 @@ class InsuranceCompanyController extends Controller
     // 保険会社削除
     public function destroy(InsuranceCompany $insurance)
     {
-        $insurance->delete();
-        return redirect()->route('insurance.index')->with('success', '保険会社を削除しました！');
+        try {
+            $insurance->delete();
+            return redirect()->route('insurance.index')->with('success', '保険会社を削除しました！');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1451) {
+                return response()->view('errors.db_constraint', [
+                    'message' => '関連データがあるため削除できません。'
+                ], 500);
+            }
+        
+            // 1451以外のエラーはLaravelの例外処理に投げる
+            throw $e;
+        }
     }
 
 }
