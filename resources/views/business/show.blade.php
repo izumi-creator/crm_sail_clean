@@ -55,6 +55,10 @@
                     <span class="font-semibold">担当パラリーガル:</span>
                     <span class="ml-2">{!! optional($business->paralegal)->name ?: '&nbsp;' !!}</span>
                 </div>
+                <div>
+                    <span class="font-semibold">ステータス:</span>
+                    <span class="ml-2">{!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}</span>
+                </div>
             @else
                 <!-- 法人クライアント用表示 -->
                 <div class="col-span-2">
@@ -87,6 +91,10 @@
                 <div>
                     <span class="font-semibold">担当パラリーガル:</span>
                     <span class="ml-2">{!! optional($business->paralegal)->name ?: '&nbsp;' !!}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">ステータス:</span>
+                    <span class="ml-2">{!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}</span>
                 </div>
             @endif
         </div>

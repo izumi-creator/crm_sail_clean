@@ -88,6 +88,10 @@
                         利益相反検索
                     </a>
                 </div>
+                <div>
+                    <span class="font-semibold">ステータス:</span>
+                    <span class="ml-2">{!! $consultation->status ? config('master.consultation_statuses')[$consultation->status] : '&nbsp;' !!}</span>
+                </div>
             @else
                 <!-- 法人クライアント用表示 -->
                 <div class="col-span-2">
@@ -153,6 +157,10 @@
                        class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">
                         利益相反検索
                     </a>
+                </div>
+                <div>
+                    <span class="font-semibold">ステータス:</span>
+                    <span class="ml-2">{!! $consultation->status ? config('master.consultation_statuses')[$consultation->status] : '&nbsp;' !!}</span>
                 </div>
             @endif
         </div>
@@ -1278,12 +1286,12 @@
                     <p class="mb-1">以下の情報をもとに一致候補を自動抽出しています：</p>
                     <ul class="list-disc list-inside pl-2 space-y-1">
                         <li>
-                            <span class="font-semibold">クライアント一致候補</span>は、
+                            クライアント一致候補は
                             <span class="font-semibold">クライアント名（漢字・かな）</span>または
                             <span class="font-semibold">取引責任者（漢字・かな）</span>と一致したものです。
                         </li>
                         <li>
-                            <span class="font-semibold">関係者一致候補</span>は、
+                            関係者一致候補は、
                             <span class="font-semibold">関係者名（漢字・かな）</span>または
                             <span class="font-semibold">担当者名（漢字・かな）</span>と一致したものです。
                         </li>

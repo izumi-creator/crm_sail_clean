@@ -339,15 +339,6 @@ class AdvisoryContractController extends Controller
                 }
             }
 
-            if (in_array((int)$request->status, [5, 6])) {
-                if (empty($request->gift)) {
-                    $validator->errors()->add('gift', '「ギフト」を入力してください。');
-                }
-                if (empty($request->newyearscard)) {
-                    $validator->errors()->add('newyearscard', '「年賀状」を入力してください。');
-                }
-            }
-
         });
 
         $validated = $validator->validate();
