@@ -33,6 +33,7 @@ return [
         'employee_type' => '従業員区分',
         'office_id' => '所属事務所',
         'role_type' => 'システム権限',
+        'user_status' => 'システム利用区分',
         'phone_number' => '電話番号',
         'phone_number2' => '電話番号2',
         'email' => 'メールアドレス',

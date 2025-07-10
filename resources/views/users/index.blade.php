@@ -65,8 +65,9 @@
                         <th class="border p-2 w-1/12">ID</th>
                         <th class="border p-2 w-3/12">氏名</th>
                         <th class="border p-2 w-2/12">役職</th>
-                        <th class="border p-2 w-3/12">所属事務所</th>
-                        <th class="border p-2 w-3/12">システム権限</th>
+                        <th class="border p-2 w-2/12">所属事務所</th>
+                        <th class="border p-2 w-2/12">システム利用区分</th>
+                        <th class="border p-2 w-2/12">システム権限</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
@@ -83,6 +84,9 @@
                         </td>
                         <td class="border px-2 py-[6px] truncate">
                             {{ config('master.offices')[$user->office_id] ?? '未設定' }}
+                        </td>
+                        <td class="border px-2 py-[6px] truncate">
+                            {{ config('master.user_statuses')[$user->user_status] ?? '未設定' }}
                         </td>
                         <td class="border px-2 py-[6px] truncate">
                             {{ config('master.role_types')[$user->role_type] ?? '未設定' }}

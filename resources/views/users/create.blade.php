@@ -94,7 +94,20 @@
                     </select>
                     @errorText('role_type')
                 </div>
-                <div></div>
+
+                <!-- システム利用区分 -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <span class="text-red-500">*</span>システム利用区分
+                    </label>
+                        <select name="user_status" class="w-full p-2 border rounded bg-white">
+                        <option value="">-- 未選択 --</option>
+                        @foreach (config('master.user_statuses') as $key => $label)
+                            <option value="{{ $key }}" @selected(old('user_status') == $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @errorText('user_status')
+                </div>                
 
                 <!-- 電話番号 -->
                 <div>

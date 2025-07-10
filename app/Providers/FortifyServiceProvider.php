@@ -9,6 +9,7 @@ use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request; // ✅ 追加
 use Illuminate\Support\Facades\View;
+use Illuminate\Validation\ValidationException;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,10 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(function () {
             return view('auth.login');
         });
+
+        Fortify::username(function () {
+            return 'user_id';
+        });
     
         Fortify::authenticateUsing(function ($request) {
     
@@ -46,6 +51,18 @@ class FortifyServiceProvider extends ServiceProvider
                 return null;
             }
     
+            // 🔽 利用不可ステータスのユーザーはログイン拒否
+            if (in_array($user->user_status, [2, 3, 4])) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => match ($user->user_status) {
+                        2 => 'このアカウントは退職済のため、ログインできません。',
+                        3 => 'このアカウントは休職中のため、ログインできません。',
+                        4 => 'このアカウントは現在利用できません。',
+                        default => 'このアカウントはログインできません。',
+                    }
+                ]);
+            }
+
             return $user;
         });
 

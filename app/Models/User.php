@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use App\Traits\UserTracking;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, UserTracking;
 
     /**
      * 一括代入可能な属性（フォームからの保存対象）
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'password',
         'employee_type',
         'role_type',
+        'user_status',
         'office_id',
         'phone_number',
         'phone_number2',

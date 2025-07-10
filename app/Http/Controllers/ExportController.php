@@ -62,7 +62,7 @@ class ExportController extends Controller
                     '取引先責任者_姓（漢字）', '取引先責任者_名（漢字）', '取引先責任者_姓（ふりがな）', '取引先責任者_名（ふりがな）', 
                     '取引先責任者_電話番号', '取引先責任者_携帯電話', '取引先責任者_自宅電話番号', 
                     '取引先責任者_メールアドレス1', '取引先責任者_メールアドレス2', '取引先責任者_FAX', 
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'client_type' => 'client_types',
@@ -83,14 +83,15 @@ class ExportController extends Controller
                 'excluded' => ['password', 'remember_token'],
                 'headers' => [
                     'ID', 'ユーザID', '氏名', 
-                    '従業員区分', 'システム権限', '所属事務所',
+                    '従業員区分', 'システム権限', 'システム利用区分', '所属事務所',
                     'メールアドレス1',  'メールアドレス2',
                     '電話番号1', '電話番号2',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'employee_type' => 'employee_types',
                     'role_type'     => 'role_types',
+                    'user_status'     => 'user_statuses',                    
                     'office_id'     => 'offices',
                 ],
             ],
@@ -105,7 +106,7 @@ class ExportController extends Controller
                     '会社名', '電話番号', 'メールアドレス', '都道府県', '第一希望日', '第二希望日',
                     'お問合せ内容', '流入経路', '流入経路（詳細）',
                     '1週間当たりの平均残業時間', '月収', '勤続年数', '担当者ID', '説明', '相談ID',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'status'  => 'inquiry_status',
@@ -125,7 +126,7 @@ class ExportController extends Controller
                     '携帯', '電話', '電話2', 'Fax', 'メール', 'メール2',
                     '郵便番号', '住所', '住所2', '勤務先',
                     '担当者名（漢字）', '担当者名（ふりがな）', '役職', '部署',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'relatedparties_party'    => 'relatedparties_parties',
@@ -151,7 +152,7 @@ class ExportController extends Controller
                     '担当パラリーガルID', '担当パラリーガル2ID', '担当パラリーガル3ID',
                     '見込理由', '報酬体系', '売上見込', '売上見込（初期値）', '売上見込更新日',
                     '終了時期見込', '終了時期見込（初期値）', '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'consultation_party'    => 'consultation_parties',
@@ -186,7 +187,7 @@ class ExportController extends Controller
                     '支払日', '支払期間（開始）', '支払期間（終了）', '入金先口座', '入金日', '振込元口座名義', '返金日',
                     '返金先口座の金融機関名', '返金先口座名義', '臨時払いの有無', '備考',
                     '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他', 'コメント', '進捗コメント',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'consultation_party'    => 'consultation_parties',
@@ -217,7 +218,7 @@ class ExportController extends Controller
                     '担当パラリーガルID', '担当パラリーガル2ID', '担当パラリーガル3ID',
                     'ソース', 'ソース詳細', '紹介者その他',
                     'お中元お歳暮', '年賀状',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'advisory_party'        => 'advisory_parties',
@@ -243,7 +244,7 @@ class ExportController extends Controller
                     '相談概要', '特記事項', '相談開始日', '相談終了日', '解決理由',
                     '取扱事務所', '担当弁護士ID', '担当弁護士2ID', '担当弁護士3ID',
                     '担当パラリーガルID', '担当パラリーガル2ID', '担当パラリーガル3ID',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'advisory_party'        => 'advisory_parties',
@@ -266,7 +267,7 @@ class ExportController extends Controller
                     '添付名1', '添付名2', '添付名3', '添付リンク1', '添付リンク2', '添付リンク3',
                     '運送業者', '追跡番号', '電話通知チェック', '通知タイプ',
                     '宛先', '電話番号', '着信電話番号', '発信電話番号', '着信内線番号', '発信内線番号',
-                    '担当通知', 'レコード作成日', 'レコード更新日',
+                    '担当通知', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'related_party' => 'related_parties',
@@ -288,7 +289,7 @@ class ExportController extends Controller
                     '添付名1', '添付名2', '添付名3', '添付リンク1', '添付リンク2', '添付リンク3',
                     '電話通知チェック', '通知タイプ',
                     '宛先', '電話番号', '着信電話番号', '発信電話番号', '着信内線番号', '発信内線番号',
-                    '担当通知', 'レコード作成日', 'レコード更新日',
+                    '担当通知', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'related_party' => 'related_parties',
@@ -308,7 +309,7 @@ class ExportController extends Controller
                     '担当係', '担当裁判官', '担当書記官', '電話（直通）', 'FAX（直通）', 'メール（直通）',
                     'タスク分類', 'タスク名', 'タスク内容', '担当弁護士ID', '担当パラリーガルID',
                     '期限', '移動時間', 'メモ欄',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'status'        => 'court_tasks_statuses',
@@ -324,7 +325,7 @@ class ExportController extends Controller
                     'ID', '会社名', '保険会社区分',
                     '問合せ窓口1', '電話番号1', 'メール1',
                     '問合せ窓口2', '電話番号2', 'メール2',
-                    '備考', 'レコード作成日', 'レコード更新日',
+                    '備考', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'insurance_type' => 'insurance_types',
@@ -337,7 +338,7 @@ class ExportController extends Controller
                 'excluded' => [],
                 'headers' => [
                     'ID', '裁判所名', '裁判所区分', '郵便番号',
-                    '所在地', '電話番号', '備考', 'レコード作成日', 'レコード更新日',
+                    '所在地', '電話番号', '備考', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'court_type' => 'court_types',
@@ -351,7 +352,7 @@ class ExportController extends Controller
                 'headers' => [
                     'ID', '部屋名', 'GoogleカレンダーID',
                     '場所', '備考',
-                    'レコード作成日', 'レコード更新日',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'office_id' => 'offices_id',

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\UserTracking;
 
 class Business extends Model
 {
-    use HasFactory;
+    use HasFactory, UserTracking;
 
     /**
      * 一括代入可能な属性（フォームからの保存対象）
