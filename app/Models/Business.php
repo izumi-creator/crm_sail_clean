@@ -138,6 +138,15 @@ class Business extends Model
     {
         return $this->belongsTo(User::class, 'paralegal3_id');
     }
+    
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
     /**
      * 関係者とのリレーション
      */

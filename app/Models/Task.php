@@ -61,6 +61,15 @@ class Task extends Model
         return $this->belongsTo(User::class, 'worker_id');
     }
 
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     /**
      * 相談とのリレーション
      */

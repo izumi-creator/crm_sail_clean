@@ -27,6 +27,7 @@ class User extends Authenticatable
         'office_id',
         'phone_number',
         'phone_number2',
+        'slack_channel_id',
     ];
 
     /**

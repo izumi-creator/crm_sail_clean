@@ -110,6 +110,13 @@
                    {!! $user->email2 ?: '&nbsp;' !!}
                </div>
         </div>
+        <!-- SlackチャンネルID -->
+        <div>
+            <label class="font-bold">SlackチャンネルID</label>
+            <div class="mt-1 p-2 border rounded bg-gray-50">
+                {!! $user->slack_channel_id ?: '&nbsp;' !!}
+            </div>
+        </div>
     </div>
     </div>
     <!-- ✅ パスワード関連ボタン（外枠の外に表示） -->
@@ -263,6 +270,14 @@
                         <input type="email" name="email2" value="{{ $user->email2 }}"
                                class="w-full p-2 border rounded bg-white">
                         @errorText('email2')
+                    </div>
+                    <!-- SlackチャンネルID -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">SlackチャンネルID</label>
+                        <input type="text" name="slack_channel_id" value="{{ $user->slack_channel_id }}"
+                               placeholder="SlackチャンネルのIDを入力（例: C01ABCD2EFG）"
+                               class="w-full p-2 border rounded bg-white">
+                        @errorText('slack_channel_id')
                     </div>
                 </div>
             

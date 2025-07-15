@@ -15,6 +15,8 @@ use App\Models\Business;
 use App\Models\AdvisoryConsultation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\SlackBotNotificationService;
+use Illuminate\Support\Facades\Auth;
 
 class ConsultationController extends Controller
 {
@@ -220,6 +222,22 @@ class ConsultationController extends Controller
             $message = '相談・関係者を追加しました！';
         }
 
+        // ✅ Slack通知送信
+        $creatorName = optional($consultation->createdByUser)->name;
+        $url = route('consultation.show', ['consultation' => $consultation->id]);
+
+        // Botによる個別通知
+        $notifiedUsers = collect([
+            $consultation->lawyer,
+            $consultation->paralegal,
+        ])->filter();
+
+        $slackBot = app(SlackBotNotificationService::class);
+        foreach ($notifiedUsers as $user) {
+            if (!empty($user->slack_channel_id)) {
+                $slackBot->sendMessage("📝 {$message}\n相談の件名：{$consultation->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
+            }
+        }
 
         if ($request->filled('redirect_url')) {
         return redirect($request->input('redirect_url'))->with('success', $message);
@@ -478,23 +496,62 @@ class ConsultationController extends Controller
         ]);
 
         $messages = ['相談が更新されました。'];
+        $notificationMessage = null; // ← Slackメッセージ
 
         $before_status = (int) $before_status;
         $after_status = (int) $validated['status'];
 
-        if ($before_status !== 6 && $after_status === 6) {
-            $business = $this->generateBusinessFromConsultation($consultation);
+        if ($before_status !== $after_status) {
+            $statusLabels = config('master.consultation_statuses');
         
-            if ($business->wasRecentlyCreated) {
-                $messages[] = "▶ 受任案件が新規作成されました（案件ID: #{$business->id}）。";
-            
-                $count = RelatedParty::where('consultation_id', $consultation->id)->count();
-                if ($count > 0) {
-                    $messages[] = "▶ 関係者{$count}名に受任案件を自動設定しました。";
+            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
+            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";        
+            $updaterName = optional($consultation->updatedByUser)->name ?? '不明';
+            $url = route('consultation.show', ['consultation' => $consultation->id]);
+        
+            $notificationMessage = "📌相談ステータスが変更されました\n"
+                . "■ 件名：{$consultation->title}\n"
+                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
+                . "■ 更新者：{$updaterName}\n"
+                . "🔗 URL：{$url}";
+        
+            // ステータスが「6：受任案件へ移行」の場合は案件作成メッセージ追加
+            if ($after_status === 6) {
+                $business = $this->generateBusinessFromConsultation($consultation);
+                if ($business->wasRecentlyCreated) {
+                    $messages[] = "▶ 受任案件が新規作成されました（案件ID: #{$business->id}）。";
+                    $notificationMessage .= "\n▶ 受任案件が新規作成されました（案件ID: #{$business->id}）";
+                
+                    $count = RelatedParty::where('consultation_id', $consultation->id)->count();
+                    if ($count > 0) {
+                        $messages[] = "▶ 関係者{$count}名に受任案件を自動設定しました。";
+                        $notificationMessage .= "\n▶ 関係者{$count}名に受任案件を自動設定しました";
+                    }
+                } else {
+                    $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）。";
+                    $notificationMessage .= "\n▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）";
                 }
-            } else {
-                $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）。";
             }
+        }
+
+        // Slack送信処理（あれば）
+        if ($notificationMessage) {
+            $notifiedUsers = collect([
+                $consultation->lawyer,
+                $consultation->lawyer2,
+                $consultation->lawyer3,
+                $consultation->paralegal,
+                $consultation->paralegal2,
+                $consultation->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
+                }
+            }
+
         }
 
         return redirect()
@@ -560,8 +617,32 @@ class ConsultationController extends Controller
     {
         $this->ensureIsAdmin();
         try {
+
+            $title = $consultation->title;
             $consultation->delete();
+
+            // ✅ Slack通知送信
+            $userName = Auth::user()?->name ?? '不明';
+            $message = "🗑️ 相談を削除しました！\n相談の件名：{$title}\n削除者：{$userName}";
+
+            $notifiedUsers = collect([
+                $consultation->lawyer,
+                $consultation->lawyer2,
+                $consultation->lawyer3,
+                $consultation->paralegal,
+                $consultation->paralegal2,
+                $consultation->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($message, $user->slack_channel_id);
+                }
+            }
+
             return redirect()->route('consultation.index')->with('success', '相談を削除しました');
+
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {
                 return response()->view('errors.db_constraint', [

@@ -12,6 +12,8 @@ use App\Models\Negotiation;
 use App\Models\RelatedParty;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\SlackBotNotificationService;
+use Illuminate\Support\Facades\Auth;
 
 class AdvisoryContractController extends Controller
 {
@@ -146,7 +148,7 @@ class AdvisoryContractController extends Controller
         }
 
         // ▼ 顧問契約を作成
-        AdvisoryContract::create([
+        $advisory = AdvisoryContract::create([
             'client_id' => $validated['client_id'],
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
@@ -173,6 +175,24 @@ class AdvisoryContractController extends Controller
             'gift' => $validated['gift'],
             'newyearscard' => $validated['newyearscard'],
         ]);
+
+        // ✅ Slack通知送信
+        $creatorName = optional($advisory->createdByUser)->name;
+        $url = route('advisory.show', ['advisory' => $advisory->id]);
+        $message = "顧問契約を追加しました。";
+
+        // Botによる個別通知
+        $notifiedUsers = collect([
+            $advisory->lawyer,
+            $advisory->paralegal,
+        ])->filter();
+
+        $slackBot = app(SlackBotNotificationService::class);
+        foreach ($notifiedUsers as $user) {
+            if (!empty($user->slack_channel_id)) {
+                $slackBot->sendMessage("📝 {$message}\n顧問契約の件名：{$advisory->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
+            }
+        }
 
         if ($request->filled('redirect_url')) {
         return redirect($request->input('redirect_url'))->with('success', '顧問契約を作成しました！');
@@ -242,6 +262,9 @@ class AdvisoryContractController extends Controller
     // 顧問契約編集画面
     public function update(Request $request, AdvisoryContract $advisory)
     {
+
+        $before_status = $advisory->status;
+
 
         // ▼ クライアントから client_type を取得し advisory_party に設定
         if ($request->filled('client_id')) {
@@ -385,6 +408,46 @@ class AdvisoryContractController extends Controller
             'newyearscard' => $validated['newyearscard'],
         ]);
 
+        $notificationMessage = null; // ← Slackメッセージ
+
+        $before_status = (int) $before_status;
+        $after_status = (int) $validated['status'];
+
+        if ($before_status !== $after_status) {
+            $statusLabels = config('master.advisory_contracts_statuses');
+        
+            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
+            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
+            $updaterName = optional($advisory->updatedByUser)->name ?? '不明';
+            $url = route('advisory.show', ['advisory' => $advisory->id]);
+
+            $notificationMessage = "📌顧問契約のステータスが変更されました\n"
+                . "■ 件名：{$advisory->title}\n"
+                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
+                . "■ 更新者：{$updaterName}\n"
+                . "🔗 URL：{$url}";
+
+        // Slack送信処理（あれば）
+        if ($notificationMessage) {
+            $notifiedUsers = collect([
+                $advisory->lawyer,
+                $advisory->lawyer2,
+                $advisory->lawyer3,
+                $advisory->paralegal,
+                $advisory->paralegal2,
+                $advisory->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
+                }
+            }
+
+        }
+        }
+        
         return redirect()->route('advisory.show', $advisory->id)->with('success', '顧問契約が更新されました。');
     }
 
@@ -394,7 +457,31 @@ class AdvisoryContractController extends Controller
         $this->ensureIsAdmin();
 
         try {
+
+            $title = $advisory->title;
+
             $advisory->delete();
+
+            // ✅ Slack通知送信
+            $userName = Auth::user()?->name ?? '不明';
+            $message = "🗑️ 顧問契約を削除しました！\n顧問契約の件名：{$title}\n削除者：{$userName}";
+
+            $notifiedUsers = collect([
+                $advisory->lawyer,
+                $advisory->lawyer2,
+                $advisory->lawyer3,
+                $advisory->paralegal,
+                $advisory->paralegal2,
+                $advisory->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($message, $user->slack_channel_id);
+                }
+            }
+
             return redirect()->route('advisory.index')->with('success', '顧問契約を削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {

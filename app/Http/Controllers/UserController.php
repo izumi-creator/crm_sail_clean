@@ -77,7 +77,8 @@ class UserController extends Controller
             'phone_number2' => 'nullable|regex:/^[0-9]+$/|max:15',
             'email'         => 'nullable|email|max:255',
             'email2'        => 'nullable|email|max:255',
-            'password'      => ['required','confirmed','password_strength'],
+            'slack_channel_id'  => 'nullable|string|max:255',
+            'password'          => ['required','confirmed','password_strength'],
         ]);
     
         User::create([
@@ -90,6 +91,7 @@ class UserController extends Controller
             'phone_number2' => $request->phone_number2,
             'email' => $request->email,
             'email2' => $request->email2,
+            'slack_channel_id' => $request->slack_channel_id,
             'password' => Hash::make($request->password),
         ]);
     
@@ -117,6 +119,7 @@ class UserController extends Controller
             'phone_number2' => 'nullable|regex:/^[0-9]+$/|max:15',
             'email'         => 'nullable|email|max:255',
             'email2'        => 'nullable|email|max:255',
+            'slack_channel_id'  => 'nullable|string|max:255',
         ]);
     
         $user->update([
@@ -130,6 +133,7 @@ class UserController extends Controller
             'phone_number2' => $request->phone_number2,
             'email' => $request->email,
             'email2' => $request->email2,
+            'slack_channel_id' => $request->slack_channel_id,
         ]);
     
         return redirect()->route('users.show', $user->id)->with('success', 'ユーザ情報を更新しました！');

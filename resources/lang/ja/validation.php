@@ -39,6 +39,7 @@ return [
         'email' => 'メールアドレス',
         'email1' => 'メールアドレス1',
         'email2' => 'メールアドレス2',
+        'slack_channel_id' => 'SlackチャンネルID',
         'password' => 'パスワード',
         'insurance_name' => '保険会社名',
         'contactname' => '問合せ窓口',

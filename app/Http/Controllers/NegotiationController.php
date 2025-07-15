@@ -12,6 +12,8 @@ use App\Models\AdvisoryConsultation;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\SlackBotNotificationService;
+use Illuminate\Support\Facades\Auth;
 
 class NegotiationController extends Controller
 {
@@ -162,7 +164,7 @@ class NegotiationController extends Controller
 
         $validated = $validator->validate();
 
-        Negotiation::create([
+        $negotiation = Negotiation::create([
             'related_party' => $validated['related_party'],
             'consultation_id' => $validated['consultation_id'],
             'business_id' => $validated['business_id'],
@@ -194,6 +196,72 @@ class NegotiationController extends Controller
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
         ]);
 
+        // ✅ Slack通知送信
+        $notifiedUserIds = collect([
+            optional($negotiation->orderer)->id,
+            optional($negotiation->worker)->id,
+        ]);
+
+        switch ($negotiation->related_party) {
+            case 1:
+                $related = $negotiation->consultation;
+                break;
+            case 2:
+                $related = $negotiation->business;
+                break;
+            case 3:
+                $related = $negotiation->advisoryContract;
+                break;
+            case 4:
+                $related = $negotiation->advisoryConsultation;
+                break;
+            default:
+                $related = null;
+        }
+
+        if ($related) {
+            $notifiedUserIds = $notifiedUserIds->merge([
+                optional($related->lawyer)->id,
+                optional($related->lawyer2)->id,
+                optional($related->lawyer3)->id,
+                optional($related->paralegal)->id,
+                optional($related->paralegal2)->id,
+                optional($related->paralegal3)->id,
+            ]);
+        }
+
+        $creatorName = optional($negotiation->createdByUser)->name;
+        $url = route('negotiation.show', ['negotiation' => $negotiation->id]);
+
+
+        // リレーション取得
+        switch ($negotiation->related_party) {
+            case 1: $related = $negotiation->consultation; break;
+            case 2: $related = $negotiation->business; break;
+            case 3: $related = $negotiation->advisoryContract; break;
+            case 4: $related = $negotiation->advisoryConsultation; break;
+            default: $related = null;
+        }
+
+        // 関連先名と件名
+        $relatedTypeName = config('master.related_parties')[$negotiation->related_party] ?? '不明';
+        $relatedTitle = $related->title ?? '';
+        $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
+        $ordererName = optional($negotiation->orderer)->name ?? '（なし）';
+        $workerName = optional($negotiation->worker)->name ?? '（なし）';
+        $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
+        
+        $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
+
+        $message = "📌 折衝履歴を登録しました。\n折衝履歴の件名：{$negotiation->title}\n{$userDisplay}\n{$relatedDisplay}\n登録者：{$creatorName}\n🔗 URL：{$url}";
+
+        $slackBot = app(SlackBotNotificationService::class);
+        foreach ($notifiedUsers as $user) {
+            if (!empty($user->slack_channel_id)) {
+                $slackBot->sendMessage($message, $user->slack_channel_id);
+            }
+        }
+
         if ($request->filled('redirect_url')) {
         return redirect($request->input('redirect_url'))->with('success', '折衝履歴を登録しました！');
         }
@@ -220,6 +288,9 @@ class NegotiationController extends Controller
     // 折衝履歴編集画面
     public function update(Request $request, Negotiation $negotiation)
     {
+
+        $before_status = $negotiation->status;
+
         $validator = Validator::make($request->all(), [
             'record1' => 'required|in:' . implode(',', array_keys(config('master.records_1'))),
             'record2' => 'required|in:' . implode(',', array_keys(config('master.records_2'))),
@@ -276,6 +347,85 @@ class NegotiationController extends Controller
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
         ]);
 
+        // ✅ Slack通知送信
+        $before_status = (int) $before_status;
+        $after_status = (int) $validated['status'];
+
+
+        if ($before_status !== $after_status) {
+            $statusLabels = config('master.task_statuses');
+
+
+            // ✅ Slack通知内容
+            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
+            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
+            $updaterName = optional($negotiation->updatedByUser)->name ?? '不明';
+            $url = route('negotiation.show', ['negotiation' => $negotiation->id]);
+
+            $notifiedUserIds = collect([
+                optional($negotiation->orderer)->id,
+                optional($negotiation->worker)->id,
+            ]);
+
+            switch ($negotiation->related_party) {
+                case 1:
+                    $related = $negotiation->consultation;
+                    break;
+                case 2:
+                    $related = $negotiation->business;
+                    break;
+                case 3:
+                    $related = $negotiation->advisoryContract;
+                    break;
+                case 4:
+                    $related = $negotiation->advisoryConsultation;
+                    break;
+                default:
+                    $related = null;
+            }
+
+            if ($related) {
+                $notifiedUserIds = $notifiedUserIds->merge([
+                    optional($related->lawyer)->id,
+                    optional($related->lawyer2)->id,
+                    optional($related->lawyer3)->id,
+                    optional($related->paralegal)->id,
+                    optional($related->paralegal2)->id,
+                    optional($related->paralegal3)->id,
+                ]);
+            }
+
+            // リレーション取得
+            switch ($negotiation->related_party) {
+                case 1: $related = $negotiation->consultation; break;
+                case 2: $related = $negotiation->business; break;
+                case 3: $related = $negotiation->advisoryContract; break;
+                case 4: $related = $negotiation->advisoryConsultation; break;
+                default: $related = null;
+            }
+
+            // 関連先名と件名
+            $relatedTypeName = config('master.related_parties')[$negotiation->related_party] ?? '不明';
+            $relatedTitle = $related->title ?? '';
+            $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
+            $ordererName = optional($negotiation->orderer)->name ?? '（なし）';
+            $workerName = optional($negotiation->worker)->name ?? '（なし）';
+            $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
+
+            $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
+
+
+            $message = "🗑️ タスクをステータスが変更されました\nタスクの件名：{$negotiation->title}\nステータス：{$beforeLabel} → {$afterLabel}\n{$userDisplay}\n{$relatedDisplay}\n更新者：{$updaterName}\n🔗 URL：{$url}";
+
+            // Slack通知送信
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($message, $user->slack_channel_id);
+                }
+            }
+        }
+
         return redirect()->route('negotiation.show', $negotiation)->with('success', '折衝履歴を更新しました！');
     }
     // 折衝履歴削除画面
@@ -283,7 +433,75 @@ class NegotiationController extends Controller
     {
         $this->ensureIsAdmin();
         try {
+
+            // ✅ Slack通知内容
+            $notifiedUserIds = collect([
+                optional($negotiation->orderer)->id,
+                optional($negotiation->worker)->id,
+            ]);
+
+            switch ($negotiation->related_party) {
+                case 1:
+                    $related = $negotiation->consultation;
+                    break;
+                case 2:
+                    $related = $negotiation->business;
+                    break;
+                case 3:
+                    $related = $negotiation->advisoryContract;
+                    break;
+                case 4:
+                    $related = $negotiation->advisoryConsultation;
+                    break;
+                default:
+                    $related = null;
+            }
+
+            if ($related) {
+                $notifiedUserIds = $notifiedUserIds->merge([
+                    optional($related->lawyer)->id,
+                    optional($related->lawyer2)->id,
+                    optional($related->lawyer3)->id,
+                    optional($related->paralegal)->id,
+                    optional($related->paralegal2)->id,
+                    optional($related->paralegal3)->id,
+                ]);
+            }
+
+            // リレーション取得
+            switch ($negotiation->related_party) {
+                case 1: $related = $negotiation->consultation; break;
+                case 2: $related = $negotiation->business; break;
+                case 3: $related = $negotiation->advisoryContract; break;
+                case 4: $related = $negotiation->advisoryConsultation; break;
+                default: $related = null;
+            }
+
+            // 関連先名と件名
+            $relatedTypeName = config('master.related_parties')[$negotiation->related_party] ?? '不明';
+            $relatedTitle = $related->title ?? '';
+            $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
+            $ordererName = optional($negotiation->orderer)->name ?? '（なし）';
+            $workerName = optional($negotiation->worker)->name ?? '（なし）';
+            $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
+
+            $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
+
             $negotiation->delete();
+
+            // 削除者の名前を取得
+            $userName = Auth::user()?->name ?? '不明';
+
+            $message = "🗑️ 折衝履歴を削除しました。\n折衝履歴の件名：{$negotiation->title}\n{$userDisplay}\n{$relatedDisplay}\n削除者：{$userName}";
+
+            // Slack通知送信
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($message, $user->slack_channel_id);
+                }
+            }
+
             return redirect()->route('negotiation.index')->with('success', '折衝履歴を削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {

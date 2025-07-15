@@ -137,6 +137,16 @@
                     @errorText('email2')
                 </div>
 
+                <!-- SlackチャンネルID -->
+                <div>
+                    <label class="block font-semibold mb-1">SlackチャンネルID</label>
+                    <input type="text" name="slack_channel_id" value="{{ old('slack_channel_id') }}"
+                           placeholder="SlackチャンネルのIDを入力（例: C01ABCD2EFG）"
+                           class="w-full p-2 border rounded bg-white">
+                    @errorText('slack_channel_id')
+                </div>
+                <div></div>
+
                 <!-- パスワード -->
                 <div>
                     <label class="block font-semibold mb-1">パスワード<span class="text-red-500">*</span></label>

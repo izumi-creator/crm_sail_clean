@@ -13,6 +13,8 @@ use App\Models\Task;
 use App\Models\CourtTask;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\SlackBotNotificationService;
+use Illuminate\Support\Facades\Auth;
 
 class BusinessController extends Controller
 {
@@ -178,7 +180,7 @@ class BusinessController extends Controller
         $client = Client::find($validated['client_id']);
         $validated['consultation_party'] = $client?->client_type ?? null;
 
-        Business::create([
+        $business = Business::create([
             'client_id' => $validated['client_id'],
             'consultation_id' => $validated['consultation_id'],
             'consultation_party' => $validated['consultation_party'],
@@ -216,6 +218,23 @@ class BusinessController extends Controller
             'progress_comment' => $validated['progress_comment'],
         ]);
 
+        // ✅ Slack通知送信
+        $creatorName = optional($business->createdByUser)->name;
+        $url = route('business.show', ['business' => $business->id]);
+        $message = "受任案件を追加しました。";
+
+        // Botによる個別通知
+        $notifiedUsers = collect([
+            $business->lawyer,
+            $business->paralegal,
+        ])->filter();
+
+        $slackBot = app(SlackBotNotificationService::class);
+        foreach ($notifiedUsers as $user) {
+            if (!empty($user->slack_channel_id)) {
+                $slackBot->sendMessage("📝 {$message}\n受任案件の件名：{$business->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
+            }
+        }
         return redirect()->route('business.index')->with('success', '受任案件を追加しました！');
     }
 
@@ -243,6 +262,8 @@ class BusinessController extends Controller
     // 受任案件編集画面
         public function update(Request $request, Business $business)
     {
+
+        $before_status = $business->status;
 
         $validator = Validator::make($request->all(), [
             'client_id' => 'nullable|exists:clients,id',
@@ -401,6 +422,48 @@ class BusinessController extends Controller
             'comment' => $validated['comment'],
             'progress_comment' => $validated['progress_comment'],
         ]);
+
+
+        $notificationMessage = null; // ← Slackメッセージ
+
+        $before_status = (int) $before_status;
+        $after_status = (int) $validated['status'];
+
+        if ($before_status !== $after_status) {
+            $statusLabels = config('master.business_statuses');
+        
+            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
+            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
+            $updaterName = optional($business->updatedByUser)->name ?? '不明';
+            $url = route('business.show', ['business' => $business->id]);
+        
+            $notificationMessage = "📌受任案件のステータスが変更されました\n"
+                . "■ 件名：{$business->title}\n"
+                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
+                . "■ 更新者：{$updaterName}\n"
+                . "🔗 URL：{$url}";
+
+        // Slack送信処理（あれば）
+        if ($notificationMessage) {
+            $notifiedUsers = collect([
+                $business->lawyer,
+                $business->lawyer2,
+                $business->lawyer3,
+                $business->paralegal,
+                $business->paralegal2,
+                $business->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
+                }
+            }
+
+        }
+        }
+
         return redirect()->route('business.show', $business->id)->with('success', '受任案件を更新しました！');
     }
 
@@ -410,7 +473,31 @@ class BusinessController extends Controller
         $this->ensureIsAdmin();
 
         try {
+
+            $title = $business->title;
+
             $business->delete();
+
+            // ✅ Slack通知送信
+            $userName = Auth::user()?->name ?? '不明';
+            $message = "🗑️ 受任案件を削除しました！\n受任案件の件名：{$title}\n削除者：{$userName}";
+
+            $notifiedUsers = collect([
+                $business->lawyer,
+                $business->lawyer2,
+                $business->lawyer3,
+                $business->paralegal,
+                $business->paralegal2,
+                $business->paralegal3,
+            ])->filter();
+
+            $slackBot = app(SlackBotNotificationService::class);
+            foreach ($notifiedUsers as $user) {
+                if (!empty($user->slack_channel_id)) {
+                    $slackBot->sendMessage($message, $user->slack_channel_id);
+                }
+            }
+
             return redirect()->route('business.index')->with('success', '受任案件を削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {
