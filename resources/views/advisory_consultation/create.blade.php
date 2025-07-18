@@ -128,14 +128,14 @@
                 <!-- 相談概要 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">相談概要</label>
-                    <textarea name="case_summary" rows="4" maxlength="1000"
+                    <textarea name="case_summary" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('case_summary') }}</textarea>
                     @errorText('case_summary')
                 </div>
                 <!-- 特記事項 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">特記事項</label>
-                    <textarea name="special_notes" rows="4" maxlength="1000"
+                    <textarea name="special_notes" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
                 </div>

@@ -81,7 +81,7 @@
                 <!-- タスク内容 -->
                 <div class="col-span-2">
                     <label class="block font-semibold mb-1">タスク内容</label>
-                    <textarea name="task_content" rows="4" maxlength="1000"
+                    <textarea name="task_content" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('task_content') }}</textarea>
                     @errorText('task_content')
                 </div>
@@ -164,7 +164,7 @@
                 <!-- メモ欄 -->
                 <div class="col-span-2">
                     <label class="block font-semibold mb-1">メモ欄</label>
-                    <textarea name="memo" rows="4" maxlength="1000"
+                    <textarea name="memo" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('memo') }}</textarea>
                     @errorText('memo')
                 </div>

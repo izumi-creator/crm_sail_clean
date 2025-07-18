@@ -65,6 +65,10 @@ class Client extends Model
         'contact_fax',
     ];
 
+    protected $casts = [
+        'birthday' => 'date',
+    ];
+
     /**
      * クライアントとのリレーション
      */

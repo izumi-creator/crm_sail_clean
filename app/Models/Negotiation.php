@@ -43,6 +43,7 @@ class Negotiation extends Model
         'naisen_to',
         'naisen_from',
         'notify_person_in',
+        'memo',
     ];
 
     /**

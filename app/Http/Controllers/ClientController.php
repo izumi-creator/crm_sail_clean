@@ -112,7 +112,7 @@ class ClientController extends Controller
                 'individual.contact_name_kanji' => 'nullable|string|max:255',
                 'individual.address_name_kana' => 'nullable|string|max:255',
                 'individual.contact_name_kana' => 'nullable|string|max:255',
-                'individual.contact_address_notes' => 'nullable|string|max:1000',
+                'individual.contact_address_notes' => 'nullable|string|max:10000',
                 'individual.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'individual.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'individual.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
@@ -161,7 +161,7 @@ class ClientController extends Controller
                 'corporate.contact_name_kanji' => 'nullable|string|max:255',
                 'corporate.address_name_kana' => 'nullable|string|max:255',
                 'corporate.contact_name_kana' => 'nullable|string|max:255',
-                'corporate.contact_address_notes' => 'nullable|string|max:1000',
+                'corporate.contact_address_notes' => 'nullable|string|max:10000',
                 'corporate.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
@@ -243,7 +243,7 @@ class ClientController extends Controller
                 'individual.contact_name_kanji' => 'nullable|string|max:255',
                 'individual.address_name_kana' => 'nullable|string|max:255',
                 'individual.contact_name_kana' => 'nullable|string|max:255',
-                'individual.contact_address_notes' => 'nullable|string|max:1000',
+                'individual.contact_address_notes' => 'nullable|string|max:10000',
                 // 他の個人用フィールドのバリデーションをここに追加
             ]);
         $data = $validated['individual'];
@@ -286,7 +286,7 @@ class ClientController extends Controller
                 'corporate.contact_name_kanji' => 'nullable|string|max:255',
                 'corporate.address_name_kana' => 'nullable|string|max:255',
                 'corporate.contact_name_kana' => 'nullable|string|max:255',
-                'corporate.contact_address_notes' => 'nullable|string|max:1000',
+                'corporate.contact_address_notes' => 'nullable|string|max:10000',
                 'corporate.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),

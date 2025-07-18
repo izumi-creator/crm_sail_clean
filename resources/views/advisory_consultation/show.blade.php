@@ -311,7 +311,7 @@
                         </div>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">相談概要</label>
                         <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $advisory_consultation->case_summary }}</pre>
                     </div>
                     <div class="col-span-2">

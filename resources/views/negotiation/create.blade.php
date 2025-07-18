@@ -253,7 +253,7 @@
                 <!-- 内容 -->
                 <div class="col-span-2">
                     <label class="block font-semibold mb-1">内容</label>
-                    <textarea name="content" rows="4" maxlength="1000"
+                    <textarea name="content" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('content') }}</textarea>
                     @errorText('content')
                 </div>
@@ -327,7 +327,7 @@
                 </div>
                 <!-- 宛先 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <label class="block font-semibold mb-1">
                         宛先
                     </label>
                     <input type="text" name="record_to" value="{{ old('record_to') }}"
@@ -336,7 +336,7 @@
                 </div>
                 <!-- 通知タイプ -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <label class="block font-semibold mb-1">
                         通知タイプ
                     </label>
                     <select name="notify_type" class="w-full p-2 border rounded bg-white required">
@@ -397,6 +397,15 @@
                             placeholder="ハイフンなしで入力（例: 0312345678）"
                            class="w-full p-2 border rounded bg-white">
                     @errorText('naisen_from')
+                </div>
+                <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
+                  メモ
+                </div>
+                <div class="col-span-2">
+                    <label class="block font-semibold mb-1">メモ欄</label>
+                    <textarea name="memo" rows="4"
+                              class="w-full p-2 border rounded bg-white resize-y">{{ old('memo') }}</textarea>
+                    @errorText('memo')
                 </div>
             </div>        
         </div>

@@ -590,6 +590,22 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-span-2 mt-2 -mx-6">
+                        <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
+                            <span>期日メモ（クリックで開閉）</span>
+                            <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content hidden pt-4 px-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">期日メモ</label>
+                                    <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $business->duedate_memo }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-span-2 mt-2 -mx-6">
                         <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
                             <span>関連先（クリックで開閉）</span>
@@ -929,7 +945,7 @@
                                     @errorText('inquirytype')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>相談形態</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談形態</label>
                                     <select name="consultationtype" class="mt-1 p-2 border rounded w-full bg-white required">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.consultation_types') as $key => $value)
@@ -952,7 +968,7 @@
                             
                                 <!-- 子：事件分野（詳細） -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
                                     <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 未選択 --</option>
                                         {{-- JSで上書き --}}
@@ -1393,6 +1409,23 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">進捗コメント</label>
                                     <input type="text" name="progress_comment" value="{{ $business->progress_comment }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('progress_comment')
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2 mt-2 -mx-6">
+                        <div class="flex items-center justify-between col-span-2 bg-orange-300 py-2 px-6 cursor-pointer accordion-toggle">
+                            <span>期日メモ（クリックで開閉）</span>
+                            <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                        </div>
+                        
+                        <div class="accordion-content hidden pt-4 px-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">期日メモ</label>
+                                    <textarea name="duedate_memo" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $business->duedate_memo }}</textarea>
+                                    @errorText('duedate_memo')
                                 </div>
                             </div>
                         </div>

@@ -265,6 +265,21 @@
 
                 <div class="col-span-2 mt-2 -mx-6">
                     <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
+                        <span>メモ（クリックで開閉）</span>
+                        <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content hidden pt-4 px-6">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">メモ欄</label>
+                                <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $task->memo }}</pre>
+                            </div>
+                       </div>
+                    </div>                   
+                </div>
+
+                <div class="col-span-2 mt-2 -mx-6">
+                    <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
                         <span>関連先情報（クリックで開閉）</span>
                         <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
                     </div>
@@ -561,7 +576,6 @@
                         </div>
                     </div>
 
-
                     <div class="col-span-2 mt-2 -mx-6">
                         <div class="flex items-center justify-between col-span-2 bg-orange-300 py-2 px-6 cursor-pointer accordion-toggle">
                             <span>電話・履歴通知（クリックで開閉）</span>
@@ -643,6 +657,22 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-span-2 mt-2 -mx-6">
+                        <div class="flex items-center justify-between col-span-2 bg-orange-300 py-2 px-6 cursor-pointer accordion-toggle">
+                            <span>メモ（クリックで開閉）</span>
+                            <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content hidden pt-4 px-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">メモ欄</label>
+                                    <textarea name="memo" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $task->memo }}</textarea>
+                                    @errorText('memo')
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
                 </div>
                 <!-- ボタン -->
                 <div class="flex justify-end space-x-2 px-6 pb-6">

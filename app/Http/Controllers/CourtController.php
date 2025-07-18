@@ -46,7 +46,7 @@ class CourtController extends Controller
         public function store(Request $request)
         {        
             $request->validate([
-                'court_name' => 'required|string|max:255',
+                'court_name' => ['required','string','max:255', Rule::unique('courts')],
                 'court_type' => 'required|in:' . implode(',', array_keys(config('master.court_types'))),
                 'postal_code' => 'nullable|regex:/^\d{3}-\d{4}$/',
                 'location' => 'nullable|string|max:255',
@@ -75,7 +75,7 @@ class CourtController extends Controller
     public function update(Request $request, Court $court)
     {
         $request->validate([
-            'court_name' => 'required|string|max:255',
+            'court_name' => ['required','string','max:255', Rule::unique('courts')->ignore($court->id)],
             'court_type' => 'required|in:' . implode(',', array_keys(config('master.court_types'))),
             'postal_code' => 'nullable|regex:/^\d{3}-\d{4}$/',
             'location' => 'nullable|string|max:255',

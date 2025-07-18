@@ -95,14 +95,14 @@
                 <!-- 事件概要 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
-                    <textarea name="explanation" rows="4" maxlength="1000"
+                    <textarea name="explanation" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('explanation') }}</textarea>
                     @errorText('explanation')
                 </div>
                 <!-- 特記事項 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">特記事項</label>
-                    <textarea name="special_notes" rows="4" maxlength="1000"
+                    <textarea name="special_notes" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
                 </div>                

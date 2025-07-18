@@ -110,14 +110,14 @@
                 <!-- 事件概要 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
-                    <textarea name="case_summary" rows="4" maxlength="1000"
+                    <textarea name="case_summary" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('case_summary') }}</textarea>
                     @errorText('case_summary')
                 </div>
                 <!-- 特記事項 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">特記事項</label>
-                    <textarea name="special_notes" rows="4" maxlength="1000"
+                    <textarea name="special_notes" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('special_notes') }}</textarea>
                     @errorText('special_notes')
                 </div>                
@@ -142,7 +142,7 @@
                 <!-- 相談形態 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>相談形態
+                        相談形態
                     </label>
                     <select name="consultationtype" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
@@ -166,7 +166,7 @@
                 </div>
                 <!-- 子：事件分野（詳細） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
                     <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         {{-- JSで動的に上書き --}}

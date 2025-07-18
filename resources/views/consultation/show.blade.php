@@ -269,6 +269,28 @@
         <div class="p-6 border rounded-lg shadow bg-white">
             <!-- 上部ボタン -->
             <div class="flex justify-end space-x-2 mb-4">
+                <button
+                    onclick="
+                        const box = document.getElementById('report-error-box');
+                        if (box) box.remove();
+                            
+                        const form = document.querySelector('#reportModal form');
+                        if (form) form.reset();
+                            
+                        // ▼ 帳票種類選択に応じた分類セレクトをクリア・非表示
+                        const wrapper = document.getElementById('report_case_type_wrapper');
+                        const caseSelect = document.getElementById('report_case_type');
+                        if (wrapper && caseSelect) {
+                            wrapper.classList.add('hidden');
+                            caseSelect.innerHTML = '';
+                            caseSelect.removeAttribute('required');
+                        }
+                    
+                        document.getElementById('reportModal').classList.remove('hidden');
+                    "
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded min-w-[100px]">
+                    帳票作成
+                </button>
                 <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded min-w-[100px]">編集</button>
                 @if (auth()->user()->role_type == 1)
                 <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded min-w-[100px]">削除</button>
@@ -803,7 +825,7 @@
                         @errorText('special_notes')
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>お問合せ内容</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
                         <textarea name="inquirycontent" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $consultation->inquirycontent }}</textarea>
                         @errorText('inquirycontent')
                     </div>
@@ -879,7 +901,7 @@
                                     @errorText('inquirytype')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>相談形態</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">相談形態</label>
                                     <select name="consultationtype" class="mt-1 p-2 border rounded w-full bg-white required">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.consultation_types') as $key => $value)
@@ -1156,7 +1178,7 @@
                                     @errorText('consultation_party')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">クライアント</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>クライアント</label>
                                     <select name="client_id"
                                             class="select-client-edit w-full"
                                             data-initial-id="{{ $consultation->client->id }}"
@@ -1381,6 +1403,69 @@
             </form>
         </div>
     </div>
+
+    <!-- 帳票作成モーダル -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white shadow-lg w-full max-w-2xl rounded max-h-[90vh] overflow-y-auto">
+            <form action="{{ route('report.create') }}" method="POST" onsubmit="setTimeout(() => document.getElementById('reportModal').classList.add('hidden'), 100)">
+                @csrf
+
+                <input type="hidden" name="_modal" value="report">
+                <input type="hidden" name="consultation_id" value="{{ $consultation->id }}">
+
+                <!-- 見出し -->
+                <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">帳票作成</div>
+
+                <!-- ✅ エラーボックス -->
+                @if ($errors->any() && old('_modal') === 'report')
+                <div id="report-error-box" class="p-6 pt-4 -mb-4 text-sm">
+                    <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
+                        <ul class="list-disc pl-6">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                <!-- 内容 -->
+                <div class="px-6 py-4 text-sm text-gray-800">
+                    <!-- 帳票の種類 -->
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">帳票の種類</label>
+                        <select name="report_type" id="report_type" class="w-full p-2 border rounded bg-white" required>
+                            <option value="">-- 選択してください --</option>
+                            @foreach (config('output_forms.report_types') as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- 帳票用案件分類（動的表示） -->
+                    <div class="mb-4 hidden" id="report_case_type_wrapper">
+                        <label class="block font-semibold mb-1">帳票用分類</label>
+                        <select name="report_case_type" id="report_case_type" class="w-full p-2 border rounded bg-white" required>
+                            <!-- JSで選択肢が生成されます -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- フッター -->
+                <div class="flex justify-end space-x-2 px-6 pb-6">
+                    <a href="{{ route('consultation.show', $consultation->id) }}"
+                       class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px] text-center">
+                       キャンセル
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 min-w-[100px]">
+                        作成
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
 @endsection
 
 @section('scripts')
@@ -1395,6 +1480,9 @@
         }
         if (modal === 'conflict') {
             document.getElementById('conflictModal')?.classList.remove('hidden');
+        }
+        if (modal === 'report') {
+            document.getElementById('reportModal')?.classList.remove('hidden');
         }
 
         // 共通：アコーディオン展開（どちらでも有効にして問題なし）
@@ -1546,6 +1634,58 @@ document.addEventListener('DOMContentLoaded', function () {
     // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
     // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
 
+    // ↓ここから帳票モーダル
+    const reportTypeSelect = document.getElementById('report_type');
+    const reportCaseTypeWrapper = document.getElementById('report_case_type_wrapper');
+    const reportCaseTypeSelect = document.getElementById('report_case_type');
+    
+    // ▼ LaravelのconfigをJSに渡す
+    const caseTypes = @json(config('output_forms.case_report_types'));
+    const contractTypes = @json(config('output_forms.contract_report_types'));
+    const invoiceTypes = @json(config('output_forms.invoice_report_types'));
+    
+    reportTypeSelect.addEventListener('change', function () {
+        const selected = this.value;
+    
+        switch (selected) {
+            case '案件':
+                updateOptions(caseTypes);
+                showCaseTypeSelect();
+                break;
+            case '契約・委任':
+                updateOptions(contractTypes);
+                showCaseTypeSelect();
+                break;
+            case '請求・精算':
+                updateOptions(invoiceTypes);
+                showCaseTypeSelect();
+                break;
+            default:
+                hideCaseTypeSelect();
+                break;
+        }
+    });
+    
+    function updateOptions(data) {
+        reportCaseTypeSelect.innerHTML = '<option value="">-- 選択してください --</option>';
+        Object.entries(data).forEach(([key, label]) => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = label;
+            reportCaseTypeSelect.appendChild(option);
+        });
+    }
+    
+    function showCaseTypeSelect() {
+        reportCaseTypeWrapper.classList.remove('hidden');
+        reportCaseTypeSelect.setAttribute('required', 'required');
+    }
+    
+    function hideCaseTypeSelect() {
+        reportCaseTypeWrapper.classList.add('hidden');
+        reportCaseTypeSelect.innerHTML = '';
+        reportCaseTypeSelect.removeAttribute('required');
+    }
 
 });
 </script>

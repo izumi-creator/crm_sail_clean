@@ -85,7 +85,7 @@
                 </div>
 
                 <div class="col-span-2 bg-blue-100 text-blue-900 font-semibold py-2 px-6 -mx-6">
-                    担当者覧
+                    担当者記載欄
                 </div>
                 <!-- 担当者 -->
                 <div>
@@ -103,7 +103,7 @@
                 <!-- 担当者記載欄 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">説明（担当者記載欄）</label>
-                    <textarea name="explanation" rows="4" maxlength="1000"
+                    <textarea name="explanation" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('explanation') }}</textarea>
                     @errorText('explanation')
                 </div>
@@ -248,7 +248,7 @@
                 <!-- お問合せ内容 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">お問合せ内容</label>
-                    <textarea name="inquirycontent" rows="4" maxlength="1000"
+                    <textarea name="inquirycontent" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('inquirycontent') }}</textarea>
                     @errorText('inquirycontent')
                 </div>

@@ -117,7 +117,7 @@ class NegotiationController extends Controller
             'status' => 'required|in:' . implode(',', array_keys(config('master.task_statuses'))),
             'already_read' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'record_date' => 'nullable|date',
-            'content' => 'nullable|string|max:1000',
+            'content' => 'nullable|string|max:10000',
             'orderer_id' => 'nullable|exists:users,id',
             'worker_id' => 'required|exists:users,id',
             'attachment1_title' => 'nullable|string|max:255',
@@ -135,6 +135,7 @@ class NegotiationController extends Controller
             'naisen_to' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_from' => 'nullable|regex:/^[0-9]+$/|max:15',
             'notify_person_in' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
+            'memo' => 'nullable|string|max:100000',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -194,6 +195,7 @@ class NegotiationController extends Controller
             'naisen_to' => $validated['naisen_to'],
             'naisen_from' => $validated['naisen_from'],
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
+            'memo' => $validated['memo'] ?? '',
         ]);
 
         // ✅ Slack通知送信
@@ -298,7 +300,7 @@ class NegotiationController extends Controller
             'status' => 'required|in:' . implode(',', array_keys(config('master.task_statuses'))),
             'already_read' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'record_date' => 'nullable|date',
-            'content' => 'nullable|string|max:1000',
+            'content' => 'nullable|string|max:10000',
             'orderer_id' => 'nullable|exists:users,id',
             'worker_id' => 'required|exists:users,id',
             'attachment1_title' => 'nullable|string|max:255',
@@ -316,6 +318,7 @@ class NegotiationController extends Controller
             'naisen_to' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_from' => 'nullable|regex:/^[0-9]+$/|max:15',
             'notify_person_in' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
+            'memo' => 'nullable|string|max:100000',
         ]);
 
         $validated = $validator->validate();
@@ -345,6 +348,7 @@ class NegotiationController extends Controller
             'naisen_to' => $validated['naisen_to'],
             'naisen_from' => $validated['naisen_from'],
             'notify_person_in' => $validated['notify_person_in'] ?? '0',
+            'memo' => $validated['memo'] ?? '',
         ]);
 
         // ✅ Slack通知送信

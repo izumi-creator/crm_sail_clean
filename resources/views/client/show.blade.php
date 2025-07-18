@@ -147,7 +147,9 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">生年月日</label>
-                                <div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->birthday ?: '&nbsp;' !!}</div>
+                                <div class="mt-1 p-2 border rounded bg-gray-50">
+                                    {{ optional($client->birthday)->format('Y-m-d') ?? '－' }}
+                                </div>
                             </div>
                             @php
                                 $docLabels = [
@@ -209,7 +211,10 @@
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所（郵送先）_宛先名（漢字）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_name_kanji ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所_宛先名（ふりがな）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->address_name_kana ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所（郵送先）_宛先名（ふりがな）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_name_kana ?: '&nbsp;' !!}</div></div>
-                                        <div class="col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_address_notes ?: '&nbsp;' !!}</div></div>
+                                        <div class="col-span-2">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label>
+                                            <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $client->contact_address_notes }}</pre>
+                                        </div>
                                     </div>    
                                  </div>
                             </div>
@@ -297,7 +302,10 @@
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所（郵送先）_宛先名（漢字）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_name_kanji ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所_宛先名（ふりがな）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->address_name_kana ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所（郵送先）_宛先名（ふりがな）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_name_kana ?: '&nbsp;' !!}</div></div>
-                                        <div class="col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_address_notes ?: '&nbsp;' !!}</div></div>
+                                        <div class="col-span-2">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label>
+                                            <pre class="mt-1 p-2 min-h-[75px] border rounded bg-gray-50 whitespace-pre-wrap text-sm font-sans leading-relaxed">{{ $client->contact_address_notes }}</pre>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -618,7 +626,9 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">
                                 <span class="text-red-500">*</span>生年月日</label>
-                            <input type="date" name="individual[birthday]" id="birthday" value="{{ $client->birthday }}" class="w-full p-2 border rounded bg-white">
+                            <input type="date" name="individual[birthday]" id="birthday"
+                            value="{{ optional($client->birthday)->format('Y-m-d') }}"
+                            class="w-full p-2 border rounded bg-white">
                             @errorText('individual.birthday')
                         </div>
                         <!-- 本人確認書類セクション -->
@@ -798,11 +808,10 @@
                                         @errorText('individual.contact_name_kana')
                                     </div>
                                     <div class="col-span-2">
-                                        <label class="block font-semibold mb-1">連絡先特記事項</label>
-                                        <input type="text" name="individual[contact_address_notes]" value="{{ $client->contact_address_notes }}"
-                                            class="w-full p-2 border rounded bg-white">
-                                        @errorText('individual.contact_address_notes')
-                                    </div>                                    
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label>
+                                        <textarea name="individual[contact_address_notes]" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $client->contact_address_notes }}</textarea>
+                                        @errorText('individual[contact_address_notes]')
+                                    </div>                                                             
                                 </div>
                             </div>
                         </div>
@@ -1067,10 +1076,9 @@
                                         @errorText('corporate.contact_name_kana')
                                     </div>
                                     <div class="col-span-2">
-                                        <label class="block font-semibold mb-1">連絡先特記事項</label>
-                                        <input type="text" name="corporate[contact_address_notes]" value="{{ $client->contact_address_notes }}"
-                                            class="w-full p-2 border rounded bg-white">
-                                        @errorText('corporate.contact_address_notes')
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1">連絡先特記事項</label>
+                                        <textarea name="corporate[contact_address_notes]" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $client->contact_address_notes }}</textarea>
+                                        @errorText('corporate[contact_address_notes]')
                                     </div>
                                 </div>
                             </div>

@@ -106,7 +106,8 @@
                 </div>
                 <div>
                     <label class="block font-semibold mb-1">生年月日</label>
-                    <input type="date" name="individual[birthday]" value="{{ old('individual.birthday') }}"
+                    <input type="date" name="individual[birthday]"
+                           value="{{ old('individual.birthday') ? \Carbon\Carbon::parse(old('individual.birthday'))->format('Y-m-d') : '' }}"
                            class="w-full p-2 border rounded bg-white">
                     @errorText('individual.birthday')
                 </div>
@@ -292,8 +293,8 @@
                         </div>
                         <div class="col-span-2">
                             <label class="block font-semibold mb-1">連絡先特記事項</label>
-                            <input type="text" name="individual[contact_address_notes]" value="{{ old('individual.contact_address_notes') }}"
-                                   class="w-full p-2 border rounded bg-white">
+                            <textarea name="individual[contact_address_notes]" rows="3"
+                                      class="w-full p-2 border rounded bg-white resize-y">{{ old('individual.contact_address_notes') }}</textarea>
                             @errorText('individual.contact_address_notes')
                         </div>
                     </div>
@@ -593,8 +594,8 @@
                             <!-- 連絡先特記事項 -->
                             <div class="col-span-2">
                                 <label class="block font-semibold mb-1">連絡先特記事項</label>
-                                <input type="text" name="corporate[contact_address_notes]" value="{{ old('corporate.contact_address_notes') }}"
-                                       class="w-full p-2 border rounded bg-white">
+                                <textarea name="corporate[contact_address_notes]" rows="3"
+                                          class="w-full p-2 border rounded bg-white resize-y">{{ old('corporate.contact_address_notes') }}</textarea>
                                 @errorText('corporate.contact_address_notes')
                             </div>
                         </div>

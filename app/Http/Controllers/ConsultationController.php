@@ -318,15 +318,15 @@ class ConsultationController extends Controller
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.consultation_statuses'))),
             'status_detail' => 'nullable|string|max:255',
-            'case_summary' => 'required|string|max:1000',
-            'special_notes' => 'nullable|string|max:1000',
-            'inquirycontent' => 'required|string|max:1000',
+            'case_summary' => 'required|string|max:10000',
+            'special_notes' => 'nullable|string|max:10000',
+            'inquirycontent' => 'nullable|string|max:10000',
             'firstchoice_date' => 'nullable|date',
             'firstchoice_time' => 'nullable|date_format:H:i',
             'secondchoice_date' => 'nullable|date',
             'secondchoice_time' => 'nullable|date_format:H:i',
             'inquirytype' => 'required|in:' . implode(',', array_keys(config('master.inquirytypes'))),
-            'consultationtype' => 'required|in:' . implode(',', array_keys(config('master.consultation_types'))),
+            'consultationtype' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_types'))),
             'case_category' => 'required|in:' . implode(',', array_keys(config('master.case_categories'))),
             'case_subcategory' => 'required|in:' . implode(',', array_keys(config('master.case_subcategories'))),
             'consultation_receptiondate' => 'nullable|date',
@@ -405,9 +405,6 @@ class ConsultationController extends Controller
                 if (empty($request->reason_termination)) {
                     $validator->errors()->add('reason_termination', '「相談終了理由」を入力してください。');
                 }
-                if (empty($request->reason_termination_detail)) {
-                    $validator->errors()->add('reason_termination_detail', '「相談終了理由（詳細）」を入力してください。');
-                }
                 if (empty($request->route)) {
                     $validator->errors()->add('route', '「流入経路」を入力してください。');
                 }
@@ -422,9 +419,6 @@ class ConsultationController extends Controller
                 }
                 if (empty($request->reason_termination)) {
                     $validator->errors()->add('reason_termination', '「相談終了理由」を入力してください。');
-                }
-                if (empty($request->reason_termination_detail)) {
-                    $validator->errors()->add('reason_termination_detail', '「相談終了理由（詳細）」を入力してください。');
                 }
                 if (empty($request->route)) {
                     $validator->errors()->add('route', '「流入経路」を入力してください。');

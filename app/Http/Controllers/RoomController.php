@@ -46,8 +46,8 @@ class RoomController extends Controller
         public function store(Request $request)
         {        
             $request->validate([
-                'room_name' => 'required|string|max:255',
-                'calendar_id' => 'required|string|max:255',
+                'room_name' => ['required','string','max:255', Rule::unique('rooms')],
+                'calendar_id' => ['required','string','max:255', Rule::unique('rooms')],
                 'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
                 'importantnotes' => 'nullable|string|max:255',
             ]);
@@ -71,8 +71,8 @@ class RoomController extends Controller
         public function update(Request $request, Room $room)
         {
             $request->validate([
-                'room_name' => 'required|string|max:255',
-                'calendar_id' => 'required|string|max:255',
+                'room_name' => ['required','string','max:255',Rule::unique('rooms')->ignore($room->id),],
+                'calendar_id' => ['required','string','max:255',Rule::unique('rooms')->ignore($room->id),],
                 'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
                 'importantnotes' => 'nullable|string|max:255',
             ]);

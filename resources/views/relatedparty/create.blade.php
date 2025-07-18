@@ -94,14 +94,14 @@
                 <!-- 立場詳細 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">立場詳細</label>
-                    <textarea name="relatedparties_position_details" rows="4" maxlength="1000"
+                    <textarea name="relatedparties_position_details" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('relatedparties_position_details') }}</textarea>
                     @errorText('relatedparties_position_details')
                 </div>
                 <!-- 説明 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
-                    <textarea name="relatedparties_explanation" rows="4" maxlength="1000"
+                    <textarea name="relatedparties_explanation" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('relatedparties_explanation') }}</textarea>
                     @errorText('relatedparties_explanation')
                 </div>

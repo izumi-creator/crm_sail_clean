@@ -20,7 +20,7 @@
                             class="w-full border px-3 py-2 rounded">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold">種類</label>
+                        <label class="block text-gray-700 font-semibold">裁判所区分</label>
                         <select name="court_type" class="w-full border px-3 py-2 rounded">
                             <option value="">選択してください</option>
                             @foreach (config('master.court_types') as $key => $label)

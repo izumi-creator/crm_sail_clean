@@ -20,7 +20,7 @@
                             class="w-full border px-3 py-2 rounded">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold">種類</label>
+                        <label class="block text-gray-700 font-semibold">保険会社区分</label>
                         <select name="insurance_type" class="w-full border px-3 py-2 rounded">
                             <option value="">選択してください</option>
                             @foreach (config('master.insurance_types') as $key => $label)
@@ -52,8 +52,8 @@
                         <th class="border p-2 w-1/12">ID</th>
                         <th class="border p-2 w-4/12">保険会社名</th>
                         <th class="border p-2 w-2/12">保険会社区分</th>
-                        <th class="border p-2 w-3/12">窓口</th>
-                        <th class="border p-2 w-2/12">電話番号</th>
+                        <th class="border p-2 w-3/12">窓口1</th>
+                        <th class="border p-2 w-2/12">電話番号1</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">

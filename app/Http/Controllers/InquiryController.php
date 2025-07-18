@@ -69,7 +69,7 @@ class InquiryController extends Controller
             'firstchoice_time' => 'nullable|date_format:H:i',
             'secondchoice_date' => 'nullable|date',
             'secondchoice_time' => 'nullable|date_format:H:i',
-            'inquirycontent' => 'nullable|string|max:1000',
+            'inquirycontent' => 'nullable|string|max:10000',
             'route' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
             'routedetail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'averageovertimehoursperweek' => 'nullable|string|max:10',
@@ -157,7 +157,7 @@ class InquiryController extends Controller
             'monthlyincome' => 'nullable|string|max:10',
             'lengthofservice' => 'nullable|string|max:10',
             'manager_id' => 'required|exists:users,id',
-            'explanation' => 'nullable|string|max:1000',
+            'explanation' => 'nullable|string|max:10000',
             'consultation_id' => 'nullable|exists:consultations,id',
             ],
         );

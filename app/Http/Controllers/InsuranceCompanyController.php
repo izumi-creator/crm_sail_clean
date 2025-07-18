@@ -46,7 +46,7 @@ class InsuranceCompanyController extends Controller
         public function store(Request $request)
         {        
             $request->validate([
-                'insurance_name' => 'required|string|max:255',
+                'insurance_name' => ['required','string','max:255', Rule::unique('insurance_companies')],
                 'insurance_type' => 'required|in:' . implode(',', array_keys(config('master.insurance_types'))),
                 'contactname' => 'nullable|string|max:255',
                 'contactname2' => 'nullable|string|max:255',
@@ -81,7 +81,7 @@ class InsuranceCompanyController extends Controller
     public function update(Request $request, InsuranceCompany $insurance)
     {    
         $request->validate([
-            'insurance_name' => 'required|string|max:255',
+            'insurance_name' => ['required','string','max:255', Rule::unique('insurance_companies')->ignore($insurance->id)],
             'insurance_type' => 'required|in:' . implode(',', array_keys(config('master.insurance_types'))),
             'contactname' => 'nullable|string|max:255',
             'contactname2' => 'nullable|string|max:255',

@@ -17,6 +17,8 @@ use App\Http\Controllers\AdvisoryConsultationController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
+
 
 
 Route::get('/', function () {
@@ -178,6 +180,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //export（データダウンロード）
     Route::get('/export/download', function () {return view('export.index');})->name('export.index');
     Route::post('/export/download', [ExportController::class, 'download'])->name('export.download');
+
+    //仮のルート
+    Route::post('/report/create', [ReportController::class, 'create'])->name('report.create');
 
 });
 
