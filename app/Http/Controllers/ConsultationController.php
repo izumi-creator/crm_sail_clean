@@ -161,6 +161,7 @@ class ConsultationController extends Controller
             'status' => 'required|in:' . implode(',', array_keys(config('master.consultation_statuses'))),
             'lawyer_id' => 'nullable|exists:users,id',
             'paralegal_id' => 'nullable|exists:users,id',
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
         // ▼ 相談データ登録
@@ -173,6 +174,7 @@ class ConsultationController extends Controller
             'status' => $request->status,
             'lawyer_id' => $request->lawyer_id,
             'paralegal_id' => $request->paralegal_id,
+            'folder_id' => $request->folder_id,
         ]);
 
          // ▼ 関係者関連のバリデーションと登録    
@@ -354,6 +356,7 @@ class ConsultationController extends Controller
             'routedetail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'introducer' => 'nullable|string|max:255',
             'introducer_others' => 'nullable|string|max:255',
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
         // ✳ ステータスに応じた追加チェック
@@ -375,10 +378,10 @@ class ConsultationController extends Controller
                 if (empty($request->feesystem)) {
                     $validator->errors()->add('feesystem', '「報酬体系」を入力してください。');
                 }
-                if (empty($request->sales_prospect)) {
+                if (is_null($request->sales_prospect)) {
                     $validator->errors()->add('sales_prospect', '「売上見込」を入力してください。');
                 }
-                if (empty($request->feesystem_initialvalue)) {
+                if (is_null($request->feesystem_initialvalue)) {
                     $validator->errors()->add('feesystem_initialvalue', '「売上見込（初期値）」を入力してください。');
                 }
                 if (empty($request->sales_reason_updated)) {
@@ -487,6 +490,7 @@ class ConsultationController extends Controller
             'routedetail' => $validated['routedetail'] ?? null,
             'introducer' => $validated['introducer'],
             'introducer_others' => $validated['introducer_others'],
+            'folder_id' => $validated['folder_id'],
         ]);
 
         $messages = ['相談が更新されました。'];
@@ -589,6 +593,7 @@ class ConsultationController extends Controller
             'routedetail' => $consultation->routedetail,
             'introducer' => $consultation->introducer,
             'introducer_others' => $consultation->introducer_others,
+            'folder_id' => $consultation->folder_id,
         ]
         );
 

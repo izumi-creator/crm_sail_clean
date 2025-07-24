@@ -135,6 +135,7 @@ class AdvisoryContractController extends Controller
             'introducer_others' => 'nullable|string|max:255',
             'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
             'newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.newyearscards'))),
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
         // ▼契約期間（月）を自動算出
@@ -174,6 +175,7 @@ class AdvisoryContractController extends Controller
             'introducer_others' => $validated['introducer_others'] ?? null,
             'gift' => $validated['gift'],
             'newyearscard' => $validated['newyearscard'],
+            'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
         // ✅ Slack通知送信
@@ -308,6 +310,7 @@ class AdvisoryContractController extends Controller
             'introducer_others' => 'nullable|string|max:255',
             'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
             'newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.newyearscards'))),
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
         // ✳ ステータスに応じた追加チェック
@@ -406,6 +409,7 @@ class AdvisoryContractController extends Controller
             'introducer_others' => $validated['introducer_others'] ?? null,
             'gift' => $validated['gift'],
             'newyearscard' => $validated['newyearscard'],
+            'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
         $notificationMessage = null; // ← Slackメッセージ

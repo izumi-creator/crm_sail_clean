@@ -207,7 +207,13 @@
                     </select>
                     @errorText('office_id')
                 </div>
-                <div></div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">GoogleDriveフォルダID</label>
+                    <input type="text" name="folder_id" 
+                    placeholder="例：1A2B3C4D5E6F7G8H9I0J"
+                    value="{{ old('folder_id') }}" class="w-full p-2 border rounded bg-white">
+                    @errorText('folder_id')
+                </div>
 
                 <!-- 弁護士 -->
                 <div>

@@ -57,6 +57,7 @@ class Consultation extends Model
         'routedetail',
         'introducer',
         'introducer_others',
+        'folder_id',
     ];
 
     protected $casts = [

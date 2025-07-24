@@ -27,19 +27,35 @@
                 <!-- 個人クライアント用表示 -->
                 <div>
                     <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! $client->first_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->first_contact_number
+                            ? '<a href="tel:' . e($client->first_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->first_contact_number) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! $client->second_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->second_contact_number
+                            ? '<a href="tel:' . e($client->second_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->second_contact_number) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">メールアドレス1:</span>
-                    <span class="ml-2">{!! $client->email1 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->email1
+                            ? '<a href="mailto:' . e($client->email1) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->email1) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">メールアドレス2:</span>
-                    <span class="ml-2">{!! $client->email2 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->email2
+                            ? '<a href="mailto:' . e($client->email2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->email2) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
             @else
                 <!-- 法人クライアント用表示 -->
@@ -52,19 +68,35 @@
                 </div>
                 <div>
                     <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! $client->first_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->first_contact_number
+                            ? '<a href="tel:' . e($client->first_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->first_contact_number) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! $client->second_contact_number ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->second_contact_number
+                            ? '<a href="tel:' . e($client->second_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->second_contact_number) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">取引先責任者_メール1:</span>
-                    <span class="ml-2">{!! $client->contact_email1 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->contact_email1
+                            ? '<a href="mailto:' . e($client->contact_email1) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_email1) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
                 <div>
                     <span class="font-semibold">取引先責任者_メール2:</span>
-                    <span class="ml-2">{!! $client->contact_email2 ?: '&nbsp;' !!}</span>
+                    <span class="ml-2">
+                        {!! $client->contact_email2
+                            ? '<a href="mailto:' . e($client->contact_email2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_email2) . '</a>'
+                            : '&nbsp;' !!}
+                    </span>
                 </div>
             @endif
         </div>

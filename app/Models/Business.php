@@ -76,6 +76,7 @@ class Business extends Model
         'introducer_others',
         'comment',
         'progress_comment',
+        'folder_id',
     ];
 
     /**

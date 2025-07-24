@@ -162,7 +162,7 @@ class BusinessController extends Controller
             'introducer_others' => 'nullable|string|max:255',
             'comment' => 'nullable|string|max:255',
             'progress_comment' => 'nullable|string|max:255',
-
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
         // 差額の再計算
@@ -216,6 +216,7 @@ class BusinessController extends Controller
             'introducer_others' => $validated['introducer_others'],
             'comment' => $validated['comment'],
             'progress_comment' => $validated['progress_comment'],
+            'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
         // ✅ Slack通知送信
@@ -326,6 +327,7 @@ class BusinessController extends Controller
             'introducer_others' => 'nullable|string|max:255',
             'comment' => 'nullable|string|max:255',
             'progress_comment' => 'nullable|string|max:255',
+            'folder_id' => 'nullable|string|max:255',
         ]);
 
 
@@ -423,6 +425,7 @@ class BusinessController extends Controller
             'introducer_others' => $validated['introducer_others'],
             'comment' => $validated['comment'],
             'progress_comment' => $validated['progress_comment'],
+            'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
 

@@ -92,6 +92,18 @@
                     <span class="font-semibold">ステータス:</span>
                     <span class="ml-2">{!! $advisory->status ? config('master.advisory_contracts_statuses')[$advisory->status] : '&nbsp;' !!}</span>
                 </div>
+                <div>
+                    <span class="font-semibold">Googleフォルダ:</span>
+                    @if (!empty($advisory->folder_id))
+                        <span class="ml-2">
+                            <a href="https://drive.google.com/drive/folders/{{ $advisory->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">
+                                フォルダを開く
+                            </a>
+                        </span>
+                    @else
+                        <span class="ml-2">（登録なし）</span>
+                    @endif
+                </div>
             @else
                 <!-- 法人クライアント用表示 -->
                 <div class="col-span-2">
@@ -161,6 +173,18 @@
                 <div>
                     <span class="font-semibold">ステータス:</span>
                     <span class="ml-2">{!! $advisory->status ? config('master.advisory_contracts_statuses')[$advisory->status] : '&nbsp;' !!}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Googleフォルダ:</span>
+                    @if (!empty($advisory->folder_id))
+                        <span class="ml-2">
+                            <a href="https://drive.google.com/drive/folders/{{ $advisory->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">
+                                フォルダを開く
+                            </a>
+                        </span>
+                    @else
+                        <span class="ml-2">（登録なし）</span>
+                    @endif
                 </div>
             @endif
         </div>
@@ -391,7 +415,10 @@
                                         {!! $advisory->office_id ? config('master.offices_id')[$advisory->office_id] : '&nbsp;' !!}
                                     </div>
                                 </div>
-                                <div></div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">GoogleDriveフォルダID</label>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">{!! $advisory->folder_id ?: '&nbsp;' !!}</div>
+                                </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">{!! optional($advisory->lawyer)->name ?: '&nbsp;' !!}</div>
@@ -789,7 +816,7 @@
                         </div>
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2">
+                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
                                     <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
@@ -798,6 +825,13 @@
                                         @endforeach
                                     </select>
                                     @errorText('office_id')
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">GoogleDriveフォルダID</label>
+                                    <input type="text" name="folder_id" 
+                                    placeholder="例：1A2B3C4D5E6F7G8H9I0J"
+                                    value="{{ $advisory->folder_id }}" class="mt-1 p-2 border rounded w-full bg-white">
+                                    @errorText('folder_id')
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">担当弁護士</label>

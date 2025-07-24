@@ -45,6 +45,7 @@ class AdvisoryContract extends Model
         'introducer_others',
         'gift',
         'newyearscard',
+        'folder_id',
     ];
 
     /**
