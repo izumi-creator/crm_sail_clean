@@ -7,6 +7,7 @@
     <!-- ✅ Tailwind CDN を追加 -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body>
 <div class="flex flex-col items-center justify-center min-h-screen bg-blue-100">
     <div class="w-full max-w-md text-center">
         <!-- ロゴ -->

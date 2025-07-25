@@ -7,10 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\UserTracking;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, UserTracking;
+    use TwoFactorAuthenticatable; // 2FA対応
 
     /**
      * 一括代入可能な属性（フォームからの保存対象）
