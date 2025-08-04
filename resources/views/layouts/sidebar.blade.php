@@ -36,25 +36,26 @@
         </button>
     </div>
     <nav class="p-4 flex-grow">
-        <ul class="mt-2">
-            <li class="mb-1"><a href="{{ route('dashboard') }}" class="block p-1 text-base hover:bg-gray-700 rounded">ダッシュボード</a></li>
-            <li class="mb-1"><a href="{{ route('client.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">クライアント</a></li>
-            <li class="mb-1"><a href="{{ route('inquiry.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">問合せ</a></li>
-            <li class="mb-1"><a href="{{ route('consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">相談</a></li>
-            <li class="mb-1"><a href="{{ route('business.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">受任案件</a></li>
-            <li class="mb-1"><a href="{{ route('advisory.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問契約</a></li>
-            <li class="mb-1"><a href="{{ route('advisory_consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問相談</a></li>
-            <li class="mb-1"><a href="{{ route('relatedparty.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">関係者</a></li>
-            <li class="mb-1"><a href="{{ route('task.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">タスク</a></li>
-            <li class="mb-1"><a href="{{ route('negotiation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">折衝履歴</a></li>
-            <li class="mb-1"><a href="{{ route('accountancy.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">会計</a></li>
-            <li class="mb-1"><a href="{{ route('court.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">裁判所マスタ</a></li>
-            <li class="mb-1"><a href="{{ route('insurance.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">保険会社マスタ</a></li>
-            <li class="mb-1"><a href="{{ route('users.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">スタッフ</a></li>
-            <li class="mb-1"><a href="{{ route('room.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">施設</a></li>
-            <li class="mb-1"><a href="{{ route('export.download') }}" class="block p-1 text-base hover:bg-gray-700 rounded">データダウンロード</a></li>
-            <li class="mb-1"><a href="{{ route('users.editPassword') }}" class="block p-1 text-base hover:bg-gray-700 rounded">パスワード変更</a></li>
-            <li class="mb-1"><a href="{{ route('consultation.create') }}" class="block p-1 text-base hover:bg-gray-700 rounded">★相談登録★</a></li>
+        <ul class="mt-0">
+            <li class="mb-0"><a href="{{ route('dashboard') }}" class="block p-1 text-base hover:bg-gray-700 rounded">ダッシュボード</a></li>
+            <li class="mb-0"><a href="{{ route('global_search.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">名称一括検索</a></li>
+            <li class="mb-0"><a href="{{ route('client.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">クライアント</a></li>
+            <li class="mb-0"><a href="{{ route('inquiry.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">問合せ</a></li>
+            <li class="mb-0"><a href="{{ route('consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">相談</a></li>
+            <li class="mb-0"><a href="{{ route('business.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">受任案件</a></li>
+            <li class="mb-0"><a href="{{ route('court_task.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">裁判所対応</a></li>
+            <li class="mb-0"><a href="{{ route('advisory.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問契約</a></li>
+            <li class="mb-0"><a href="{{ route('advisory_consultation.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">顧問相談</a></li>
+            <li class="mb-0"><a href="{{ route('relatedparty.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">関係者</a></li>
+            <li class="mb-0"><a href="{{ route('task.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">タスク</a></li>
+            <li class="mb-0"><a href="{{ route('accountancy.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">会計</a></li>
+            <li class="mb-0"><a href="{{ route('court.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">裁判所マスタ</a></li>
+            <li class="mb-0"><a href="{{ route('insurance.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">保険会社マスタ</a></li>
+            <li class="mb-0"><a href="{{ route('users.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">スタッフ</a></li>
+            <li class="mb-0"><a href="{{ route('room.index') }}" class="block p-1 text-base hover:bg-gray-700 rounded">施設</a></li>
+            <li class="mb-0"><a href="{{ route('export.download') }}" class="block p-1 text-base hover:bg-gray-700 rounded">データダウンロード</a></li>
+            <li class="mb-0"><a href="{{ route('users.editPassword') }}" class="block p-1 text-base hover:bg-gray-700 rounded">パスワード変更</a></li>
+            <li class="mb-0"><a href="{{ route('consultation.create') }}" class="block p-1 text-base hover:bg-gray-700 rounded">★相談登録★</a></li>
         </ul>
     </nav>
 </aside>

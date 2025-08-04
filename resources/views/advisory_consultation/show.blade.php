@@ -13,10 +13,10 @@
     <div class="border rounded-lg shadow bg-white mb-6 overflow-hidden">
         <!-- 見出しバー -->
         <div class="bg-sky-700 text-white px-6 py-3 border-b border-sky-800">
-            <div class="text-sm text-gray-100 mb-1">
-                {{ $advisory_consultation->advisory_party == 1 ? '個人の顧問相談' : '法人の顧問相談' }}
+            <div class="text-md text-gray-100 mb-1">
+                {{ $advisory_consultation->advisory_party == 1 ? '個人の顧問相談' : '法人の顧問相談' }}<span>　件名:</span>{!! $advisory_consultation->title ?: '&nbsp;' !!}
             </div>
-            <div class="text-xl font-bold">
+            <div class="text-md font-bold">
                 @if ($advisory_consultation->client)
                     <a href="{{ route('client.show', $advisory_consultation->client_id) }}" class="hover:underline">
                         {{ optional($advisory_consultation->client)->name_kanji }}（{{ optional($advisory_consultation->client)->name_kana }}）
@@ -28,215 +28,328 @@
         </div>
 
         <!-- 内容エリア -->
-        <div class="grid grid-cols-2 gap-4 text-sm text-gray-700 px-6 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700 px-6 py-4">
             @if ($advisory_consultation->advisory_party == 1)
-                <!-- 個人クライアント用表示 -->
-                <div>
-                    <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->first_contact_number ?: '&nbsp;' !!}</span>
+            
+                {{-- 📌 左：主要情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">📌 主要情報</div>
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">電話番号（第一連絡先）:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->client->first_contact_number))
+                                <a href="tel:{{ $advisory_consultation->client->first_contact_number }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $advisory_consultation->client->first_contact_number }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">メールアドレス1:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->client->email1))
+                                <a href="mailto:{{ $advisory_consultation->client->email1 }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $advisory_consultation->client->email1 }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">担当弁護士:</div>
+                        <div>{{ optional($advisory_consultation->lawyer)->name ?? '-' }}</div>
+                        <div class="font-semibold">担当パラリーガル:</div>
+                        <div>{{ optional($advisory_consultation->paralegal)->name ?? '-' }}</div>
+                        <div class="font-semibold">ステータス:</div>
+                        <div>{{ config('master.advisory_consultations_statuses')[$advisory_consultation->status] ?? '-' }}</div>
+                        <div class="font-semibold">Googleフォルダ:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->folder_id))
+                                <a href="https://drive.google.com/drive/folders/{{ $advisory_consultation->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">フォルダを開く</a>
+                            @else
+                                （登録なし）
+                            @endif
+                        </div>
+                        <div class="font-semibold">利益相反:</div>
+                        <div>
+                            @php
+                                $confliction = $advisory_consultation->opponent_confliction ?? 0;
+                                $conflictionDate = $advisory_consultation->opponent_confliction_date;
+                                $labels = config('master.opponent_conflictions');
+                                $colorClass = match ((int)$confliction) {
+                                    1 => 'text-green-700',
+                                    2 => 'text-red-700',
+                                    3 => 'text-orange-600',
+                                    default => 'text-gray-500',
+                                };
+                            @endphp
+                            <span class="{{ $colorClass }}">{{ $labels[$confliction] ?? '未実施' }}</span>
+                            @if ($conflictionDate)
+                                <span class="ml-2 text-sm text-gray-600">（{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）</span>
+                            @endif
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');" class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">利益相反検索</a>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->second_contact_number ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">メールアドレス1:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->email1 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">メールアドレス2:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->email2 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当弁護士:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->lawyer)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当パラリーガル:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->paralegal)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">利益相反:</span>
-                
+            
+                {{-- 👤 右：相手方情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">👤 相手方情報</div>
                     @php
-                        $confliction = $advisory_consultation->opponent_confliction ?? 0;
-                        $conflictionDate = $advisory_consultation->opponent_confliction_date;
-                        $labels = config('master.opponent_conflictions');
-                
-                        // 表示用の色を決定
-                        $colorClass = match ((int)$confliction) {
-                            1 => 'text-green-700',
-                            2 => 'text-red-700',
-                            3 => 'text-orange-600',
-                            default => 'text-gray-500',
-                        };
+                        $targetParty1 = $advisory_consultation->relatedParties->firstWhere('relatedparties_type', 3);
                     @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方代理人:</div>
+                        <div>
+                            {{ $targetParty1->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty1?->relatedparties_name_kana))
+                                （{{ $targetParty1->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方代理人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty1?->phone_number))
+                                <a href="tel:{{ $targetParty1->phone_number }}" class="text-blue-600 underline">{{ $targetParty1->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+                    @php
+                        $targetParty2 = $advisory_consultation->relatedParties->firstWhere('relatedparties_type', 2);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方本人（氏名）:</div>
+                        <div>
+                            {{ $targetParty2->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty2?->relatedparties_name_kana))
+                                （{{ $targetParty2->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方本人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty2?->phone_number))
+                                <a href="tel:{{ $targetParty2->phone_number }}" class="text-blue-600 underline">{{ $targetParty2->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+                </div>
 
-                    <span class="ml-2 font-semibold {{ $colorClass }}">
-                        {{ $labels[$confliction] ?? '未実施' }}
-                    </span>
-                
-                    @if ($conflictionDate)
-                        <span class="ml-2 text-sm text-gray-600">
-                            （{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）
-                        </span>
-                    @endif
-                    
-                    <a href="#"
-                       onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');"
-                       class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">
-                        利益相反検索
-                    </a>
-                </div>
-                <div>
-                    <span class="font-semibold">ステータス:</span>
-                    <span class="ml-2">{!! $advisory_consultation->status ? config('master.advisory_consultations_statuses')[$advisory_consultation->status] : '&nbsp;' !!}</span>
-                </div>
             @else
                 <!-- 法人クライアント用表示 -->
-                <div class="col-span-2">
-                    <span class="font-semibold">取引先責任者名:</span>
-                    <span class="ml-2">
-                        {{ optional($advisory_consultation->client)->contact_last_name_kanji }}　{{ optional($advisory_consultation->client)->contact_first_name_kanji }}
-                        （{{ optional($advisory_consultation->client)->contact_last_name_kana }}　{{ optional($advisory_consultation->client)->contact_first_name_kana }}）
-                    </span>
+                {{-- 📌 左：主要情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">📌 主要情報</div>
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">取引先責任者名:</div>
+                        <div>
+                             {{ optional($advisory_consultation->client)->contact_last_name_kanji }}　{{ optional($advisory_consultation->client)->contact_first_name_kanji }}
+                             （{{ optional($advisory_consultation->client)->contact_last_name_kana }}　{{ optional($advisory_consultation->client)->contact_first_name_kana }}）
+                        </div>
+                        <div class="font-semibold">電話番号（第一連絡先）:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->client->first_contact_number))
+                                <a href="tel:{{ $advisory_consultation->client->first_contact_number }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $advisory_consultation->client->first_contact_number }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">取引先責任者_メール1:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->client->contact_email1))
+                                <a href="mailto:{{ $advisory_consultation->client->contact_email1 }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $advisory_consultation->client->contact_email1 }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">担当弁護士:</div>
+                        <div>{{ optional($advisory_consultation->lawyer)->name ?? '-' }}</div>
+                        <div class="font-semibold">担当パラリーガル:</div>
+                        <div>{{ optional($advisory_consultation->paralegal)->name ?? '-' }}</div>
+                        <div class="font-semibold">ステータス:</div>
+                        <div>{{ config('master.advisory_consultations_statuses')[$advisory_consultation->status] ?? '-' }}</div>
+                        <div class="font-semibold">Googleフォルダ:</div>
+                        <div>
+                            @if (!empty($advisory_consultation->folder_id))
+                                <a href="https://drive.google.com/drive/folders/{{ $advisory_consultation->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">フォルダを開く</a>
+                            @else
+                                （登録なし）
+                            @endif
+                        </div>
+                        <div class="font-semibold">利益相反:</div>
+                        <div>
+                            @php
+                                $confliction = $advisory_consultation->opponent_confliction ?? 0;
+                                $conflictionDate = $advisory_consultation->opponent_confliction_date;
+                                $labels = config('master.opponent_conflictions');
+                                $colorClass = match ((int)$confliction) {
+                                    1 => 'text-green-700',
+                                    2 => 'text-red-700',
+                                    3 => 'text-orange-600',
+                                    default => 'text-gray-500',
+                                };
+                            @endphp
+                            <span class="{{ $colorClass }}">{{ $labels[$confliction] ?? '未実施' }}</span>
+                            @if ($conflictionDate)
+                                <span class="ml-2 text-sm text-gray-600">（{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）</span>
+                            @endif
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');" class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">利益相反検索</a>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->first_contact_number ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->second_contact_number ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">取引先責任者_メール1:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->contact_email1 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">取引先責任者_メール2:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->client)->contact_email2 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当弁護士:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->lawyer)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当パラリーガル:</span>
-                    <span class="ml-2">{!! optional($advisory_consultation->paralegal)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">利益相反:</span>
-                
+            
+                {{-- 👤 右：相手方情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">👤 相手方情報</div>
                     @php
-                        $confliction = $advisory_consultation->opponent_confliction ?? 0;
-                        $conflictionDate = $advisory_consultation->opponent_confliction_date;
-                        $labels = config('master.opponent_conflictions');
-                
-                        // 表示用の色を決定
-                        $colorClass = match ((int)$confliction) {
-                            1 => 'text-green-700',
-                            2 => 'text-red-700',
-                            3 => 'text-orange-600',
-                            default => 'text-gray-500',
-                        };
+                        $targetParty1 = $advisory_consultation->relatedParties->firstWhere('relatedparties_type', 3);
                     @endphp
-
-                    <span class="ml-2 font-semibold {{ $colorClass }}">
-                        {{ $labels[$confliction] ?? '未実施' }}
-                    </span>
-                
-                    @if ($conflictionDate)
-                        <span class="ml-2 text-sm text-gray-600">
-                            （{{ \Carbon\Carbon::parse($conflictionDate)->format('Y/m/d') }} 実施）
-                        </span>
-                    @endif
-                    
-                    <a href="#"
-                       onclick="event.preventDefault(); document.getElementById('conflictModal').classList.remove('hidden');"
-                       class="ml-3 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow">
-                        利益相反検索
-                    </a>
-                </div>
-                <div>
-                    <span class="font-semibold">ステータス:</span>
-                    <span class="ml-2">{!! $advisory_consultation->status ? config('master.advisory_consultations_statuses')[$advisory_consultation->status] : '&nbsp;' !!}</span>
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方代理人:</div>
+                        <div>
+                            {{ $targetParty1->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty1?->relatedparties_name_kana))
+                                （{{ $targetParty1->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方代理人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty1?->phone_number))
+                                <a href="tel:{{ $targetParty1->phone_number }}" class="text-blue-600 underline">{{ $targetParty1->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+                    @php
+                        $targetParty2 = $advisory_consultation->relatedParties->firstWhere('relatedparties_type', 2);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方本人（氏名）:</div>
+                        <div>
+                            {{ $targetParty2->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty2?->relatedparties_name_kana))
+                                （{{ $targetParty2->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方本人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty2?->phone_number))
+                                <a href="tel:{{ $targetParty2->phone_number }}" class="text-blue-600 underline">{{ $targetParty2->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- ✅ タスク・折衝履歴（非対称な2列構成） -->
-    <div class="border rounded-lg shadow bg-white mb-6 overflow-hidden">
-        <!-- 見出しバー -->
-        <div class="bg-sky-700 text-white px-6 py-3 border-b border-sky-800">
-            <div class="text-md font-bold">タスク・折衝履歴</div>
+    {{-- ▼ タスク表示：完了と未完了に分割（関係者タブ風） --}}
+    <div class="space-y-6">
+    
+        {{-- ✅ タスク履歴（完了） --}}
+        <div class="border rounded shadow bg-white">
+            <div class="flex justify-between items-center px-4 py-2 bg-sky-700 text-white rounded-t">
+                <div class="font-bold text-sm">✅ タスク履歴（完了）※取り下げは除く</div>
+            </div>
+            <div class="px-4 py-3 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-blue-200 text-blue-900">
+                        <tr>
+                            <th class="px-2 py-1 border">件名</th>
+                            <th class="px-2 py-1 border">作成日</th>
+                            <th class="px-2 py-1 border">宛先</th>
+                            <th class="px-2 py-1 border">内容</th>
+                            <th class="px-2 py-1 border">orderer</th>
+                            <th class="px-2 py-1 border">worker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($doneTasks as $task)
+                            <tr>
+                                <td class="border px-2 py-1">
+                                    <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $task->title }}
+                                    </a>
+                                </td>
+                                <td class="border px-2 py-1">{{ $task->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="border px-2 py-1">{{ $task->record_to ?? '-' }}</td>
+                                <td class="border px-2 py-1 whitespace-pre-wrap break-words max-w-sm">{{ $task->content }}</td>
+                                <td class="border px-2 py-1">{{ $task->orderer->name ?? '-' }}</td>
+                                <td class="border px-2 py-1">{{ $task->worker->name ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                        {{-- 件数0の場合の表示 --}}
+                        @if($doneTasks->isEmpty())
+                            <tr>
+                                <td class="px-2 py-2 text-center text-gray-500 border" colspan="6">完了タスクはありません。</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <!-- グリッド：左がタスク、右が折衝履歴 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-4 text-sm text-gray-700">
-
-            {{-- 📋 タスク一覧 --}}
-            <div>
-                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
-                    <div>📋 タスク一覧（{{ $advisory_consultation->tasks->count() }}件）</div>
-                    <a href="{{ route('task.create', [
-                        'related_party' => 4,
-                        'advisory_consultation_id' => $advisory_consultation->id,
-                        'redirect_url' => route('advisory_consultation.show', ['advisory_consultation' => $advisory_consultation->id])
-                    ]) }}"
-                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
-                        追加
+    
+        {{-- 📌 活動予定（未完了） --}}
+        <div class="border rounded shadow bg-white">
+            <div class="flex justify-between items-center px-4 py-2 bg-sky-700 text-white rounded-t">
+                <div class="font-bold text-sm">📌 未完了タスク</div>
+                <div class="space-x-2">
+                    <a href="{{ route('task.create', ['related_party' => 4, 'advisory_consultation_id' => $advisory_consultation->id, 'redirect_url' => url()->current()]) }}"
+                       class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded">
+                        ＋新規ToDo
+                    </a>
+                    <a href="{{ route('task.create.phone', ['related_party' => 4, 'advisory_consultation_id' => $advisory_consultation->id, 'redirect_url' => url()->current()]) }}"
+                       class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded">
+                        ＋発着信ToDo
                     </a>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
-                    @foreach ($advisory_consultation->tasks
-                        ->sortBy('deadline_date')
-                        ->sortBy('status') as $task)
-                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
-                            <div class="font-bold text-sky-700 mb-1">{{ $task->title }}</div>
-                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$task->record1] ?? '―' }}</div>
-                            <div><span class="font-semibold">担当:</span> {{ optional($task->worker)->name }}</div>
-                            <div><span class="font-semibold">期限:</span> {{ $task->deadline_date }}</div>
-                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$task->status] ?? '―' }}</div>
-                            <div class="mt-2">
-                                <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
             </div>
-
-            {{-- 📝 折衝履歴 --}}
-            <div>
-                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
-                    <div>📋 折衝履歴（{{ $advisory_consultation->negotiations->count() }}件）</div>
-                    <a href="{{ route('negotiation.create', [
-                        'related_party' => 4,
-                        'advisory_consultation_id' => $advisory_consultation->id,
-                        'redirect_url' => route('advisory_consultation.show', ['advisory_consultation' => $advisory_consultation->id])
-                    ]) }}"
-                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
-                        追加
-                    </a>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
-                    @foreach ($advisory_consultation->negotiations
-                        ->sortBy('status') as $negotiation)
-                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
-                            <div class="font-bold text-sky-700 mb-1">{{ $negotiation->title }}</div>
-                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$negotiation->record1] ?? '―' }}</div>
-                            <div><span class="font-semibold">担当:</span> {{ optional($negotiation->worker)->name }}</div>
-                            <div><span class="font-semibold">登録日:</span> {{ $negotiation->record_date }}</div>
-                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$negotiation->status] ?? '―' }}</div>
-                            <div class="mt-2">
-                                <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            <div class="px-4 py-3 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-blue-200 text-blue-900">
+                        <tr>
+                            <th class="px-2 py-1 border">件名</th>
+                            <th class="px-2 py-1 border">作成日</th>
+                            <th class="px-2 py-1 border">期限</th>
+                            <th class="px-2 py-1 border">ステータス</th>
+                            <th class="px-2 py-1 border">内容</th>
+                            <th class="px-2 py-1 border">orderer</th>
+                            <th class="px-2 py-1 border">worker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($todoTasks as $task)
+                            <tr>
+                                <td class="border px-2 py-1">
+                                    <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $task->title }}
+                                    </a>
+                                </td>
+                                <td class="border px-2 py-1">{{ $task->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="border px-2 py-1">{{ $task->deadline_date }}</td>
+                                <td class="border px-2 py-1">{{ config('master.task_statuses')[$task->status] ?? '-' }}</td>
+                                <td class="border px-2 py-1 whitespace-pre-wrap break-words max-w-sm">{{ $task->content }}</td>
+                                <td class="border px-2 py-1">{{ $task->orderer->name ?? '-' }}</td>
+                                <td class="border px-2 py-1">{{ $task->worker->name ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                        {{-- 件数0の場合の表示 --}}
+                        @if($todoTasks->isEmpty())
+                            <tr>
+                                <td class="px-2 py-2 text-center text-gray-500 border" colspan="5">予定タスクはありません。</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
             </div>
-
         </div>
     </div>
 
@@ -444,11 +557,13 @@
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
                             <th class="border p-2 w-1/12">ID</th>
-                            <th class="border p-2 w-4/12">関係者名（漢字）</th>
-                            <th class="border p-2 w-2/12">区分</th>
-                            <th class="border p-2 w-2/12">分類</th>
-                            <th class="border p-2 w-2/12">種別</th>
-                            <th class="border p-2 w-3/12">立場</th>
+                            <th class="border p-2 w-3/12">関係者名（漢字）</th>
+                            <th class="border p-2 w-1/12">区分</th>
+                            <th class="border p-2 w-1/12">分類</th>
+                            <th class="border p-2 w-1/12">種別</th>
+                            <th class="border p-2 w-1/12">立場</th>
+                            <th class="border p-2 w-2/12">電話</th>
+                            <th class="border p-2 w-2/12">メール</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
@@ -471,6 +586,16 @@
                             </td>
                             <td class="border px-2 py-[6px] truncate">
                                 {{ config('master.relatedparties_positions')[(string)$relatedparty->relatedparties_position] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $relatedparty->phone_number
+                                ? '<a href="tel:' . e($relatedparty->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->phone_number) . '</a>'
+                                : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $relatedparty->email
+                                ? '<a href="mailto:' . e($relatedparty->email) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->email) . '</a>'
+                                : '&nbsp;' !!}
                             </td>
                         </tr>
                         @endforeach
@@ -639,7 +764,7 @@
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">相談概要</label>
-                        <textarea name="case_summary" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $advisory_consultation->case_summary }}</textarea>
+                        <textarea name="case_summary" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $advisory_consultation->case_summary }}</textarea>
                         @errorText('case_summary')
                     </div>
                     <div class="col-span-2">
@@ -688,8 +813,8 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div class="col-span-2">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">取扱事務所</label>
-                                    <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>取扱事務所</label>
+                                    <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white required">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.offices_id') as $key => $value)
                                             <option value="{{ $key }}" {{ $advisory_consultation->office_id == $key ? 'selected' : '' }}>{{ $value }}</option>

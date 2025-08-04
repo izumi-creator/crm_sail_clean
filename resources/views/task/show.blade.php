@@ -13,6 +13,11 @@
     <div class="p-6 border rounded-lg shadow bg-white">
         <!-- 上部ボタン -->
         <div class="flex justify-end space-x-2 mb-4">
+            <!-- W⇔O 切替ボタン -->
+            <button onclick="document.getElementById('swapModal').classList.remove('hidden')"
+                class="bg-blue-300 hover:bg-blue-500 text-black px-4 py-2 rounded min-w-[100px]">
+                🔁 W⇔O 入替
+            </button>
             <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded min-w-[100px]">編集</button>
             @if (auth()->user()->role_type == 1)
             <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded min-w-[100px]">削除</button>
@@ -55,12 +60,6 @@
                         {!! $task->record2 ? config('master.records_2')[$task->record2] : '&nbsp;' !!}
                     </div>
                 </div>
-                <div>
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $task->already_read ? 'checked' : '' }}>
-                        <span class="ml-2 text-sm text-gray-700">既読チェック</span>
-                    </label>
-                </div>
                 <div class="col-span-2 mt-2 -mx-6">
                     <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
                         <span>当事者（クリックで開閉）</span>
@@ -93,6 +92,118 @@
                         </div>
                     </div>
                 </div>
+                <!-- アコーディオンヘッダー -->
+                <div class="col-span-2 mt-2 -mx-6">
+                    <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
+                        <span>コメント履歴：{{ $task->comments->count() }}件（クリックで開閉）</span>
+                        <i class="fa-solid fa-chevron-down transition-transform duration-300 accordion-icon"></i>
+                    </div>
+                
+                    <!-- アコーディオン中身 -->
+                    <div class="accordion-content hidden pt-4 px-6 text-sm leading-relaxed font-sans text-black">
+                        <!-- ボタン -->
+                        <div class="text-right mb-4">
+                            <button onclick="document.getElementById('commentModal').classList.remove('hidden')"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                                💬 新規コメント
+                            </button>
+                        </div>
+                    
+                        <!-- コメントカード -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @forelse($task->comments as $comment)
+                                <div class="border border-gray-300 p-4 rounded bg-gray-50 shadow-sm relative">
+                                    <!-- 上部操作ボタン -->
+                                    <div class="absolute top-2 right-2 flex space-x-2">
+                                        @if ($comment->from_id === auth()->id())
+                                            <button onclick="document.getElementById('deleteCommentModal-{{ $comment->id }}').classList.remove('hidden')"
+                                                    class="text-red-500 text-sm hover:underline">🗑 削除</button>
+                                        @endif
+                                            
+                                        @if ($comment->recipient_field)
+                                            @if ($comment->already_read_status)
+                                                <span class="text-green-600 text-sm">✅ 既読済み</span>
+                                            @else
+                                                <button onclick="document.getElementById('readModal-{{ $comment->id }}').classList.remove('hidden')"
+                                                        class="text-blue-600 text-sm hover:underline">👀 既読にする</button>
+                                            @endif
+                                        @endif
+                                    </div>
+                                
+                                    <!-- 表示内容 -->
+                                    <div class="text-sm">
+                                        🗨 {{ optional($comment->from)->name ?? '不明ユーザー' }} さん（{{ $comment->created_at->format('Y/m/d H:i') }}）
+                                    </div>
+                                    <div class="text-sm mt-1">
+                                        <span class="font-semibold text-black">宛先：</span>
+                                        {{ optional($comment->to)->name ?? '-' }}
+                                        @if ($comment->to2) / {{ optional($comment->to2)->name }} @endif
+                                        @if ($comment->to3) / {{ optional($comment->to3)->name }} @endif
+                                    </div>
+                                    <div class="mt-1 flex text-sm text-gray-700">
+                                        <span class="text-black w-12 shrink-0">内容：</span>
+                                        <pre class="whitespace-pre-wrap break-words font-sans text-black">{{ $comment->comment }}</pre>
+                                    </div>
+                                
+                                    <!-- 未読者表示 -->
+                                    <div class="mt-1 text-sm text-black">
+                                        未読者：{{ $comment->unread_names->isNotEmpty() ? $comment->unread_names->implode('、') : 'なし' }}
+                                    </div>
+                                
+                                    <!-- コメント削除モーダル -->
+                                    @if ($comment->from_id === auth()->id())
+                                        <div id="deleteCommentModal-{{ $comment->id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                                            <div class="bg-white shadow-lg w-full max-w-md">
+                                                <div class="bg-red-600 text-white px-4 py-2 font-bold border-b">コメント削除</div>
+                                                <div class="px-6 py-4 text-sm">
+                                                    <p class="mb-2">このコメントを削除しますか？</p>
+                                                    <p class="mb-2">この操作は取り消せません。</p>
+                                                </div>
+                                                <form method="POST" action="{{ route('task.comment.destroy', ['task' => $task->id, 'comment' => $comment->id]) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <div class="flex justify-end space-x-2 px-6 pb-6">
+                                                        <button type="button"
+                                                                onclick="document.getElementById('deleteCommentModal-{{ $comment->id }}').classList.add('hidden')"
+                                                                class="px-4 py-2 bg-gray-300 text-black rounded">キャンセル</button>
+                                                        <button type="submit"
+                                                                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 min-w-[100px]">削除</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    
+                                    <!-- 既読確認モーダル -->
+                                    @if ($comment->recipient_field && ! $comment->already_read_status)
+                                        <div id="readModal-{{ $comment->id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                                            <div class="bg-white shadow-lg w-full max-w-md rounded">
+                                                <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">コメントを既読にする</div>
+                                                <div class="px-6 py-4 text-sm">
+                                                    <p class="mb-2">このコメントを既読にしますか？</p>
+                                                </div>
+                                                <form method="POST" action="{{ route('task.comment.read', ['task' => $task->id, 'comment' => $comment->id]) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="recipient" value="{{ $comment->recipient_field }}">
+                                                    <div class="flex justify-end space-x-2 px-6 pb-6">
+                                                        <button type="button"
+                                                                onclick="document.getElementById('readModal-{{ $comment->id }}').classList.add('hidden')"
+                                                                class="px-4 py-2 bg-gray-300 text-black rounded">キャンセル</button>
+                                                        <button type="submit"
+                                                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 min-w-[100px]">既読にする</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-gray-500">コメントはまだありません。</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-span-2 mt-2 -mx-6">
                     <div class="flex items-center justify-between bg-blue-100 text-blue-900 font-semibold py-2 px-6 cursor-pointer accordion-toggle">
                         <span>内容（クリックで開閉）</span>
@@ -228,13 +339,6 @@
                                     {!! $task->phone_number ?: '&nbsp;' !!}
                                 </div>
                             </div>
-                            <div>
-                                <label class="inline-flex items-center">
-                                    <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $task->notify_person_in ? 'checked' : '' }}>
-                                    <span class="ml-2 text-sm text-gray-700">担当者に通知</span>
-                                </label>
-                            </div>
-                            <div></div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">着信電話番号</label>
                                 <div class="mt-1 p-2 border rounded bg-gray-50">
@@ -377,6 +481,8 @@
             <form method="POST" action="{{ route('task.update', $task->id) }}">
                 @csrf
                 @method('PUT')
+
+                <input type="hidden" name="_modal" value="edit">
             
                 <!-- モーダル見出し -->
                 <div class="bg-amber-600 text-white px-4 py-2 font-bold border-b">タスク編集</div>
@@ -428,7 +534,7 @@
                     <!-- 親：大区分 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>大区分</label>
-                        <select id="record1" name="record1" class="w-full p-2 border rounded bg-white">
+                        <select id="record1" name="record1" class="w-full p-2 border rounded bg-white required">
                             <option value="">-- 未選択 --</option>
                             @foreach (config('master.records_1') as $key => $label)
                                 <option value="{{ $key }}" @selected($task->record1 == $key)>{{ $label }}</option>
@@ -439,22 +545,12 @@
                     <!-- 子：小区分 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>小区分</label>
-                        <select id="record2" name="record2" class="w-full p-2 border rounded bg-white">
+                        <select id="record2" name="record2" class="w-full p-2 border rounded bg-white required">
+                            {{-- JSで大区分に応じた小区分を動的に生成 --}}
                             <option value="">-- 未選択 --</option>
                             {{-- JSで上書き --}}
                         </select>
                         @errorText('record2')
-                    </div>
-
-                    <div>
-                        <label class="inline-flex items-center">
-                            <input type="hidden" name="already_read" value="0">
-                            <input type="checkbox" name="already_read" value="1"
-                                {{ $task->already_read == 1 ? 'checked' : '' }}
-                                class="form-checkbox text-blue-600">
-                            <span class="ml-2 text-sm text-gray-700">既読チェック</span>
-                        </label>
-                        @errorText('already_read')
                     </div>
 
                     <div class="col-span-2 mt-2 -mx-6">
@@ -477,7 +573,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>worker</label>
                                     <select name="worker_id"
-                                            class="select-user-edit w-full"
+                                            class="select-user-edit w-full required"
                                             data-initial-id="{{ $task->worker_id }}"
                                             data-initial-text="{{ optional($task->worker)->name }}">
                                         <option></option>
@@ -616,17 +712,6 @@
                                     @errorText('phone_number')
                                 </div>
                                 <div>
-                                    <label class="inline-flex items-center">
-                                        <input type="hidden" name="notify_person_in" value="0">
-                                        <input type="checkbox" name="notify_person_in" value="1"
-                                            {{ $task->notify_person_in == 1 ? 'checked' : '' }}
-                                            class="form-checkbox text-blue-600">
-                                        <span class="ml-2 text-sm text-gray-700">担当者に通知</span>
-                                    </label>
-                                    @errorText('notify_person_in')
-                                </div>
-                                <div></div>
-                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">着信電話番号</label>
                                     <input type="text" name="phone_to" value="{{ $task->phone_to }}" 
                                     placeholder="ハイフンなしで入力（例: 0312345678）"
@@ -718,14 +803,117 @@
             </form>
         </div>
     </div>
-            
+
+    <!-- コメント投稿モーダル -->
+    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white shadow-lg w-full max-w-2xl rounded max-h-[90vh] overflow-y-auto">
+            <form method="POST" action="{{ route('task.comment.store', ['task' => $task->id]) }}">
+                @csrf
+
+                <input type="hidden" name="_modal" value="comment">
+
+                <!-- ヘッダー -->
+                <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">新規コメント</div>
+
+                <!-- ✅ エラーボックスをgrid外に出す -->
+                @if ($errors->any())
+                <div class="p-6 pt-4 -mb-4 text-sm">
+                    <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
+                        <ul class="list-disc pl-6">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                <!-- フォーム内容 -->
+                <div class="p-6 text-sm space-y-4">
+
+                    <!-- コメント内容 -->
+                    <div>
+                        <label class="block font-semibold mb-1">コメント内容</label>
+                        <textarea name="comment" rows="2" class="w-full p-2 border rounded bg-white" required>{{ old('comment') }}</textarea>
+                        @errorText('comment')
+                    </div>
+
+                    <!-- 宛先1〜3（Select2） -->
+                    @for ($i = 1; $i <= 3; $i++)
+                        @php
+                            $field = 'to' . ($i === 1 ? '' : $i) . '_id';
+                            $display = $field . '_name_display';
+                        @endphp
+                        <div>
+                            <label class="block font-semibold mb-1">宛先{{ $i }}</label>
+                            <select name="{{ $field }}"
+                                    class="select-user w-full"
+                                    data-old-id="{{ old($field) }}"
+                                    data-old-text="{{ old($display) }}">
+                                <option></option>
+                            </select>
+                            @errorText($field)
+                        </div>
+                    @endfor
+
+                </div>
+
+                <!-- フッター -->
+                <div class="flex justify-end space-x-2 px-6 pb-6">
+                    <a href="{{ route('task.show', $task->id) }}"
+                       class="px-4 py-2 bg-gray-300 text-black rounded">
+                       キャンセル
+                    </a>
+                    <button type="submit"
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        投稿する
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- WorkerとOrdererの入れ替えモーダル -->
+    <div id="swapModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white shadow-lg w-full max-w-md">
+            <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">担当者・依頼者の入替</div>
+            <div class="px-6 py-4 text-sm">
+                <p class="mb-2">Worker と Orderer を入れ替えますか？</p>
+                <p class="mb-2">この操作は即時反映されます。</p>
+            </div>
+
+            <form method="POST" action="{{ route('task.swap_worker_orderer', $task->id) }}">
+                @csrf
+                <div class="flex justify-end space-x-2 px-6 pb-6">
+                    <button type="button" onclick="document.getElementById('swapModal').classList.add('hidden')"
+                            class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px] text-center">
+                        キャンセル
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 min-w-[100px]">
+                        入れ替える
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+        
 @endsection
 
 @section('scripts')
 @if ($errors->any())
 <script>
+
     window.addEventListener('load', function () {
-        document.getElementById('editModal')?.classList.remove('hidden');
+        const modal = '{{ old('_modal') }}';
+
+        if (modal === 'edit') {
+            document.getElementById('editModal')?.classList.remove('hidden');
+        }
+        if (modal === 'comment') {
+            document.getElementById('commentModal')?.classList.remove('hidden');
+        }
+
         document.querySelectorAll('.accordion-content').forEach(content => {
             content.classList.remove('hidden');
             const icon = content.previousElementSibling?.querySelector('.accordion-icon');

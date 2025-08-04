@@ -216,14 +216,68 @@
                                 </div>
                                 <div class="accordion-content hidden pt-4 px-6">
                                     <div class="grid grid-cols-2 gap-6">
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">携帯電話</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->mobile_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->phone_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第一連絡先）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->first_contact_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第二連絡先）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->second_contact_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス1</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->email1 ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス2</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->email2 ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">自宅電話番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->home_phone_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">FAX</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->fax ?: '&nbsp;' !!}</div></div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">携帯電話</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->mobile_number
+                                                    ? '<a href="tel:' . e($client->mobile_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->mobile_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->phone_number
+                                                    ? '<a href="tel:' . e($client->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->phone_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第一連絡先）</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->first_contact_number
+                                                ? '<a href="tel:' . e($client->first_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->first_contact_number) . '</a>'
+                                                : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第二連絡先）</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->second_contact_number
+                                                ? '<a href="tel:' . e($client->second_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->second_contact_number) . '</a>'
+                                                : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス1</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->email1
+                                                ? '<a href="mailto:' . e($client->email1) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->email1) . '</a>'
+                                                : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス2</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->email2
+                                                ? '<a href="mailto:' . e($client->email2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->email2) . '</a>'
+                                                : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">自宅電話番号</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->home_phone_number
+                                                ? '<a href="tel:' . e($client->home_phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->home_phone_number) . '</a>'
+                                                : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">FAX</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->fax ?: '&nbsp;' !!}
+                                            </div>
+                                        </div>
                                         <div>
                                             <label class="inline-flex items-center">
                                                 <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $client->not_home_contact ? 'checked' : '' }}>
@@ -276,12 +330,7 @@
                                                 <span class="ml-2 text-sm text-gray-700">事務所報を送る</span>
                                             </label>
                                         </div>
-                                        <div>
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $client->send_autocreation ? 'checked' : '' }}>
-                                                <span class="ml-2 text-sm text-gray-700">交際情報履歴を自動作成する</span>
-                                            </label>
-                                        </div>
+                                        <div></div>
                                     </div>    
                                 </div>
                             </div>
@@ -310,18 +359,96 @@
                                 </div>
                                 <div class="accordion-content hidden pt-4 px-6">
                                     <div class="grid grid-cols-2 gap-6">
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号1</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->phone_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号2</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->phone_number2 ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第一連絡先）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->first_contact_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第二連絡先）</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->second_contact_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">FAX</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->fax ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->email1 ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_電話番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_phone_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_携帯電話</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_mobile_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_自宅電話番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_home_phone_number ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_FAX</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_fax ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_メール1</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_email1 ?: '&nbsp;' !!}</div></div>
-                                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_メール2</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_email2 ?: '&nbsp;' !!}</div></div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号1</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->phone_number
+                                                    ? '<a href="tel:' . e($client->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->phone_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号2</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->phone_number2
+                                                    ? '<a href="tel:' . e($client->phone_number2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->phone_number2) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第一連絡先）</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->first_contact_number
+                                                    ? '<a href="tel:' . e($client->first_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->first_contact_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号（第二連絡先）</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->second_contact_number
+                                                    ? '<a href="tel:' . e($client->second_contact_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->second_contact_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">FAX</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->fax ?: '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->email1
+                                                    ? '<a href="mailto:' . e($client->email1) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->email1) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_電話番号</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->contact_phone_number
+                                                    ? '<a href="tel:' . e($client->contact_phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_phone_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_携帯電話</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->contact_mobile_number
+                                                    ? '<a href="tel:' . e($client->contact_mobile_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_mobile_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_自宅電話番号</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->contact_home_phone_number
+                                                    ? '<a href="tel:' . e($client->contact_home_phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_home_phone_number) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_FAX</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_fax ?: '&nbsp;' !!}</div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_メール1</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->contact_email1
+                                                    ? '<a href="mailto:' . e($client->contact_email1) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_email1) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1">取引先責任者_メール2</label>
+                                            <div class="mt-1 p-2 border rounded bg-gray-50">
+                                                {!! $client->contact_email2
+                                                    ? '<a href="mailto:' . e($client->contact_email2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($client->contact_email2) . '</a>'
+                                                    : '&nbsp;' !!}
+                                            </div>
+                                        </div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所_郵便番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->address_postalcode ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所（郵送先）_郵便番号</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->contact_postalcode ?: '&nbsp;' !!}</div></div>
                                         <div><label class="block text-sm font-semibold text-gray-700 mb-1">住所_都道府県</label><div class="mt-1 p-2 border rounded bg-gray-50">{!! $client->address_state ?: '&nbsp;' !!}</div></div>
@@ -367,12 +494,7 @@
                                                 <span class="ml-2 text-sm text-gray-700">事務所報を送る</span>
                                             </label>
                                         </div>
-                                        <div>
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" disabled class="form-checkbox text-blue-600" {{ $client->send_autocreation ? 'checked' : '' }}>
-                                                <span class="ml-2 text-sm text-gray-700">交際情報履歴を自動作成する</span>
-                                            </label>
-                                        </div>
+                                        <div></div>
                                     </div>
                                 </div>
                             </div>
@@ -657,7 +779,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                <span class="text-red-500">*</span>生年月日</label>
+                                生年月日</label>
                             <input type="date" name="individual[birthday]" id="birthday"
                             value="{{ optional($client->birthday)->format('Y-m-d') }}"
                             class="w-full p-2 border rounded bg-white">
@@ -882,14 +1004,7 @@
                                             <span class="ml-2 text-sm text-gray-700">事務所報を送る</span>
                                         </label>
                                     </div>
-                                    <div>
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="individual[send_autocreation]" value="1"
-                                                {{ $client->send_autocreation == 1 ? 'checked' : '' }}
-                                                class="form-checkbox text-blue-600">
-                                            <span class="ml-2 text-sm text-gray-700">交際情報履歴を自動作成する</span>
-                                        </label>
-                                    </div>
+                                    <div></div>
                                 </div>
                             </div>
                         </div>
@@ -1150,14 +1265,7 @@
                                             <span class="ml-2 text-sm text-gray-700">事務所報を送る</span>
                                         </label>
                                     </div>
-                                    <div>
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="corporate[send_autocreation]" value="1"
-                                                {{ $client->send_autocreation == 1 ? 'checked' : '' }}
-                                                class="form-checkbox text-blue-600">
-                                            <span class="ml-2 text-sm text-gray-700">交際情報履歴を自動作成する</span>
-                                        </label>
-                                    </div>
+                                    <div></div>
                                 </div>
                             </div>
                         </div>

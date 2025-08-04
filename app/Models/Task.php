@@ -103,4 +103,12 @@ class Task extends Model
         return $this->belongsTo(AdvisoryConsultation::class);
     }
 
+    /**
+     * タスクコメントとのリレーション
+     */
+    public function comments()
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
 }

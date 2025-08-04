@@ -100,7 +100,7 @@
                             <span class="text-red-500">*</span> 施設名
                         </label>
                         <input type="text" name="room_name" value="{{ $room->room_name }}"
-                               class="w-full p-2 border rounded bg-white">
+                               class="w-full p-2 border rounded bg-white required">
                         @errorText('room_name')
                     </div>
                 
@@ -109,7 +109,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
                             <span class="text-red-500">*</span> 場所
                         </label>
-                        <select name="office_id" class="w-full p-2 border rounded bg-white">
+                        <select name="office_id" class="w-full p-2 border rounded bg-white required">
                             @foreach (config('master.offices_id') as $key => $label)
                                 <option value="{{ $key }}" @selected($room->office_id == $key)>{{ $label }}</option>
                             @endforeach
@@ -123,14 +123,14 @@
                         <span class="text-red-500">*</span> GoogleカレンダーID
                     </label>
                     <input type="text" name="calendar_id" value="{{ $room->calendar_id }}"
-                               class="w-full p-2 border rounded bg-white">
-                        @errorText('calendar_id')
+                           class="w-full p-2 border rounded bg-white required">
+                    @errorText('calendar_id')
                     </div>
 
                     <!-- 備考 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $room->importantnotes }}</textarea>
+                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $room->importantnotes }}</textarea>
                         @errorText('importantnotes')
                     </div>
                 </div>

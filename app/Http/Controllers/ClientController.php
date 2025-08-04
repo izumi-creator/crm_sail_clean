@@ -116,7 +116,6 @@ class ClientController extends Controller
                 'individual.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'individual.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'individual.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
-                'individual.send_autocreation' => 'nullable|in:' . implode(',', array_keys(config('master.send_autocreations'))),
             ]);
             $data = $validated['individual'];
 
@@ -125,7 +124,6 @@ class ClientController extends Controller
             $data['send_newyearscard'] = $request->input('individual.send_newyearscard', 0);
             $data['send_summergreetingcard'] = $request->input('individual.send_summergreetingcard', 0);
             $data['send_office_news'] = $request->input('individual.send_office_news', 0);
-            $data['send_autocreation'] = $request->input('individual.send_autocreation', 0);
     
         } elseif ($clientType === '2') {
             // 法人用バリデーション
@@ -165,7 +163,6 @@ class ClientController extends Controller
                 'corporate.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
-                'corporate.send_autocreation' => 'nullable|in:' . implode(',', array_keys(config('master.send_autocreations'))),
             ]);
             $data = $validated['corporate'];
 
@@ -173,7 +170,6 @@ class ClientController extends Controller
             $data['send_newyearscard'] = $request->input('corporate.send_newyearscard', 0);
             $data['send_summergreetingcard'] = $request->input('corporate.send_summergreetingcard', 0);
             $data['send_office_news'] = $request->input('corporate.send_office_news', 0);
-            $data['send_autocreation'] = $request->input('corporate.send_autocreation', 0);
 
 
         } else {
@@ -251,7 +247,6 @@ class ClientController extends Controller
         $data['send_newyearscard'] = $request->input('individual.send_newyearscard', 0);
         $data['send_summergreetingcard'] = $request->input('individual.send_summergreetingcard', 0);
         $data['send_office_news'] = $request->input('individual.send_office_news', 0);
-        $data['send_autocreation'] = $request->input('individual.send_autocreation', 0);
 
         // 法人バリデーション
         } elseif ($type == 2) {
@@ -290,13 +285,11 @@ class ClientController extends Controller
                 'corporate.send_newyearscard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_summergreetingcard' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
                 'corporate.send_office_news' => 'nullable|in:' . implode(',', array_keys(config('master.send_types'))),
-                'corporate.send_autocreation' => 'nullable|in:' . implode(',', array_keys(config('master.send_autocreations'))),
             ]);
             $data = $validated['corporate'];
             $data['send_newyearscard'] = $request->input('corporate.send_newyearscard', 0);
             $data['send_summergreetingcard'] = $request->input('corporate.send_summergreetingcard', 0);
             $data['send_office_news'] = $request->input('corporate.send_office_news', 0);
-            $data['send_autocreation'] = $request->input('corporate.send_autocreation', 0);
         }
         $client->update($data);
         return redirect()->route('client.show', $client->id)->with('success', 'クライアントを更新しました！');

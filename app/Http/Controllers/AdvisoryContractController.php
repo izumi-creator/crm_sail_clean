@@ -12,8 +12,8 @@ use App\Models\Negotiation;
 use App\Models\RelatedParty;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Services\SlackBotNotificationService;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Carbon;
 
 class AdvisoryContractController extends Controller
 {
@@ -127,10 +127,10 @@ class AdvisoryContractController extends Controller
             'withdrawal_request_amount' => 'nullable|numeric',
             'withdrawal_breakdown' => 'nullable|string|max:255',
             'withdrawal_update_date' => 'nullable|date',
-            'office_id' => 'nullable|in:' . implode(',', array_keys(config('master.offices_id'))),
+            'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
             'lawyer_id' => 'nullable|exists:users,id',
             'paralegal_id' => 'nullable|exists:users,id',
-            'source' => 'required|in:' . implode(',', array_keys(config('master.routes'))),
+            'source' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
             'source_detail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'introducer_others' => 'nullable|string|max:255',
             'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
@@ -149,7 +149,7 @@ class AdvisoryContractController extends Controller
         }
 
         // ▼ 顧問契約を作成
-        $advisory = AdvisoryContract::create([
+        AdvisoryContract::create([
             'client_id' => $validated['client_id'],
             'advisory_party' => $validated['advisory_party'],
             'title' => $validated['title'],
@@ -178,24 +178,6 @@ class AdvisoryContractController extends Controller
             'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
-        // ✅ Slack通知送信
-        $creatorName = optional($advisory->createdByUser)->name;
-        $url = route('advisory.show', ['advisory' => $advisory->id]);
-        $message = "顧問契約を追加しました。";
-
-        // Botによる個別通知
-        $notifiedUsers = collect([
-            $advisory->lawyer,
-            $advisory->paralegal,
-        ])->filter();
-
-        $slackBot = app(SlackBotNotificationService::class);
-        foreach ($notifiedUsers as $user) {
-            if (!empty($user->slack_channel_id)) {
-                $slackBot->sendMessage("📝 {$message}\n顧問契約の件名：{$advisory->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
-            }
-        }
-
         if ($request->filled('redirect_url')) {
         return redirect($request->input('redirect_url'))->with('success', '顧問契約を作成しました！');
         }
@@ -216,8 +198,6 @@ class AdvisoryContractController extends Controller
             'paralegal2',
             'paralegal3',
             'advisoryConsultation',
-            'tasks',
-            'negotiations',
         ]);
 
         // クライアント情報（スペース除去した比較用文字列）
@@ -253,10 +233,30 @@ class AdvisoryContractController extends Controller
                   ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$responsibleKana]);
         })->get();
 
+        // タスク：未完了（status 1〜4） ※期限昇順 → ステータス昇順
+        $todoTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 3)
+            ->where('advisory_contract_id', $advisory->id)
+            ->whereIn('status', [1, 2, 3, 4])
+            ->orderByRaw('deadline_date IS NULL')
+            ->orderBy('deadline_date')
+            ->orderBy('status')
+            ->get();
+
+        // タスク：完了（status 5） ※作成日昇順
+        $doneTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 3)
+            ->where('advisory_contract_id', $advisory->id)
+            ->where('status', 5)
+            ->orderBy('created_at')
+            ->get();
+
         return view('advisory.show', compact(
             'advisory',
             'matchedClients',
-            'matchedRelatedParties'
+            'matchedRelatedParties',
+            'todoTasks',
+            'doneTasks'
         ));
     }
 
@@ -264,9 +264,6 @@ class AdvisoryContractController extends Controller
     // 顧問契約編集画面
     public function update(Request $request, AdvisoryContract $advisory)
     {
-
-        $before_status = $advisory->status;
-
 
         // ▼ クライアントから client_type を取得し advisory_party に設定
         if ($request->filled('client_id')) {
@@ -298,14 +295,14 @@ class AdvisoryContractController extends Controller
             'withdrawal_request_amount' => 'nullable|numeric',
             'withdrawal_breakdown' => 'nullable|string|max:255',
             'withdrawal_update_date' => 'nullable|date',
-            'office_id' => 'nullable|in:' . implode(',', array_keys(config('master.offices_id'))),
+            'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
             'lawyer_id' => 'nullable|exists:users,id',
             'lawyer2_id' => 'nullable|exists:users,id',
             'lawyer3_id' => 'nullable|exists:users,id',
             'paralegal_id' => 'nullable|exists:users,id',
             'paralegal2_id' => 'nullable|exists:users,id',
             'paralegal3_id' => 'nullable|exists:users,id',
-            'source' => 'required|in:' . implode(',', array_keys(config('master.routes'))),
+            'source' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
             'source_detail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'introducer_others' => 'nullable|string|max:255',
             'gift' => 'nullable|in:' . implode(',', array_keys(config('master.gifts'))),
@@ -318,23 +315,11 @@ class AdvisoryContractController extends Controller
 
 
             if (in_array((int)$request->status, [2, 3, 4, 5, 6])) {
-                if (empty($request->explanation)) {
-                    $validator->errors()->add('explanation', '「説明」を入力してください。');
-                }
-                if (empty($request->office_id)) {
-                    $validator->errors()->add('office_id', '「取扱事務所」を選択してください。');
-                }
                 if (empty($request->lawyer_id)) {
                     $validator->errors()->add('lawyer_id', '「担当弁護士」を選択してください。');
                 }
                 if (empty($request->paralegal_id)) {
                     $validator->errors()->add('paralegal_id', '「担当パラリーガル」を選択してください。');
-                }
-                if (empty($request->source)) {
-                    $validator->errors()->add('source', '「ソース」を選択してください。');
-                }
-                if (empty($request->source_detail)) {
-                    $validator->errors()->add('source_detail', '「ソース詳細」を選択してください。');
                 }
             }
 
@@ -351,17 +336,14 @@ class AdvisoryContractController extends Controller
                 if (empty($request->amount_monthly)) {
                     $validator->errors()->add('amount_monthly', '「顧問料月額」を入力してください。');
                 }
+                if (empty($request->withdrawal_request_amount)) {
+                    $validator->errors()->add('withdrawal_request_amount', '「引落依頼額」を入力してください。');
+                }
                 if (empty($request->payment_category)) {
                     $validator->errors()->add('payment_category', '「支払区分」を選択してください。');
                 }
                 if (empty($request->payment_method)) {
                     $validator->errors()->add('payment_method', '「支払方法」を選択してください。');
-                }
-                if (empty($request->withdrawal_request_amount)) {
-                    $validator->errors()->add('withdrawal_request_amount', '「引落依頼額」を入力してください。');
-                }
-                if (empty($request->withdrawal_breakdown)) {
-                    $validator->errors()->add('withdrawal_breakdown', '「引落内訳」を入力してください。');
                 }
             }
 
@@ -411,46 +393,6 @@ class AdvisoryContractController extends Controller
             'newyearscard' => $validated['newyearscard'],
             'folder_id' => $validated['folder_id'] ?? null,
         ]);
-
-        $notificationMessage = null; // ← Slackメッセージ
-
-        $before_status = (int) $before_status;
-        $after_status = (int) $validated['status'];
-
-        if ($before_status !== $after_status) {
-            $statusLabels = config('master.advisory_contracts_statuses');
-        
-            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
-            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
-            $updaterName = optional($advisory->updatedByUser)->name ?? '不明';
-            $url = route('advisory.show', ['advisory' => $advisory->id]);
-
-            $notificationMessage = "📌顧問契約のステータスが変更されました\n"
-                . "■ 件名：{$advisory->title}\n"
-                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
-                . "■ 更新者：{$updaterName}\n"
-                . "🔗 URL：{$url}";
-
-        // Slack送信処理（あれば）
-        if ($notificationMessage) {
-            $notifiedUsers = collect([
-                $advisory->lawyer,
-                $advisory->lawyer2,
-                $advisory->lawyer3,
-                $advisory->paralegal,
-                $advisory->paralegal2,
-                $advisory->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
-                }
-            }
-
-        }
-        }
         
         return redirect()->route('advisory.show', $advisory->id)->with('success', '顧問契約が更新されました。');
     }
@@ -461,31 +403,7 @@ class AdvisoryContractController extends Controller
         $this->ensureIsAdmin();
 
         try {
-
-            $title = $advisory->title;
-
             $advisory->delete();
-
-            // ✅ Slack通知送信
-            $userName = Auth::user()?->name ?? '不明';
-            $message = "🗑️ 顧問契約を削除しました！\n顧問契約の件名：{$title}\n削除者：{$userName}";
-
-            $notifiedUsers = collect([
-                $advisory->lawyer,
-                $advisory->lawyer2,
-                $advisory->lawyer3,
-                $advisory->paralegal,
-                $advisory->paralegal2,
-                $advisory->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($message, $user->slack_channel_id);
-                }
-            }
-
             return redirect()->route('advisory.index')->with('success', '顧問契約を削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {
@@ -537,6 +455,46 @@ class AdvisoryContractController extends Controller
         }
     
         return response()->json(['results' => $results]);
+    }
+
+    // ZEUS向けデータ
+    public function zeusPreview()
+    {
+
+        // 契約中（status = 5）かつクレジットカード決済（payment_method = 2）
+        $contracts = AdvisoryContract::with('client')
+            ->where('status', 5)
+            ->where('payment_method', 2)
+            ->orderByRaw("CAST(SUBSTRING(external_id, 5) AS UNSIGNED)")
+            ->get();
+
+        return view('advisory.zeus-preview', compact('contracts'));
+    }
+
+    public function zeusDownload(): StreamedResponse
+    {
+        $contracts = AdvisoryContract::where('status', 5)
+            ->where('payment_method', 2)
+            ->orderByRaw("CAST(SUBSTRING(external_id, 5) AS UNSIGNED)")
+            ->get(['external_id', 'withdrawal_request_amount']);
+
+        $timestamp = Carbon::now()->format('YmdHi');
+        $filename = "zeus_request_{$timestamp}.txt";
+
+        $response = new StreamedResponse(function () use ($contracts) {
+            $handle = fopen('php://output', 'w');
+
+            foreach ($contracts as $contract) {
+                fwrite($handle, $contract->external_id . ',' . $contract->withdrawal_request_amount . "\r\n");
+            }
+
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/plain');
+        $response->headers->set('Content-Disposition', "attachment; filename=\"{$filename}\"");
+
+        return $response;
     }
 
 }

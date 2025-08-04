@@ -78,6 +78,13 @@
                     </select>
                     @errorText('task_category')
                 </div>
+                <!-- 事件番号 -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件番号</label>
+                    <input type="text" name="case_number" value="{{ old('case_number') }}"
+                           class="w-full p-2 border rounded bg-white">
+                    @errorText('case_number')
+                </div>
                 <!-- タスク内容 -->
                 <div class="col-span-2">
                     <label class="block font-semibold mb-1">タスク内容</label>

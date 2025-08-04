@@ -10,6 +10,7 @@ use App\Models\Business;
 use App\Models\AdvisoryContract;
 use App\Models\AdvisoryConsultation;
 use App\Models\User;
+use App\Models\TaskComment;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Services\SlackBotNotificationService;
@@ -115,7 +116,6 @@ class TaskController extends Controller
             'record2' => 'required|in:' . implode(',', array_keys(config('master.records_2'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.task_statuses'))),
-            'already_read' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'record_date' => 'nullable|date',
             'deadline_date' => 'nullable|date',
             'deadline_time' => 'nullable|date_format:H:i',
@@ -138,7 +138,6 @@ class TaskController extends Controller
             'phone_from' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_to' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_from' => 'nullable|regex:/^[0-9]+$/|max:15',
-            'notify_person_in' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'memo' => 'nullable|string|max:100000',
         ]);
 
@@ -179,7 +178,6 @@ class TaskController extends Controller
             'record2' => $validated['record2'],
             'title' => $validated['title'],
             'status' => $validated['status'],
-            'already_read' => $validated['already_read'] ?? '0',
             'record_date' => $validated['record_date'],
             'deadline_date' => $validated['deadline_date'],
             'deadline_time' => $validated['deadline_time'],
@@ -202,7 +200,6 @@ class TaskController extends Controller
             'phone_from' => $validated['phone_from'],
             'naisen_to' => $validated['naisen_to'],
             'naisen_from' => $validated['naisen_from'],
-            'notify_person_in' => $validated['notify_person_in'] ?? '0',
             'memo' => $validated['memo'] ?? '',
         ]);
 
@@ -264,7 +261,17 @@ class TaskController extends Controller
         
         $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
 
-        $message = "📌 タスクを登録しました。\nタスクの件名：{$task->title}\n{$userDisplay}\n{$relatedDisplay}\n登録者：{$creatorName}\n🔗 URL：{$url}";
+        $record1 = $task->record1 ? (config('master.records_1')[$task->record1] ?? '―') : '―';
+        $record2 = $task->record2 ? (config('master.records_2')[$task->record2] ?? '―') : '―';
+
+        $message = "📌 タスクを登録しました。\n"
+            . "タスクの件名：{$task->title}\n"
+            . "区分：{$record1}／{$record2}\n"
+            . "{$userDisplay}\n"
+            . "{$relatedDisplay}\n"
+            . "内容：\n{$task->content}\n"
+            . "登録者：{$creatorName}\n"
+            . "🔗 URL：{$url}";
 
         $slackBot = app(SlackBotNotificationService::class);
         foreach ($notifiedUsers as $user) {
@@ -280,10 +287,8 @@ class TaskController extends Controller
         return redirect()->route('task.index')->with('success', 'タスクを登録しました！');
     }
 
-    // タスク詳細処理
     public function show(Task $task)
     {
-        // 関連データをロード
         $task->load([
             'consultation',
             'business',
@@ -291,8 +296,56 @@ class TaskController extends Controller
             'advisoryConsultation',
             'orderer',
             'worker',
+            'comments.from',
+            'comments.to',
+            'comments.to2',
+            'comments.to3',
         ]);
-
+    
+        // 未読者IDの一括取得
+        $loginId = Auth::id();
+        $unreadUserIds = [];
+    
+        foreach ($task->comments as $comment) {
+            foreach ([
+                'to_id' => 'already_read',
+                'to2_id' => 'already_read2',
+                'to3_id' => 'already_read3',
+            ] as $toKey => $readKey) {
+                if ($comment->$toKey && !$comment->$readKey) {
+                    $unreadUserIds[] = $comment->$toKey;
+                }
+            }
+        }
+    
+        $unreadUserMap = \App\Models\User::whereIn('id', $unreadUserIds)->pluck('name', 'id')->toArray();
+    
+        foreach ($task->comments as $comment) {
+            // 未読者名を注入
+            $comment->unread_names = collect([
+                $comment->to_id => $comment->already_read,
+                $comment->to2_id => $comment->already_read2,
+                $comment->to3_id => $comment->already_read3,
+            ])->filter(function ($read, $uid) use ($unreadUserMap) {
+                return $uid && !$read && isset($unreadUserMap[$uid]);
+            })->map(fn($v, $uid) => $unreadUserMap[$uid])->values();
+        
+            // 自分が受信者かどうか（既読操作用）
+            $comment->recipient_field = null;
+            $comment->already_read_status = null;
+        
+            if ($comment->to_id === $loginId) {
+                $comment->recipient_field = 'to_id';
+                $comment->already_read_status = $comment->already_read;
+            } elseif ($comment->to2_id === $loginId) {
+                $comment->recipient_field = 'to2_id';
+                $comment->already_read_status = $comment->already_read2;
+            } elseif ($comment->to3_id === $loginId) {
+                $comment->recipient_field = 'to3_id';
+                $comment->already_read_status = $comment->already_read3;
+            }
+        }
+    
         return view('task.show', compact('task'));
     }
 
@@ -307,7 +360,6 @@ class TaskController extends Controller
             'record2' => 'required|in:' . implode(',', array_keys(config('master.records_2'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.task_statuses'))),
-            'already_read' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'record_date' => 'nullable|date',
             'deadline_date' => 'nullable|date',
             'deadline_time' => 'nullable|date_format:H:i',
@@ -330,7 +382,6 @@ class TaskController extends Controller
             'phone_from' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_to' => 'nullable|regex:/^[0-9]+$/|max:15',
             'naisen_from' => 'nullable|regex:/^[0-9]+$/|max:15',
-            'notify_person_in' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'memo' => 'nullable|string|max:100000',
         ]);
 
@@ -341,7 +392,6 @@ class TaskController extends Controller
             'record2' => $validated['record2'],
             'title' => $validated['title'],
             'status' => $validated['status'],
-            'already_read' => $validated['already_read'] ?? '0',
             'record_date' => $validated['record_date'],
             'deadline_date' => $validated['deadline_date'],
             'deadline_time' => $validated['deadline_time'],
@@ -364,88 +414,8 @@ class TaskController extends Controller
             'phone_from' => $validated['phone_from'],
             'naisen_to' => $validated['naisen_to'],
             'naisen_from' => $validated['naisen_from'],
-            'notify_person_in' => $validated['notify_person_in'] ?? '0',
             'memo' => $validated['memo'] ?? '',
         ]);
-
-        // ✅ Slack通知送信
-        $before_status = (int) $before_status;
-        $after_status = (int) $validated['status'];
-
-
-        if ($before_status !== $after_status) {
-            $statusLabels = config('master.task_statuses');
-
-
-            // ✅ Slack通知内容
-            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
-            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
-            $updaterName = optional($task->updatedByUser)->name ?? '不明';
-            $url = route('task.show', ['task' => $task->id]);
-
-            $notifiedUserIds = collect([
-                optional($task->orderer)->id,
-                optional($task->worker)->id,
-            ]);
-
-            switch ($task->related_party) {
-                case 1:
-                    $related = $task->consultation;
-                    break;
-                case 2:
-                    $related = $task->business;
-                    break;
-                case 3:
-                    $related = $task->advisoryContract;
-                    break;
-                case 4:
-                    $related = $task->advisoryConsultation;
-                    break;
-                default:
-                    $related = null;
-            }
-
-            if ($related) {
-                $notifiedUserIds = $notifiedUserIds->merge([
-                    optional($related->lawyer)->id,
-                    optional($related->lawyer2)->id,
-                    optional($related->lawyer3)->id,
-                    optional($related->paralegal)->id,
-                    optional($related->paralegal2)->id,
-                    optional($related->paralegal3)->id,
-                ]);
-            }
-
-            // リレーション取得
-            switch ($task->related_party) {
-                case 1: $related = $task->consultation; break;
-                case 2: $related = $task->business; break;
-                case 3: $related = $task->advisoryContract; break;
-                case 4: $related = $task->advisoryConsultation; break;
-                default: $related = null;
-            }
-
-            // 関連先名と件名
-            $relatedTypeName = config('master.related_parties')[$task->related_party] ?? '不明';
-            $relatedTitle = $related->title ?? '';
-            $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
-            $ordererName = optional($task->orderer)->name ?? '（なし）';
-            $workerName = optional($task->worker)->name ?? '（なし）';
-            $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
-
-            $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
-
-
-            $message = "🗑️ タスクをステータスが変更されました\nタスクの件名：{$task->title}\nステータス：{$beforeLabel} → {$afterLabel}\n{$userDisplay}\n{$relatedDisplay}\n更新者：{$updaterName}\n🔗 URL：{$url}";
-
-            // Slack通知送信
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($message, $user->slack_channel_id);
-                }
-            }
-        }
         
         return redirect()->route('task.show', $task)->with('success', 'タスクを更新しました！');
     }
@@ -456,76 +426,7 @@ class TaskController extends Controller
         $this->ensureIsAdmin();
 
         try {
-
-            // ✅ Slack通知内容
-            $notifiedUserIds = collect([
-                optional($task->orderer)->id,
-                optional($task->worker)->id,
-            ]);
-
-            switch ($task->related_party) {
-                case 1:
-                    $related = $task->consultation;
-                    break;
-                case 2:
-                    $related = $task->business;
-                    break;
-                case 3:
-                    $related = $task->advisoryContract;
-                    break;
-                case 4:
-                    $related = $task->advisoryConsultation;
-                    break;
-                default:
-                    $related = null;
-            }
-
-            if ($related) {
-                $notifiedUserIds = $notifiedUserIds->merge([
-                    optional($related->lawyer)->id,
-                    optional($related->lawyer2)->id,
-                    optional($related->lawyer3)->id,
-                    optional($related->paralegal)->id,
-                    optional($related->paralegal2)->id,
-                    optional($related->paralegal3)->id,
-                ]);
-            }
-
-            // リレーション取得
-            switch ($task->related_party) {
-                case 1: $related = $task->consultation; break;
-                case 2: $related = $task->business; break;
-                case 3: $related = $task->advisoryContract; break;
-                case 4: $related = $task->advisoryConsultation; break;
-                default: $related = null;
-            }
-
-            // 関連先名と件名
-            $relatedTypeName = config('master.related_parties')[$task->related_party] ?? '不明';
-            $relatedTitle = $related->title ?? '';
-            $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
-            $ordererName = optional($task->orderer)->name ?? '（なし）';
-            $workerName = optional($task->worker)->name ?? '（なし）';
-            $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
-
-            $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
-
-            // タスク削除
             $task->delete();
-
-            // 削除者の名前を取得
-            $userName = Auth::user()?->name ?? '不明';
-
-            $message = "🗑️ タスクを削除しました。\nタスクの件名：{$task->title}\n{$userDisplay}\n{$relatedDisplay}\n削除者：{$userName}";
-
-            // Slack通知送信
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($message, $user->slack_channel_id);
-                }
-            }
-
             return redirect()->route('task.index')->with('success', '削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {
@@ -537,6 +438,165 @@ class TaskController extends Controller
             // 1451以外のエラーはLaravelの例外処理に投げる
             throw $e;
         }        
+    }
+
+    public function swapWorkerOrderer(Task $task)
+    {
+        // Admin or 認可されたユーザー制限がある場合はここでチェック
+
+        $originalOrderer = $task->orderer_id;
+        $originalWorker = $task->worker_id;
+
+        $task->orderer_id = $originalWorker;
+        $task->worker_id = $originalOrderer;
+        $task->save();
+
+        return redirect()->route('task.show', $task->id)->with('success', 'workerとordererを入れ替えました');
+    }
+
+    public function createPhone(Request $request)
+    {
+    return view('task.create_phone');
+    }       
+
+    // 追加：電話タスク登録処理
+    public function storePhone(Request $request)
+    {
+        $request->merge(['record1' => '1']);
+        $request->merge(['phone_request' => '1']);
+
+        // 件名を自動生成
+        $record2_label = config('master.records_2')[$request->input('record2')] ?? '';
+        $request->merge(['title' => "☎電話／{$record2_label}"]);
+
+        // store() と同等のバリデーション（最小構成）
+        $validator = Validator::make($request->all(), [
+            'related_party' => 'required|in:' . implode(',', array_keys(config('master.related_parties'))),
+            'consultation_id' => 'nullable|exists:consultations,id',
+            'business_id' => 'nullable|exists:businesses,id',
+            'advisory_contract_id' => 'nullable|exists:advisory_contracts,id',
+            'advisory_consultation_id' => 'nullable|exists:advisory_consultations,id',
+            'record1' => 'required|in:1',
+            'record2' => 'required|in:' . implode(',', array_keys(config('master.records_2'))),
+            'title' => 'required|string|max:255',
+            'status' => 'required|in:' . implode(',', array_keys(config('master.task_statuses'))),
+            'record_date' => 'nullable|date',
+            'notify_type' => 'nullable|in:' . implode(',', array_keys(config('master.notify_types'))),
+            'phone_request' => 'required|in:1',
+            'orderer_id' => 'nullable|exists:users,id',
+            'worker_id' => 'required|exists:users,id',
+            'content' => 'nullable|string|max:10000',
+            'record_to' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|regex:/^[0-9]+$/|max:15',
+        ]);
+
+        $validator->after(function ($validator) use ($request) {
+            switch ((int)$request->related_party) {
+                case 1:
+                    if (empty($request->consultation_id)) {
+                        $validator->errors()->add('consultation_id', '「相談」を入力してください。');
+                    }
+                    break;
+                case 2:
+                    if (empty($request->business_id)) {
+                        $validator->errors()->add('business_id', '「受任案件」を入力してください。');
+                    }
+                    break;
+                case 3:
+                    if (empty($request->advisory_contract_id)) {
+                        $validator->errors()->add('advisory_contract_id', '「顧問契約」を入力してください。');
+                    }
+                    break;
+                case 4:
+                    if (empty($request->advisory_consultation_id)) {
+                        $validator->errors()->add('advisory_consultation_id', '「顧問相談」を入力してください。');
+                    }
+                    break;
+            }
+        });
+
+        $validated = $validator->validate();
+
+        $task = Task::create($validated);
+
+        // ✅ Slack通知送信
+        $notifiedUserIds = collect([
+            optional($task->orderer)->id,
+            optional($task->worker)->id,
+        ]);
+
+        switch ($task->related_party) {
+            case 1:
+                $related = $task->consultation;
+                break;
+            case 2:
+                $related = $task->business;
+                break;
+            case 3:
+                $related = $task->advisoryContract;
+                break;
+            case 4:
+                $related = $task->advisoryConsultation;
+                break;
+            default:
+                $related = null;
+        }
+
+        if ($related) {
+            $notifiedUserIds = $notifiedUserIds->merge([
+                optional($related->lawyer)->id,
+                optional($related->lawyer2)->id,
+                optional($related->lawyer3)->id,
+                optional($related->paralegal)->id,
+                optional($related->paralegal2)->id,
+                optional($related->paralegal3)->id,
+            ]);
+        }
+
+        $creatorName = optional($task->createdByUser)->name;
+        $url = route('task.show', ['task' => $task->id]);
+
+
+        // リレーション取得
+        switch ($task->related_party) {
+            case 1: $related = $task->consultation; break;
+            case 2: $related = $task->business; break;
+            case 3: $related = $task->advisoryContract; break;
+            case 4: $related = $task->advisoryConsultation; break;
+            default: $related = null;
+        }
+
+        // 関連先名と件名
+        $relatedTypeName = config('master.related_parties')[$task->related_party] ?? '不明';
+        $relatedTitle = $related->title ?? '';
+        $relatedDisplay = "関連先：{$relatedTypeName}　{$relatedTitle}";
+        $ordererName = optional($task->orderer)->name ?? '（なし）';
+        $workerName = optional($task->worker)->name ?? '（なし）';
+        $userDisplay = "依頼者：{$ordererName}\n担当者：{$workerName}";    
+        
+        $notifiedUsers = User::whereIn('id', $notifiedUserIds->filter()->unique())->get();
+
+
+        $message = "📌 電話発着信タスクを登録しました。\n"
+            . "タスクの件名：{$task->title}\n"
+            . "{$userDisplay}\n"
+            . "{$relatedDisplay}\n"
+            . "内容：\n{$task->content}\n"
+            . "登録者：{$creatorName}\n"
+            . "🔗 URL：{$url}";
+
+        $slackBot = app(SlackBotNotificationService::class);
+        foreach ($notifiedUsers as $user) {
+            if (!empty($user->slack_channel_id)) {
+                $slackBot->sendMessage($message, $user->slack_channel_id);
+            }
+        }
+
+        if ($request->filled('redirect_url')) {
+        return redirect($request->input('redirect_url'))->with('success', '電話発着信タスクを登録しました！');
+        }
+
+        return redirect()->route('task.index')->with('success', '電話発着信タスクを登録しました！');
     }
 
 }

@@ -67,7 +67,7 @@ class UserController extends Controller
         $this->ensureIsAdmin();
     
         $request->validate([
-            'user_id' => ['required','string','min:8','regex:/^[a-zA-Z0-9]+$/','unique:users',],
+            'user_id' => ['required','string','min:8','unique:users',],
             'name' => 'required|string|max:255',
             'employee_type' => 'required|in:' . implode(',', array_keys(config('master.employee_types'))),
             'office_id'     => 'nullable|in:' . implode(',', array_keys(config('master.offices'))),
@@ -109,7 +109,7 @@ class UserController extends Controller
         $this->ensureIsAdmin();
     
         $request->validate([
-            'user_id' => ['required','string','min:8','max:20','regex:/^[a-zA-Z0-9]+$/',Rule::unique('users', 'user_id')->ignore($user->id),],
+            'user_id' => ['required','string','min:8',Rule::unique('users', 'user_id')->ignore($user->id),],
             'name' => 'required|string|max:255',
             'employee_type' => 'required|in:' . implode(',', array_keys(config('master.employee_types'))),
             'office_id'     => 'nullable|in:' . implode(',', array_keys(config('master.offices'))),

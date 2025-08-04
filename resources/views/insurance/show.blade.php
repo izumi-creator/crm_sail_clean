@@ -46,7 +46,7 @@
         </div>
         <!-- 問合せ窓口１ -->
         <div>
-            <label class="font-bold">問合せ窓口１</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">問合せ窓口１</label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $insurance->contactname ?: '&nbsp;' !!}
            </div>
@@ -62,14 +62,14 @@
         </div>
         <!-- メールアドレス1 -->
         <div>
-            <label class="font-bold">メールアドレス1</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス1</label>
                <div class="mt-1 p-2 border rounded bg-gray-50">
                {!! $insurance->email ?: '&nbsp;' !!}
                </div>
         </div>
                 <!-- 問合せ窓口2 -->
                 <div>
-            <label class="font-bold">問合せ窓口2</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">問合せ窓口2</label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
                 {!! $insurance->contactname2 ?: '&nbsp;' !!}
            </div>
@@ -77,14 +77,14 @@
         <div></div>
         <!-- 電話番号2 -->
         <div>
-            <label class="font-bold">電話番号2</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">電話番号2</label>
                <div class="mt-1 p-2 border rounded bg-gray-50">
                {!! $insurance->phone_number2 ?: '&nbsp;' !!}
                </div>
         </div>
         <!-- メールアドレス2 -->
         <div>
-            <label class="font-bold">メールアドレス2</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">メールアドレス2</label>
                <div class="mt-1 p-2 border rounded bg-gray-50">
                {!! $insurance->email2 ?: '&nbsp;' !!}
                </div>
@@ -133,19 +133,19 @@
                     <!-- 氏名 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 氏名
+                            <span class="text-red-500">*</span> 保険会社名
                         </label>
                         <input type="text" name="insurance_name" value="{{ $insurance->insurance_name }}"
-                               class="w-full p-2 border rounded bg-white">
+                               class="w-full p-2 border rounded bg-white required">
                         @errorText('insurance_name')
                     </div>
                 
                     <!-- 保険会社種類 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 種別
+                            <span class="text-red-500">*</span> 保険会社区分
                         </label>
-                        <select name="insurance_type" class="w-full p-2 border rounded bg-white">
+                        <select name="insurance_type" class="w-full p-2 border rounded bg-white required">
                             @foreach (config('master.insurance_types') as $key => $label)
                                 <option value="{{ $key }}" @selected($insurance->insurance_type == $key)>{{ $label }}</option>
                             @endforeach
@@ -206,7 +206,7 @@
                     <!-- 備考 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $insurance->importantnotes }}</textarea>
+                        <textarea name="importantnotes" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $insurance->importantnotes }}</textarea>
                         @errorText('importantnotes')
                     </div>
                 </div>

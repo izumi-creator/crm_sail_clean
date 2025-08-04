@@ -106,21 +106,27 @@
                 <div>
                     <label class="font-bold">携帯</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->mobile_number ?: '&nbsp;' !!}
+                        {!! $relatedparty->mobile_number
+                            ? '<a href="tel:' . e($relatedparty->mobile_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->mobile_number) . '</a>'
+                            : '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- 電話 -->
                 <div>
                     <label class="font-bold">電話</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->phone_number ?: '&nbsp;' !!}
+                        {!! $relatedparty->phone_number
+                            ? '<a href="tel:' . e($relatedparty->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->phone_number) . '</a>'
+                            : '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- 電話2 -->
                 <div>
                     <label class="font-bold">電話2</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->phone_number2 ?: '&nbsp;' !!}
+                        {!! $relatedparty->phone_number2
+                            ? '<a href="tel:' . e($relatedparty->phone_number2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->phone_number2) . '</a>'
+                            : '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- FAX -->
@@ -134,14 +140,18 @@
                 <div>
                     <label class="font-bold">メール</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->email ?: '&nbsp;' !!}
+                        {!! $relatedparty->email
+                            ? '<a href="mailto:' . e($relatedparty->email) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->email) . '</a>'
+                            : '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- メール2 -->
                 <div>
                     <label class="font-bold">メール2</label>
                     <div class="mt-1 p-2 border rounded bg-gray-50">
-                        {!! $relatedparty->email2 ?: '&nbsp;' !!}
+                        {!! $relatedparty->email2
+                            ? '<a href="mailto:' . e($relatedparty->email2) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->email2) . '</a>'
+                            : '&nbsp;' !!}
                     </div>
                 </div>
                 <!-- 郵便番号 -->
@@ -297,9 +307,9 @@
                     <!-- 区分 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 区分
+                            <span class="text-red-500">*</span>区分
                         </label>
-                        <select name="relatedparties_party" class="w-full p-2 border rounded bg-white">
+                        <select name="relatedparties_party" class="w-full p-2 border rounded bg-white required">
                             <option value="">-- 未選択 --</option>
                             @foreach (config('master.relatedparties_parties') as $key => $label)
                                 <option value="{{ $key }}" @selected($relatedparty->relatedparties_party == $key)>{{ $label }}</option>
@@ -310,7 +320,7 @@
                     <!-- 親：分類 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>分類</label>
-                        <select id="relatedparties_class" name="relatedparties_class" class="w-full p-2 border rounded bg-white">
+                        <select id="relatedparties_class" name="relatedparties_class" class="w-full p-2 border rounded bg-white required">
                             <option value="">-- 未選択 --</option>
                             @foreach (config('master.relatedparties_classes') as $key => $label)
                                 <option value="{{ $key }}" @selected($relatedparty->relatedparties_class == $key)>{{ $label }}</option>
@@ -321,7 +331,7 @@
                     <!-- 子：種別 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>種別</label>
-                        <select id="relatedparties_type" name="relatedparties_type" class="w-full p-2 border rounded bg-white">
+                        <select id="relatedparties_type" name="relatedparties_type" class="w-full p-2 border rounded bg-white required">
                             <option value="">-- 未選択 --</option>
                             {{-- JSで上書き --}}
                         </select>
@@ -331,7 +341,7 @@
                     <!-- 立場 -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
-                            <span class="text-red-500">*</span> 立場
+                            立場
                         </label>
                         <select name="relatedparties_position" class="w-full p-2 border rounded bg-white">
                             <option value="">-- 未選択 --</option>
@@ -349,13 +359,13 @@
                     <!-- 立場詳細 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">立場詳細</label>
-                        <textarea name="relatedparties_position_details" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $relatedparty->relatedparties_position_details }}</textarea>
+                        <textarea name="relatedparties_position_details" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $relatedparty->relatedparties_position_details }}</textarea>
                         @errorText('relatedparties_position_details')
                     </div>
                     <!-- 説明 -->
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">説明</label>
-                        <textarea name="relatedparties_explanation" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $relatedparty->relatedparties_explanation }}</textarea>
+                        <textarea name="relatedparties_explanation" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $relatedparty->relatedparties_explanation }}</textarea>
                         @errorText('relatedparties_explanation')
                     </div>
 
@@ -365,9 +375,9 @@
 
                     <!-- 関係者名（漢字） -->
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">関係者名（漢字）</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>関係者名（漢字）</label>
                         <input type="text" name="relatedparties_name_kanji" value="{{ $relatedparty->relatedparties_name_kanji }}"
-                               class="w-full p-2 border rounded bg-white">
+                               class="w-full p-2 border rounded bg-white required">
                         @errorText('relatedparties_name_kanji')
                     </div>
                     <!-- 関係者名（ふりがな） -->

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Consultation;
+use App\Models\Business;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -17,23 +18,64 @@ class ReportController extends Controller
             'report_type' => 'required|in:案件,契約・委任,請求・精算',
             'report_case_type' => 'nullable|string',
         ]);
-
+    
         $reportType = $validated['report_type'];
         $caseType = $validated['report_case_type'];
-
-        $consultationId = $request->input('consultation_id');
-        $consultation = Consultation::with('client')->findOrFail($consultationId);
+    
+        // 相談 or 受任案件 の判定
+        if ($request->has('consultation_id')) {
+            $consultation = Consultation::with('client')->findOrFail($request->input('consultation_id'));
+        } elseif ($request->has('business_id')) {
+            $consultation = Business::with('client')->findOrFail($request->input('business_id'));
+        } else {
+            return back()->withInput()->withErrors(['帳票出力対象が不明です']);
+        }
+    
         $client = $consultation->client;
+        $officeId = $consultation->office_id;
 
         // テンプレートファイル定義（暫定）
         $templateMap = [
             '案件' => [
-                '交通事故' => '交通事故_案件シート_軽量化.xltx',
-                '残業代' => '残業代請求_案件シート2.xltx',
+                '交通事故' => '案件1_交通事故_案件シート.xltx',
+                '控訴' => '案件2_控訴審用案件シート.xltx',
+                '債権' => '案件3_債権執行と開示請求.xltx',
+                '残業代' => '案件4_残業代請求_案件シート.xltx',
+                '訴訟（簡裁用）' => '案件5_訴訟案件シート（簡裁用）.xltx',
+                '訴訟（地裁用）' => '案件6_訴訟案件シート（地裁用）.xltx',
+                '訴訟（離婚）' => '案件7_訴訟案件シート（離婚）.xltx',
+                '訴訟（婚姻費用分担）' => '案件8_調停案件シート (婚姻費用分担）.xltx',
+                '訴訟（面会交流）' => '案件9_調停案件シート (面会交流）.xltx',
+                '訴訟（養育費）' => '案件10_調停案件シート (養育費）.xltx',
+                '訴訟（財産分与）' => '案件11_調停案件シート（財産分与）.xltx',
+                '訴訟（夫婦関係調整）' => '案件12_調停案件シート（夫婦関係調整）.xltx',
+                '労働審判' => '案件13_労働審判案件シート.xltx',
             ],
             '契約・委任' => [
-                '解雇' => '委任契約書セット(解雇)2.xltx',
-                '残業代' => '委任契約書セット(残業代)2.xltx',
+                '解雇' => '契約1_委任契約書セット(解雇).xltx',
+                '残業代' => '契約2_委任契約書セット(残業代).xltx',
+                '養育費' => '契約3_委任契約書セット(養育費).xltx',
+                '立退料' => '契約4_委任契約書セット(立退料).xltx',
+                '不貞・請求する側' => '契約5_委任契約書セット(不貞・請求する側).xltx',
+                '不貞・請求される側' => '契約6_委任契約書セット(不貞・請求される側).xltx',
+                '離婚' => '契約7_委任契約書セット(離婚).xltx',
+                '交通事故（弁特なし）' => '契約8_委任契約書セット(交通事故(弁特なし)).xltx',
+                '交通事故（弁特なし・増額幅）' => '契約9_委任契約書セット(交通事故(弁特なし・増額幅)).xltx',
+                '労災' => '契約10_委任契約書セット(労災).xltx',
+                '時効援用' => '契約11_委任契約書セット(時効援用).xltx',
+                '共有物分割' => '契約12_委任契約書セット(共有物分割).xltx',
+                'その他一般' => '契約13_委任契約書セット(その他一般).xltx',
+                '破産' => '契約14_委任契約書セット(破産).xltx',
+                '個人再生' => '契約15_委任契約書セット(個人再生).xltx',
+                'マンション管理費' => '契約16_委任契約書セット(マンション管理費).xltx',
+                'Ｂ型肝炎' => '契約17_委任契約書セット(Ｂ型肝炎).xltx',
+                'アスベスト' => '契約18_委任契約書セット(アスベスト).xltx',
+                'タイムチャージ' => '契約19_委任契約書セット(タイムチャージ).xltx',
+                '遺留分減殺請求' => '契約20_委任契約書セット(遺留分減殺請求).xltx',
+                '相続放棄' => '契約21_委任契約書セット(相続放棄).xltx',
+                '退職代行' => '契約22_委任契約書セット(退職代行).xltx',
+                '認知のみ' => '契約23_委任契約書セット(認知のみ).xltx',
+                '認知＋養育費' => '契約24_委任契約書セット(認知＋養育費).xltx',
             ],
             '請求・精算' => [
                 '請求書' => '請求書テンプレート.xltx',
@@ -76,11 +118,89 @@ class ReportController extends Controller
                         }
                         $sheet->setCellValue('B7', $postalcode);
                         $sheet->setCellValue('B8', $address);
-                        $sheet->setCellValue('B9', $client->address_name_kanji);
+                        break;
+
+                    case '控訴':
+                        break;
+                    
+                    case '債権':
                         break;
 
                     case '残業代':
                         $sheet->setCellValue('B2', $cleanedName);
+                        break;
+                    
+                    case '訴訟（簡裁用）':
+                        break;
+
+                    case '訴訟（地裁用）':
+                        break;
+
+                    case '訴訟（離婚）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        break;
+                    
+                    case '訴訟（婚姻費用分担）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        $sheet->setCellValue('B14', $client->name_kana);
+                        if ($birthdayDate) {
+                            $sheet->setCellValue('B15', Date::PHPToExcel($birthdayDate));
+                            $sheet->getStyle('B15')->getNumberFormat()->setFormatCode('[$-ja-JP]ge.m.d');
+                        }
+                        break;
+
+                    case '訴訟（面会交流）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        $sheet->setCellValue('B14', $client->name_kana);
+                        if ($birthdayDate) {
+                            $sheet->setCellValue('B15', Date::PHPToExcel($birthdayDate));
+                            $sheet->getStyle('B15')->getNumberFormat()->setFormatCode('[$-ja-JP]ge.m.d');
+                        }
+                        break;
+
+                    case '訴訟（養育費）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        $sheet->setCellValue('B14', $client->name_kana);
+                        if ($birthdayDate) {
+                            $sheet->setCellValue('B15', Date::PHPToExcel($birthdayDate));
+                            $sheet->getStyle('B15')->getNumberFormat()->setFormatCode('[$-ja-JP]ge.m.d');
+                        }
+                        break;
+                    
+                    case '訴訟（財産分与）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        $sheet->setCellValue('B14', $client->name_kana);
+                        if ($birthdayDate) {
+                            $sheet->setCellValue('B15', Date::PHPToExcel($birthdayDate));
+                            $sheet->getStyle('B15')->getNumberFormat()->setFormatCode('[$-ja-JP]ge.m.d');
+                        }
+                        break;
+
+                    case '訴訟（夫婦関係調整）':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
+                        $sheet->setCellValue('B14', $client->name_kana);
+                        if ($birthdayDate) {
+                            $sheet->setCellValue('B15', Date::PHPToExcel($birthdayDate));
+                            $sheet->getStyle('B15')->getNumberFormat()->setFormatCode('[$-ja-JP]ge.m.d');
+                        }
+                        break;
+                    
+                    case '労働審判':
+                        $sheet->setCellValue('B10', $postalcode);
+                        $sheet->setCellValue('B11', $address);
+                        $sheet->setCellValue('B13', $client->name_kanji);
                         break;
 
                     default:
@@ -105,23 +225,23 @@ class ReportController extends Controller
                     $officeSettings = [
                         1 => [
                             'address' => "〒104-0061\n東京都中央区銀座６−３−９\n銀座高松ビル９階",
-                            'bank'    => 'みずほ銀行　銀座支店（普通）XXXXXXXX　弁護士法人エース',
+                            'bank'    => 'みずほ銀行　銀座支店（普通）4104830　弁護士法人エース',
                         ],
                         2 => [
                             'address' => "〒231-0012\n神奈川県横浜市中区相生町2-42-3\n横浜エクセレント17-6階A",
-                            'bank'    => '三菱UFJ銀行　横浜支店（普通）XXXXXXXX　弁護士法人エース',
+                            'bank'    => '三菱UFJ銀行　横浜支店（普通）4723439　弁護士法人エース',
                         ],
                         3 => [
                             'address' => "〒248-0012\n神奈川県鎌倉市御成町12-10\n鎌倉ニュービルディング4階",
-                            'bank'    => '三菱UFJ銀行　鎌倉支店（普通）XXXXXXXX　弁護士法人エース',
+                            'bank'    => '三菱UFJ銀行　鎌倉支店（普通）0292903　弁護士法人エース',
                         ],
                         4 => [
                             'address' => "〒274-0825\n千葉県船橋市前原西2-13-10\n自然センタービル津田沼5階C号室",
-                            'bank'    => '千葉銀行　津田沼駅前支店　普通預金　XXXXXXXX　弁護士法人エース',
+                            'bank'    => '千葉銀行　津田沼駅前支店　普通預金　４２３３２５９　弁護士法人エース',
                         ],
                         5 => [
                             'address' => "〒430-0946\n静岡県浜松市中央区元城町219-21\n浜松元城町第一ビルディング702",
-                            'bank'    => '静岡銀行　浜松中央支店（普通）XXXXXXXX　弁護士法人エース',
+                            'bank'    => '静岡銀行　浜松中央支店（普通）0469502　弁護士法人エース',
                         ],                      
                     ];
                 

@@ -13,10 +13,10 @@
     <div class="border rounded-lg shadow bg-white mb-6 overflow-hidden">
         <!-- 見出しバー -->
         <div class="bg-sky-700 text-white px-6 py-3 border-b border-sky-800">
-            <div class="text-sm text-gray-100 mb-1">
-                {{ $business->consultation_party == 1 ? '個人の受任案件' : '法人の受任案件' }}
+            <div class="text-md text-gray-100 mb-1">
+                {{ $business->consultation_party == 1 ? '個人の受任案件' : '法人の受任案件' }}<span>　件名:</span>{!! $business->title ?: '&nbsp;' !!}
             </div>
-            <div class="text-xl font-bold">
+            <div class="text-md font-bold">
                 @if ($business->client)
                     <a href="{{ route('client.show', $business->client_id) }}" class="hover:underline">
                         {{ optional($business->client)->name_kanji }}（{{ optional($business->client)->name_kana }}）
@@ -28,173 +28,290 @@
         </div>
 
         <!-- 内容エリア -->
-        <div class="grid grid-cols-2 gap-4 text-sm text-gray-700 px-6 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700 px-6 py-4">
             @if ($business->consultation_party == 1)
-                <!-- 個人クライアント用表示 -->
-                <div>
-                    <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! optional($business->client)->first_contact_number ?: '&nbsp;' !!}</span>
+            
+                {{-- 📌 左：主要情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">📌 主要情報</div>
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">電話番号（第一連絡先）:</div>
+                        <div>
+                            @if (!empty($business->client->first_contact_number))
+                                <a href="tel:{{ $business->client->first_contact_number }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $business->client->first_contact_number }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">メールアドレス1:</div>
+                        <div>
+                            @if (!empty($business->client->email1))
+                                <a href="mailto:{{ $business->client->email1 }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $business->client->email1 }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">担当弁護士:</div>
+                        <div>{{ optional($business->lawyer)->name ?? '-' }}</div>
+                        <div class="font-semibold">担当パラリーガル:</div>
+                        <div>{{ optional($business->paralegal)->name ?? '-' }}</div>
+                        <div class="font-semibold">ステータス:</div>
+                        <div>{{ config('master.business_statuses')[$business->status] ?? '-' }}</div>
+                        <div class="font-semibold">Googleフォルダ:</div>
+                        <div>
+                            @if (!empty($business->folder_id))
+                                <a href="https://drive.google.com/drive/folders/{{ $business->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">フォルダを開く</a>
+                            @else
+                                （登録なし）
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! optional($business->client)->second_contact_number ?: '&nbsp;' !!}</span>
+            
+                {{-- 👤 右：相手方情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">👤 相手方情報</div>
+                    @php
+                        $targetParty1 = $business->relatedParties->firstWhere('relatedparties_type', 3);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方代理人:</div>
+                        <div>
+                            {{ $targetParty1->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty1?->relatedparties_name_kana))
+                                （{{ $targetParty1->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方代理人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty1?->phone_number))
+                                <a href="tel:{{ $targetParty1->phone_number }}" class="text-blue-600 underline">{{ $targetParty1->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+                    @php
+                        $targetParty2 = $business->relatedParties->firstWhere('relatedparties_type', 2);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方本人（氏名）:</div>
+                        <div>
+                            {{ $targetParty2->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty2?->relatedparties_name_kana))
+                                （{{ $targetParty2->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方本人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty2?->phone_number))
+                                <a href="tel:{{ $targetParty2->phone_number }}" class="text-blue-600 underline">{{ $targetParty2->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="font-semibold">メールアドレス1:</span>
-                    <span class="ml-2">{!! optional($business->client)->email1 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">メールアドレス2:</span>
-                    <span class="ml-2">{!! optional($business->client)->email2 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当弁護士:</span>
-                    <span class="ml-2">{!! optional($business->lawyer)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当パラリーガル:</span>
-                    <span class="ml-2">{!! optional($business->paralegal)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">ステータス:</span>
-                    <span class="ml-2">{!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Googleフォルダ:</span>
-                    @if (!empty($business->folder_id))
-                        <span class="ml-2">
-                            <a href="https://drive.google.com/drive/folders/{{ $business->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">
-                                フォルダを開く
-                            </a>
-                        </span>
-                    @else
-                        <span class="ml-2">（登録なし）</span>
-                    @endif
-                </div>
+
             @else
                 <!-- 法人クライアント用表示 -->
-                <div class="col-span-2">
-                    <span class="font-semibold">取引先責任者名:</span>
-                    <span class="ml-2">
-                        {{ optional($business->client)->contact_last_name_kanji }}　{{ optional($business->client)->contact_first_name_kanji }}
-                        （{{ optional($business->client)->contact_last_name_kana }}　{{ optional($business->client)->contact_first_name_kana }}）
-                    </span>
+                {{-- 📌 左：主要情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">📌 主要情報</div>
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">取引先責任者名:</div>
+                        <div>
+                             {{ optional($business->client)->contact_last_name_kanji }}　{{ optional($business->client)->contact_first_name_kanji }}
+                             （{{ optional($business->client)->contact_last_name_kana }}　{{ optional($business->client)->contact_first_name_kana }}）
+                        </div>
+                        <div class="font-semibold">電話番号（第一連絡先）:</div>
+                        <div>
+                            @if (!empty($business->client->first_contact_number))
+                                <a href="tel:{{ $business->client->first_contact_number }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $business->client->first_contact_number }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">取引先責任者_メール1:</div>
+                        <div>
+                            @if (!empty($business->client->contact_email1))
+                                <a href="mailto:{{ $business->client->contact_email1 }}" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $business->client->contact_email1 }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        <div class="font-semibold">担当弁護士:</div>
+                        <div>{{ optional($business->lawyer)->name ?? '-' }}</div>
+                        <div class="font-semibold">担当パラリーガル:</div>
+                        <div>{{ optional($business->paralegal)->name ?? '-' }}</div>
+                        <div class="font-semibold">ステータス:</div>
+                        <div>{{ config('master.business_statuses')[$business->status] ?? '-' }}</div>
+                        <div class="font-semibold">Googleフォルダ:</div>
+                        <div>
+                            @if (!empty($business->folder_id))
+                                <a href="https://drive.google.com/drive/folders/{{ $business->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">フォルダを開く</a>
+                            @else
+                                （登録なし）
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="font-semibold">電話番号（第一連絡先）:</span>
-                    <span class="ml-2">{!! optional($business->client)->first_contact_number ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">電話番号（第二連絡先）:</span>
-                    <span class="ml-2">{!! optional($business->client)->second_contact_number ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">取引先責任者_メール1:</span>
-                    <span class="ml-2">{!! optional($business->client)->contact_email1 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">取引先責任者_メール2:</span>
-                    <span class="ml-2">{!! optional($business->client)->contact_email2 ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当弁護士:</span>
-                    <span class="ml-2">{!! optional($business->lawyer)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">担当パラリーガル:</span>
-                    <span class="ml-2">{!! optional($business->paralegal)->name ?: '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">ステータス:</span>
-                    <span class="ml-2">{!! $business->status ? config('master.business_statuses')[$business->status] : '&nbsp;' !!}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Googleフォルダ:</span>
-                    @if (!empty($business->folder_id))
-                        <span class="ml-2">
-                            <a href="https://drive.google.com/drive/folders/{{ $business->folder_id }}" class="text-blue-600 underline" target="_blank" rel="noopener">
-                                フォルダを開く
-                            </a>
-                        </span>
-                    @else
-                        <span class="ml-2">（登録なし）</span>
-                    @endif
+            
+                {{-- 👤 右：相手方情報 --}}
+                <div class="border rounded shadow bg-white">
+                    <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border-b">👤 相手方情報</div>
+                    @php
+                        $targetParty1 = $business->relatedParties->firstWhere('relatedparties_type', 3);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方代理人:</div>
+                        <div>
+                            {{ $targetParty1->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty1?->relatedparties_name_kana))
+                                （{{ $targetParty1->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方代理人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty1?->phone_number))
+                                <a href="tel:{{ $targetParty1->phone_number }}" class="text-blue-600 underline">{{ $targetParty1->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+                    @php
+                        $targetParty2 = $business->relatedParties->firstWhere('relatedparties_type', 2);
+                    @endphp
+                    <div class="p-4 grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+                        <div class="font-semibold">相手方本人（氏名）:</div>
+                        <div>
+                            {{ $targetParty2->relatedparties_name_kanji ?? '-' }}
+                            @if (!empty($targetParty2?->relatedparties_name_kana))
+                                （{{ $targetParty2->relatedparties_name_kana }}）
+                            @endif
+                        </div>
+                        <div class="font-semibold">相手方本人（電話）:</div>
+                        <div>
+                            @if (!empty($targetParty2?->phone_number))
+                                <a href="tel:{{ $targetParty2->phone_number }}" class="text-blue-600 underline">{{ $targetParty2->phone_number }}</a>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- ✅ タスク・折衝履歴（非対称な2列構成） -->
-    <div class="border rounded-lg shadow bg-white mb-6 overflow-hidden">
-        <!-- 見出しバー -->
-        <div class="bg-sky-700 text-white px-6 py-3 border-b border-sky-800">
-            <div class="text-md font-bold">タスク・折衝履歴</div>
+    {{-- ▼ タスク表示：完了と未完了に分割（関係者タブ風） --}}
+    <div class="space-y-6">
+    
+        {{-- ✅ タスク履歴（完了） --}}
+        <div class="border rounded shadow bg-white">
+            <div class="flex justify-between items-center px-4 py-2 bg-sky-700 text-white rounded-t">
+                <div class="font-bold text-sm">✅ タスク履歴（完了）※取り下げは除く</div>
+            </div>
+            <div class="px-4 py-3 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-blue-200 text-blue-900">
+                        <tr>
+                            <th class="px-2 py-1 border">件名</th>
+                            <th class="px-2 py-1 border">作成日</th>
+                            <th class="px-2 py-1 border">宛先</th>
+                            <th class="px-2 py-1 border">内容</th>
+                            <th class="px-2 py-1 border">orderer</th>
+                            <th class="px-2 py-1 border">worker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($doneTasks as $task)
+                            <tr>
+                                <td class="border px-2 py-1">
+                                    <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $task->title }}
+                                    </a>
+                                </td>
+                                <td class="border px-2 py-1">{{ $task->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="border px-2 py-1">{{ $task->record_to ?? '-' }}</td>
+                                <td class="border px-2 py-1 whitespace-pre-wrap break-words max-w-sm">{{ $task->content }}</td>
+                                <td class="border px-2 py-1">{{ $task->orderer->name ?? '-' }}</td>
+                                <td class="border px-2 py-1">{{ $task->worker->name ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                        {{-- 件数0の場合の表示 --}}
+                        @if($doneTasks->isEmpty())
+                            <tr>
+                                <td class="px-2 py-2 text-center text-gray-500 border" colspan="6">完了タスクはありません。</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <!-- グリッド：左がタスク、右が折衝履歴 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-4 text-sm text-gray-700">
-
-            {{-- 📋 タスク一覧 --}}
-            <div>
-                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
-                    <div>📋 タスク一覧（{{ $business->tasks->count() }}件）</div>
-                    <a href="{{ route('task.create', [
-                        'related_party' => 2,
-                        'business_id' => $business->id,
-                        'redirect_url' => route('business.show', ['business' => $business->id])
-                    ]) }}"
-                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
-                        追加
+    
+        {{-- 📌 活動予定（未完了） --}}
+        <div class="border rounded shadow bg-white">
+            <div class="flex justify-between items-center px-4 py-2 bg-sky-700 text-white rounded-t">
+                <div class="font-bold text-sm">📌 未完了タスク</div>
+                <div class="space-x-2">
+                    <a href="{{ route('task.create', ['related_party' => 2, 'business_id' => $business->id, 'redirect_url' => url()->current()]) }}"
+                       class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded">
+                        ＋新規ToDo
+                    </a>
+                    <a href="{{ route('task.create.phone', ['related_party' => 2, 'business_id' => $business->id, 'redirect_url' => url()->current()]) }}"
+                       class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded">
+                        ＋発着信ToDo
                     </a>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
-                    @foreach ($business->tasks
-                        ->sortBy('deadline_date')
-                        ->sortBy('status') as $task)
-                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
-                            <div class="font-bold text-sky-700 mb-1">{{ $task->title }}</div>
-                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$task->record1] ?? '―' }}</div>
-                            <div><span class="font-semibold">担当:</span> {{ optional($task->worker)->name }}</div>
-                            <div><span class="font-semibold">期限:</span> {{ $task->deadline_date }}</div>
-                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$task->status] ?? '―' }}</div>
-                            <div class="mt-2">
-                                <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
             </div>
-
-            {{-- 📝 折衝履歴 --}}
-            <div>
-                <div class="bg-blue-100 text-blue-900 px-4 py-2 font-bold border flex items-center justify-between">
-                    <div>📋 折衝履歴（{{ $business->negotiations->count() }}件）</div>
-                    <a href="{{ route('negotiation.create', [
-                        'related_party' => 2,
-                        'business_id' => $business->id,
-                        'redirect_url' => route('business.show', ['business' => $business->id])
-                    ]) }}"
-                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded">
-                        追加
-                    </a>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
-                    @foreach ($business->negotiations
-                        ->sortBy('status') as $negotiation)
-                        <div class="border rounded shadow-sm p-3 bg-white text-sm leading-tight">
-                            <div class="font-bold text-sky-700 mb-1">{{ $negotiation->title }}</div>
-                            <div><span class="font-semibold">大区分:</span> {{ config('master.records_1')[$negotiation->record1] ?? '―' }}</div>
-                            <div><span class="font-semibold">担当:</span> {{ optional($negotiation->worker)->name }}</div>
-                            <div><span class="font-semibold">登録日:</span> {{ $negotiation->record_date }}</div>
-                            <div><span class="font-semibold">ステータス:</span> {{ config('master.task_statuses')[$negotiation->status] ?? '―' }}</div>
-                            <div class="mt-2">
-                                <a href="{{ route('negotiation.show', $negotiation->id) }}" class="text-blue-600 hover:underline text-sm">詳細を見る</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            <div class="px-4 py-3 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-blue-200 text-blue-900">
+                        <tr>
+                            <th class="px-2 py-1 border">件名</th>
+                            <th class="px-2 py-1 border">作成日</th>
+                            <th class="px-2 py-1 border">期限</th>
+                            <th class="px-2 py-1 border">ステータス</th>
+                            <th class="px-2 py-1 border">内容</th>
+                            <th class="px-2 py-1 border">orderer</th>
+                            <th class="px-2 py-1 border">worker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($todoTasks as $task)
+                            <tr>
+                                <td class="border px-2 py-1">
+                                    <a href="{{ route('task.show', $task->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $task->title }}
+                                    </a>
+                                </td>
+                                <td class="border px-2 py-1">{{ $task->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="border px-2 py-1">{{ $task->deadline_date }}</td>
+                                <td class="border px-2 py-1">{{ config('master.task_statuses')[$task->status] ?? '-' }}</td>
+                                <td class="border px-2 py-1 whitespace-pre-wrap break-words max-w-sm">{{ $task->content }}</td>
+                                <td class="border px-2 py-1">{{ $task->orderer->name ?? '-' }}</td>
+                                <td class="border px-2 py-1">{{ $task->worker->name ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                        {{-- 件数0の場合の表示 --}}
+                        @if($todoTasks->isEmpty())
+                            <tr>
+                                <td class="px-2 py-2 text-center text-gray-500 border" colspan="5">予定タスクはありません。</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
             </div>
-
         </div>
     </div>
 
@@ -225,10 +342,32 @@
     <!-- ▼ 詳細情報タブ（今ある内容を全部この中に入れる） -->
     <div id="tab-detail" class="tab-content">
 
-        <!-- 相談詳細カード -->
+        <!-- 受任案件詳細カード -->
         <div class="p-6 border rounded-lg shadow bg-white">
             <!-- 上部ボタン -->
             <div class="flex justify-end space-x-2 mb-4">
+                    <button
+                    onclick="
+                        const box = document.getElementById('report-error-box');
+                        if (box) box.remove();
+                            
+                        const form = document.querySelector('#reportModal form');
+                        if (form) form.reset();
+                            
+                        // ▼ 帳票種類選択に応じた分類セレクトをクリア・非表示
+                        const wrapper = document.getElementById('report_case_type_wrapper');
+                        const caseSelect = document.getElementById('report_case_type');
+                        if (wrapper && caseSelect) {
+                            wrapper.classList.add('hidden');
+                            caseSelect.innerHTML = '';
+                            caseSelect.removeAttribute('required');
+                        }
+                    
+                        document.getElementById('reportModal').classList.remove('hidden');
+                    "
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded min-w-[100px]">
+                    帳票作成
+                </button>
                 <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded min-w-[100px]">編集</button>
                 @if (auth()->user()->role_type == 1)
                 <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded min-w-[100px]">削除</button>
@@ -320,6 +459,12 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">時効完成日</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->status_limitday ?: '&nbsp;' !!}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">外部連携ID</label>
+                                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                                        {!! $business->external_id ?: '&nbsp;' !!}
                                     </div>
                                 </div>
                             </div>
@@ -438,7 +583,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額（売上見込初期値との比較）</label>
                                     <div class="mt-1 p-2 border rounded bg-gray-50">
                                         {!! $business->difference !== null ? '¥' . number_format($business->difference) : '&nbsp;' !!}
                                     </div>
@@ -688,11 +833,13 @@
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
                             <th class="border p-2 w-1/12">ID</th>
-                            <th class="border p-2 w-4/12">関係者名（漢字）</th>
-                            <th class="border p-2 w-2/12">区分</th>
-                            <th class="border p-2 w-2/12">分類</th>
-                            <th class="border p-2 w-2/12">種別</th>
-                            <th class="border p-2 w-3/12">立場</th>
+                            <th class="border p-2 w-3/12">関係者名（漢字）</th>
+                            <th class="border p-2 w-1/12">区分</th>
+                            <th class="border p-2 w-1/12">分類</th>
+                            <th class="border p-2 w-1/12">種別</th>
+                            <th class="border p-2 w-1/12">立場</th>
+                            <th class="border p-2 w-2/12">電話</th>
+                            <th class="border p-2 w-2/12">メール</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
@@ -715,6 +862,16 @@
                             </td>
                             <td class="border px-2 py-[6px] truncate">
                                 {{ config('master.relatedparties_positions')[(string)$relatedparty->relatedparties_position] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $relatedparty->phone_number
+                                ? '<a href="tel:' . e($relatedparty->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->phone_number) . '</a>'
+                                : '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $relatedparty->email
+                                ? '<a href="mailto:' . e($relatedparty->email) . '" class="text-blue-600 underline hover:text-blue-800">' . e($relatedparty->email) . '</a>'
+                                : '&nbsp;' !!}
                             </td>
                         </tr>
                         @endforeach
@@ -846,12 +1003,14 @@
                     <thead class="bg-sky-700 text-white text-sm shadow-md">
                         <tr>
                             <th class="border p-2 w-[6%]">ID</th>
-                            <th class="border p-2 w-[28%]">タスク名</th>
-                            <th class="border p-2 w-[12%]">タスク分類</th>
-                            <th class="border p-2 w-[14%]">担当弁護士</th>
-                            <th class="border p-2 w-[14%]">担当パラリーガル</th>
-                            <th class="border p-2 w-[14%]">期限</th>
-                            <th class="border p-2 w-[12%]">ステータス</th>
+                            <th class="border p-2 w-[20%]">タスク名</th>
+                            <th class="border p-2 w-[10%]">タスク分類</th>
+                            <th class="border p-2 w-[10%]">裁判所名</th>
+                            <th class="border p-2 w-[10%]">担当弁護士</th>
+                            <th class="border p-2 w-[10%]">担当パラリーガル</th>
+                            <th class="border p-2 w-[10%]">期限</th>
+                            <th class="border p-2 w-[10%]">ステータス</th>
+                            <th class="border p-2 w-[14%]">事件番号</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
@@ -867,6 +1026,9 @@
                                 {{ config('master.court_task_categories')[(string)$courtTask->task_category] ?? '未設定' }}
                             </td>
                             <td class="border px-2 py-[6px] truncate">
+                                {!! optional($courtTask->court)->name ?: '&nbsp;' !!}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
                                 {!! optional($courtTask->lawyer)->name ?: '&nbsp;' !!}
                             </td>
                             <td class="border px-2 py-[6px] truncate">
@@ -877,6 +1039,9 @@
                             </td>
                             <td class="border px-2 py-[6px] truncate">
                                 {{ config('master.court_tasks_statuses')[(string)$courtTask->status] ?? '未設定' }}
+                            </td>
+                            <td class="border px-2 py-[6px] truncate">
+                                {!! $courtTask->case_number ?: '&nbsp;' !!}
                             </td>
                         </tr>
                         @endforeach
@@ -900,6 +1065,8 @@
             <form method="POST" action="{{ route('business.update', $business->id) }}">
                 @csrf
                 @method('PUT')
+
+                <input type="hidden" name="_modal" value="edit">
             
                 <!-- モーダル見出し -->
                 <div class="bg-amber-600 text-white px-4 py-2 font-bold border-b">受任案件編集</div>
@@ -943,8 +1110,8 @@
                         @errorText('status_detail')
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
-                        <textarea name="case_summary" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $business->case_summary }}</textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">事件概要</label>
+                        <textarea name="case_summary" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $business->case_summary }}</textarea>
                         @errorText('case_summary')
                     </div>
                     <div class="col-span-2">
@@ -962,8 +1129,8 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>問い合せ形態</label>
-                                    <select name="inquirytype" class="mt-1 p-2 border rounded w-full bg-white required">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">問い合せ形態</label>
+                                    <select name="inquirytype" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.inquirytypes') as $key => $value)
                                             <option value="{{ $key }}" {{ $business->inquirytype == $key ? 'selected' : '' }}>{{ $value }}</option>
@@ -973,7 +1140,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">相談形態</label>
-                                    <select name="consultationtype" class="mt-1 p-2 border rounded w-full bg-white required">
+                                    <select name="consultationtype" class="mt-1 p-2 border rounded w-full bg-white">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.consultation_types') as $key => $value)
                                             <option value="{{ $key }}" {{ $business->consultationtype == $key ? 'selected' : '' }}>{{ $value }}</option>
@@ -983,7 +1150,7 @@
                                 </div>
                                 <!-- 親：事件分野 -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野</label>
                                     <select id="case_category" name="case_category" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 未選択 --</option>
                                         @foreach (config('master.case_categories') as $key => $label)
@@ -995,7 +1162,7 @@
                             
                                 <!-- 子：事件分野（詳細） -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
                                     <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 未選択 --</option>
                                         {{-- JSで上書き --}}
@@ -1003,7 +1170,7 @@
                                     @errorText('case_subcategory')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>受任日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任日</label>
                                     <input type="date" name="appointment_date" value="{{ $business->appointment_date }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('appointment_date')
                                 </div>
@@ -1040,7 +1207,7 @@
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>取扱事務所</label>
-                                    <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white">
+                                    <select name="office_id" class="mt-1 p-2 border rounded w-full bg-white required">
                                         <option value="">-- 選択してください --</option>
                                         @foreach (config('master.offices_id') as $key => $value)
                                             <option value="{{ $key }}" {{ $business->office_id == $key ? 'selected' : '' }}>{{ $value }}</option>
@@ -1128,17 +1295,17 @@
                         <div class="accordion-content hidden pt-4 px-6">
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>見込理由</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">見込理由</label>
                                     <input type="text" name="feefinish_prospect" value="{{ $business->feefinish_prospect }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('feefinish_prospect')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>報酬体系</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">報酬体系</label>
                                     <input type="text" name="feesystem" value="{{ $business->feesystem }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('feesystem')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込</label>
                                     <input type="text" name="sales_prospect"
                                         value="{{ $business->sales_prospect }}"
                                         data-raw="{{ $business->sales_prospect }}"
@@ -1146,7 +1313,7 @@
                                     @errorText('sales_prospect')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込更新日</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込更新日</label>
                                     <input type="date" name="sales_reason_updated" value="{{ $business->sales_reason_updated }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('sales_reason_updated')
                                 </div>
@@ -1155,19 +1322,19 @@
                                     <input type="text" name="feesystem_initialvalue"
                                         value="{{ $business->feesystem_initialvalue }}"
                                         data-raw="{{ $business->feesystem_initialvalue }}"
-                                        class="currency-input mt-1 p-2 border rounded w-full bg-white">
+                                        class="currency-input mt-1 p-2 border rounded w-full bg-white required">
                                     @errorText('feesystem_initialvalue')
                                 </div>
                                 <div></div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">終了時期見込</label>
                                     <input type="date" name="enddate_prospect" value="{{ $business->enddate_prospect }}" class="mt-1 p-2 border rounded w-full bg-white">
                                     @errorText('enddate_prospect')
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold
                                     text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込（初期値）</label>
-                                    <input type="date" name="enddate_prospect_initialvalue" value="{{ $business->enddate_prospect_initialvalue }}" class="mt-1 p-2 border rounded w-full bg-white">
+                                    <input type="date" name="enddate_prospect_initialvalue" value="{{ $business->enddate_prospect_initialvalue }}" class="mt-1 p-2 border rounded w-full bg-white required">
                                     @errorText('enddate_prospect_initialvalue')
                                 </div>
                                 <div>
@@ -1209,9 +1376,9 @@
                                     @errorText('performance_reward')
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額（売上見込初期値との比較）</label>
                                     <input type="text" name="difference"
-                                        placeholder="自動計算：売上見込 - 着手金 - 成果報酬"
+                                        placeholder="自動計算：売上見込（初期値） - 着手金 - 成果報酬"
                                         value="{{ $business->difference }}"
                                         data-raw="{{ $business->difference }}"
                                         class="currency-input mt-1 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
@@ -1378,7 +1545,7 @@
                                 </div>                                
                                 <div class="col-span-2">
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">備考</label>
-                                    <textarea name="childsupport_memo" rows="3" class="mt-1 p-2 border rounded w-full bg-white required">{{ $business->childsupport_memo }}</textarea>
+                                    <textarea name="childsupport_memo" rows="3" class="mt-1 p-2 border rounded w-full bg-white">{{ $business->childsupport_memo }}</textarea>
                                     @errorText('childsupport_memo')
                                 </div>
                             </div>
@@ -1394,7 +1561,7 @@
                             <div class="grid grid-cols-2 gap-6">
                                 <!-- 親：流入経路 -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
                                     <select id="route" name="route" class="w-full p-2 border rounded bg-white">
                                         <option value="">-- 未選択 --</option>
                                         @foreach (config('master.routes') as $key => $label)
@@ -1550,6 +1717,68 @@
             </form>
         </div>
     </div>
+
+    <!-- 帳票作成モーダル -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white shadow-lg w-full max-w-2xl rounded max-h-[90vh] overflow-y-auto">
+            <form action="{{ route('report.create') }}" method="POST" onsubmit="setTimeout(() => document.getElementById('reportModal').classList.add('hidden'), 100)">
+                @csrf
+
+                <input type="hidden" name="_modal" value="report">
+                <input type="hidden" name="business_id" value="{{ $business->id }}">
+
+                <!-- 見出し -->
+                <div class="bg-blue-600 text-white px-4 py-2 font-bold border-b">帳票作成</div>
+
+                <!-- ✅ エラーボックス -->
+                @if ($errors->any() && old('_modal') === 'report')
+                <div id="report-error-box" class="p-6 pt-4 -mb-4 text-sm">
+                    <div class="mb-4 p-4 bg-red-100 text-red-600 rounded">
+                        <ul class="list-disc pl-6">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
+
+                <!-- 内容 -->
+                <div class="px-6 py-4 text-sm text-gray-800">
+                    <!-- 帳票の種類 -->
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">帳票の種類</label>
+                        <select name="report_type" id="report_type" class="w-full p-2 border rounded bg-white" required>
+                            <option value="">-- 選択してください --</option>
+                            @foreach (config('output_forms.report_types') as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- 帳票用案件分類（動的表示） -->
+                    <div class="mb-4 hidden" id="report_case_type_wrapper">
+                        <label class="block font-semibold mb-1">帳票用分類</label>
+                        <select name="report_case_type" id="report_case_type" class="w-full p-2 border rounded bg-white" required>
+                            <!-- JSで選択肢が生成されます -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- フッター -->
+                <div class="flex justify-end space-x-2 px-6 pb-6">
+                    <a href="{{ route('business.show', $business->id) }}"
+                       class="px-4 py-2 bg-gray-300 text-black rounded min-w-[100px] text-center">
+                       キャンセル
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 min-w-[100px]">
+                        作成
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
             
 @endsection
 
@@ -1557,7 +1786,16 @@
 @if ($errors->any())
 <script>
     window.addEventListener('load', function () {
-        document.getElementById('editModal')?.classList.remove('hidden');
+        const modal = '{{ old('_modal') }}';
+
+        if (modal === 'edit') {
+            document.getElementById('editModal')?.classList.remove('hidden');
+        }
+        if (modal === 'report') {
+            document.getElementById('reportModal')?.classList.remove('hidden');
+        }
+
+        // 共通：アコーディオン展開（どちらでも有効にして問題なし）
         document.querySelectorAll('.accordion-content').forEach(content => {
             content.classList.remove('hidden');
             const icon = content.previousElementSibling?.querySelector('.accordion-icon');
@@ -1660,8 +1898,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return el ? parseInt((el.value || '').replace(/[^\d]/g, ''), 10) || 0 : 0;
         };
 
-        // ✅ 差額 = 売上見込 - 着手金 - 成果報酬
-        const sales = parseValue('input[name="sales_prospect"]');
+        // ✅ 差額 = 売上見込（初期値） - 着手金 - 成果報酬
+        const sales = parseValue('input[name="feesystem_initialvalue"]');
         const deposit = parseValue('input[name="deposit"]');
         const reward = parseValue('input[name="performance_reward"]');
         const difference = sales - deposit - reward;
@@ -1734,6 +1972,59 @@ document.addEventListener('DOMContentLoaded', function () {
     );
     // 他にも以下のように呼び出し可能にしておけば、JSは再利用できます
     // setupDependentSelect('court', 'court_branch', 'court_branch', old値...);
+
+    // ↓ここから帳票モーダル
+    const reportTypeSelect = document.getElementById('report_type');
+    const reportCaseTypeWrapper = document.getElementById('report_case_type_wrapper');
+    const reportCaseTypeSelect = document.getElementById('report_case_type');
+    
+    // ▼ LaravelのconfigをJSに渡す
+    const caseTypes = @json(config('output_forms.case_report_types'));
+    const contractTypes = @json(config('output_forms.contract_report_types'));
+    const invoiceTypes = @json(config('output_forms.invoice_report_types'));
+    
+    reportTypeSelect.addEventListener('change', function () {
+        const selected = this.value;
+    
+        switch (selected) {
+            case '案件':
+                updateOptions(caseTypes);
+                showCaseTypeSelect();
+                break;
+            case '契約・委任':
+                updateOptions(contractTypes);
+                showCaseTypeSelect();
+                break;
+            case '請求・精算':
+                updateOptions(invoiceTypes);
+                showCaseTypeSelect();
+                break;
+            default:
+                hideCaseTypeSelect();
+                break;
+        }
+    });
+    
+    function updateOptions(data) {
+        reportCaseTypeSelect.innerHTML = '<option value="">-- 選択してください --</option>';
+        Object.entries(data).forEach(([key, label]) => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = label;
+            reportCaseTypeSelect.appendChild(option);
+        });
+    }
+    
+    function showCaseTypeSelect() {
+        reportCaseTypeWrapper.classList.remove('hidden');
+        reportCaseTypeSelect.setAttribute('required', 'required');
+    }
+    
+    function hideCaseTypeSelect() {
+        reportCaseTypeWrapper.classList.add('hidden');
+        reportCaseTypeSelect.innerHTML = '';
+        reportCaseTypeSelect.removeAttribute('required');
+    }
 
 });
 </script>

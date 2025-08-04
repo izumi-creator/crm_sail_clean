@@ -37,7 +37,7 @@
                     <option value="advisory_consultations">顧問相談</option>
                     <option value="related_parties">関係者</option>
                     <option value="tasks">タスク</option>
-                    <option value="negotiations">折衝履歴</option>
+                    <option value="task_comments">タスクコメント</option>
                     <option value="court_tasks">裁判所タスク</option>
                     <option value="insurances">保険会社マスタ</option>
                     <option value="courts">裁判所マスタ</option>
@@ -56,18 +56,9 @@
 </div>
 @endsection
 
-<!-- ✅ ダウンロード開始通知トースト -->
-<div id="download-toast" class="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 text-sm">
-    ✅ ダウンロード処理を開始します。<br>
-    ブラウザの設定によっては、保存先の選択ダイアログが表示されます。<br>
-    保存が完了しましたら、データが保存されていることをご確認ください。<br>
-    （このメッセージは5秒後に自動で閉じます）
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('download-form');
-        const toast = document.getElementById('download-toast');
     
         form.addEventListener('submit', function (e) {
             e.preventDefault(); // 通常の送信をブロック
@@ -76,15 +67,6 @@
             const type = formData.get('type');
     
             if (!type) return alert('データ種別を選択してください');
-    
-            // ✅ トースト表示
-            toast.classList.remove('hidden');
-            toast.classList.add('flex', 'flex-col');
-    
-            setTimeout(() => {
-                toast.classList.remove('flex', 'flex-col');
-                toast.classList.add('hidden');
-            }, 5000);
     
             // ✅ 非同期でCSV取得
             fetch("{{ route('export.download') }}", {

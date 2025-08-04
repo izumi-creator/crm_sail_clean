@@ -9,7 +9,7 @@
 
 <h2 class="text-2xl font-bold mb-2 text-gray-800">受任案件登録</h2>
 
-<p class="text-sm text-red-600 mb-4">
+<p class="text-xl text-red-600 mb-4">
     ※ トラブル用の画面です。原則、相談詳細画面からステータスを変更して受任案件を登録してください。
 </p>
 
@@ -109,7 +109,7 @@
                 </div>
                 <!-- 事件概要 -->
                 <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件概要</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件概要</label>
                     <textarea name="case_summary" rows="4"
                               class="w-full p-2 border rounded bg-white resize-y">{{ old('case_summary') }}</textarea>
                     @errorText('case_summary')
@@ -129,9 +129,9 @@
                 <!-- 問い合せ形態 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>問い合せ形態
+                        問い合せ形態
                     </label>
-                    <select name="inquirytype" class="w-full p-2 border rounded bg-white required">
+                    <select name="inquirytype" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.inquirytypes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('inquirytype') == $key)>{{ $label }}</option>
@@ -144,7 +144,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         相談形態
                     </label>
-                    <select name="consultationtype" class="w-full p-2 border rounded bg-white required">
+                    <select name="consultationtype" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.consultation_types') as $key => $label)
                             <option value="{{ $key }}" @selected(old('consultationtype') == $key)>{{ $label }}</option>
@@ -155,7 +155,7 @@
 
                 <!-- 事件分野（親） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野</label>
                     <select id="case_category" name="case_category" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.case_categories') as $key => $label)
@@ -166,7 +166,7 @@
                 </div>
                 <!-- 子：事件分野（詳細） -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>事件分野（詳細）</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">事件分野（詳細）</label>
                     <select id="case_subcategory" name="case_subcategory" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         {{-- JSで動的に上書き --}}
@@ -176,7 +176,7 @@
 
                 <!-- 受任日 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>受任日</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">受任日</label>
                     <input type="date" name="appointment_date"
                            value="{{ old('appointment_date') }}"
                            class="w-full p-2 border rounded bg-white">
@@ -221,7 +221,7 @@
                         <span class="text-red-500">*</span>弁護士（名前で検索）
                     </label>
                     <select name="lawyer_id"
-                            class="select-user w-full p-2 border rounded bg-white"
+                            class="select-user w-full p-2 border rounded bg-white required"
                             data-old-id="{{ old('lawyer_id') }}"
                             data-old-text="{{ old('lawyer_name_display') }}">
                             <option></option>
@@ -234,7 +234,7 @@
                      <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>パラリーガル（名前で検索）
                     </label>
-                    <select name="paralegal_id" class="select-user w-full p-2 border rounded bg-white"
+                    <select name="paralegal_id" class="select-user w-full p-2 border rounded bg-white required"
                             data-old-id="{{ old('paralegal_id') }}"
                             data-old-text="{{ old('paralegal_name_display') }}">
                         <option></option>
@@ -247,17 +247,17 @@
                     見込み
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>見込理由</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">見込理由</label>
                     <input type="text" name="feefinish_prospect" value="{{ old('feefinish_prospect') }}" class="w-full p-2 border rounded bg-white">
                     @errorText('feefinish_prospect')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>報酬体系</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">報酬体系</label>
                     <input type="text" name="feesystem" value="{{ old('feesystem') }}" class="w-full p-2 border rounded bg-white">
                     @errorText('feesystem')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込</label>
                     <input type="text" name="sales_prospect"
                         value="{{ old('sales_prospect') }}"
                         data-raw="{{ old('sales_prospect') }}"
@@ -265,7 +265,7 @@
                     @errorText('sales_prospect')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>売上見込更新日</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">売上見込更新日</label>
                     <input type="date" name="sales_reason_updated" value="{{ old('sales_reason_updated') }}" class="mt-1 p-2 border rounded w-full bg-white">
                     @errorText('sales_reason_updated')
                 </div>
@@ -274,18 +274,18 @@
                     <input type="text" name="feesystem_initialvalue"
                         value="{{ old('feesystem_initialvalue') }}"
                         data-raw="{{ old('feesystem_initialvalue') }}"
-                        class="currency-input mt-1 p-2 border rounded w-full bg-white">
+                        class="currency-input mt-1 p-2 border rounded w-full bg-white required">
                     @errorText('feesystem_initialvalue')
                 </div>
                 <div></div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">終了時期見込</label>
                     <input type="date" name="enddate_prospect" value="{{ old('enddate_prospect') }}" class="mt-1 p-2 border rounded w-full bg-white">
                     @errorText('enddate_prospect')
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>終了時期見込（初期値）</label>
-                    <input type="date" name="enddate_prospect_initialvalue" value="{{ old('enddate_prospect_initialvalue') }}" class="mt-1 p-2 border rounded w-full bg-white">
+                    <input type="date" name="enddate_prospect_initialvalue" value="{{ old('enddate_prospect_initialvalue') }}" class="mt-1 p-2 border rounded w-full bg-white required">
                     @errorText('enddate_prospect_initialvalue')
                 </div>                
 
@@ -294,7 +294,7 @@
                     弁護士費用
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>着手金</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">着手金</label>
                     <input type="text" name="deposit"
                         value="{{ old('deposit') }}"
                         data-raw="{{ old('deposit') }}"
@@ -302,7 +302,7 @@
                     @errorText('deposit')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>成果報酬</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">成果報酬</label>
                     <input type="text" name="performance_reward"
                         value="{{ old('performance_reward') }}"
                         data-raw="{{ old('performance_reward') }}"
@@ -310,9 +310,9 @@
                     @errorText('performance_reward')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">差額（売上見込初期値との比較）</label>
                     <input type="text" name="difference"
-                        placeholder="自動計算：売上見込 - 着手金 - 成果報酬"
+                        placeholder="自動計算：売上見込（初期値） - 着手金 - 成果報酬"
                         value="{{ old('difference') }}"
                         data-raw="{{ old('difference') }}"
                         class="currency-input mt-1 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
@@ -325,7 +325,7 @@
                     預り依頼金
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>預り依頼金（予定）</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">預り依頼金（予定）</label>
                     <input type="text" name="requestfee_initialvalue"
                         value="{{ old('requestfee_initialvalue') }}"
                         data-raw="{{ old('requestfee_initialvalue') }}"
@@ -333,7 +333,7 @@
                     @errorText('requestfee_initialvalue')
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>預り依頼金</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">預り依頼金</label>
                     <input type="text" name="requestfee"
                         value="{{ old('requestfee') }}"
                         data-raw="{{ old('requestfee') }}"
@@ -357,7 +357,7 @@
                 </div>
                 <!-- 親：流入経路 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>流入経路</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">流入経路</label>
                     <select id="route" name="route" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.routes') as $key => $label)
@@ -382,7 +382,7 @@
                         紹介者
                     </label>
                     <input type="text" name="introducer" value="{{ old('introducer') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('introducer')
                 </div>
                 <!-- 紹介者その他 -->
@@ -391,7 +391,7 @@
                         紹介者その他
                     </label>
                     <input type="text" name="introducer_others" value="{{ old('introducer_others') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('introducer_others')
                 </div>
 
@@ -405,7 +405,7 @@
                         コメント
                     </label>
                     <input type="text" name="comment" value="{{ old('comment') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('comment')
                 </div>           
                 <div>
@@ -414,7 +414,7 @@
                         進捗コメント
                     </label>
                     <input type="text" name="progress_comment" value="{{ old('progress_comment') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('progress_comment')
                 </div>
             </div>    
@@ -458,8 +458,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return el ? parseInt((el.value || '').replace(/[^\d]/g, ''), 10) || 0 : 0;
         };
 
-        // ✅ 差額 = 売上見込 - 着手金 - 成果報酬
-        const sales = parseValue('input[name="sales_prospect"]');
+        // ✅ 差額 = 売上見込（初期値） - 着手金 - 成果報酬
+        const sales = parseValue('input[name="feesystem_initialvalue"]');
         const deposit = parseValue('input[name="deposit"]');
         const reward = parseValue('input[name="performance_reward"]');
         const difference = sales - deposit - reward;

@@ -39,7 +39,12 @@ class InquiryController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        $inquiries = $query->paginate(15);
+
+        $inquiries = $query
+            ->with('manager')
+            ->paginate(15);
+
+
         return view('inquiry.index', compact('inquiries'));
     }
 
@@ -156,7 +161,7 @@ class InquiryController extends Controller
             'averageovertimehoursperweek' => 'nullable|string|max:10',
             'monthlyincome' => 'nullable|string|max:10',
             'lengthofservice' => 'nullable|string|max:10',
-            'manager_id' => 'required|exists:users,id',
+            'manager_id' => 'nullable|exists:users,id',
             'explanation' => 'nullable|string|max:10000',
             'consultation_id' => 'nullable|exists:consultations,id',
             ],

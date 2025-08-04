@@ -15,6 +15,7 @@ class Business extends Model
      */
 
     protected $fillable = [
+        'external_id',
         'client_id',
         'consultation_id',
         'consultation_party',
@@ -78,6 +79,16 @@ class Business extends Model
         'progress_comment',
         'folder_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function ($model) {
+            if (empty($model->external_id)) {
+                $model->external_id = 'BUS-' . str_pad($model->id + 10000, 6, '0', STR_PAD_LEFT);
+                $model->save();
+            }
+        });
+    }
 
     /**
      * クライアントとのリレーション

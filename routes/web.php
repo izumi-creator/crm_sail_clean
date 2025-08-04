@@ -18,7 +18,9 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TaskCommentController;
 use App\Http\Middleware\EnsureTwoFactorIsEnabled;
+use App\Http\Controllers\GlobalSearchController;
 
 
 
@@ -80,8 +82,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
         Route::get('/api/businesses/search', [BusinessController::class, 'search'])->name('businesses.search');
     
-    
-        // CourtTask（裁判所対応）ルート群
+         // CourtTask（裁判所対応）ルート群   
+        Route::get('/court-task', [CourtTaskController::class, 'index'])->name('court_task.index');
         // 受任案件に紐づく裁判所対応の作成・登録
         Route::prefix('/business/{business}/court-task')->name('court_task.')->group(function () {
             Route::get('/create', [CourtTaskController::class, 'create'])->name('create');
@@ -105,6 +107,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/advisory', [AdvisoryContractController::class, 'index'])->name('advisory.index');
         Route::get('/advisory/create', [AdvisoryContractController::class, 'create'])->name('advisory.create');
         Route::post('/advisory', [AdvisoryContractController::class, 'store'])->name('advisory.store');
+
+        // ZEUS継続予約データ出力用
+        Route::get('/advisory/zeus-preview', [AdvisoryContractController::class, 'zeusPreview'])->name('advisory.zeus.preview');
+        Route::get('/advisory/zeus-download', [AdvisoryContractController::class, 'zeusDownload'])->name('advisory.zeus.download');
+
         Route::get('/advisory/{advisory}', [AdvisoryContractController::class, 'show'])->name('advisory.show');
         Route::put('/advisory/{advisory}', [AdvisoryContractController::class, 'update'])->name('advisory.update');
         Route::delete('/advisory/{advisory}', [AdvisoryContractController::class, 'destroy'])->name('advisory.destroy');
@@ -113,6 +120,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
         Route::post('/advisory/{advisory}/conflict-check', [AdvisoryContractController::class, 'conflictUpdate'])
         ->name('advisory.conflict.update');
+
     
         //advisory_consultation
         Route::get('/advisory-consultation', [AdvisoryConsultationController::class, 'index'])->name('advisory_consultation.index');
@@ -134,6 +142,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/task/{task}', [TaskController::class, 'show'])->name('task.show');
         Route::put('/task/{task}', [TaskController::class, 'update'])->name('task.update');
         Route::delete('/task/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
+
+        // swap-worker-orderer
+        Route::post('/task/{task}/swap-worker-orderer', [TaskController::class, 'swapWorkerOrderer'])->name('task.swap_worker_orderer');
+        
+        //電話タスク専用ルート
+        Route::get('/task/create/phone', [TaskController::class, 'createPhone'])->name('task.create.phone');
+        Route::post('/task/phone', [TaskController::class, 'storePhone'])->name('task.store.phone');
+
+        // タスクコメント用ルート（投稿/削除のみ）
+        Route::post('/task/{task}/comment', [TaskCommentController::class, 'store'])->name('task.comment.store');
+        Route::delete('/task/{task}/comment/{comment}', [TaskCommentController::class, 'destroy'])->name('task.comment.destroy');
+        // コメントを既読にする
+        Route::post('/task/{task}/comment/{comment}/read', [TaskCommentController::class, 'read'])->name('task.comment.read');
     
         //negotiation
         Route::get('/negotiation', [NegotiationController::class, 'index'])->name('negotiation.index');
@@ -190,8 +211,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/export/download', function () {return view('export.index');})->name('export.index');
         Route::post('/export/download', [ExportController::class, 'download'])->name('export.download');
     
-        //仮のルート
+        //帳票
         Route::post('/report/create', [ReportController::class, 'create'])->name('report.create');
+
+        //グローバル検索ミニ
+        Route::get('/global-search', [GlobalSearchController::class, 'index'])->name('global_search.index');
 
     });
 

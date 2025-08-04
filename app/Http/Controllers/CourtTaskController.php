@@ -24,6 +24,37 @@ class CourtTaskController extends Controller
         }
     }
 
+    // 裁判所対応一覧画面
+    public function index(Request $request)
+    {
+        $query = CourtTask::query();
+
+        if ($request->filled('task_title')) {
+            $query->where('task_title', 'like', '%' . $request->task_title . '%');
+        }
+        // 裁判所名で検索
+        if ($request->filled('court_name')) {
+            $courtIds = Court::where(function ($query) use ($request) {
+                $query->where('court_name', 'like', '%' . $request->court_name . '%');
+            })->pluck('id');
+
+            $query->whereIn('court_id', $courtIds);
+        }
+        // 事件番号で検索
+        if ($request->filled('case_number')) {
+            $query->where('case_number', 'like', '%' . $request->case_number . '%');
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $court_tasks = $query
+            ->with(['court', 'business', 'lawyer', 'paralegal'])
+            ->paginate(15);
+
+        return view('court_task.index', compact('court_tasks'));
+    }
+
     // 裁判所対応追加画面
     public function create(Business $business)
     {
@@ -78,6 +109,7 @@ class CourtTaskController extends Controller
             'business_id' => 'required|exists:businesses,id',
             'status' => 'required|in:' . implode(',', array_keys(config('master.court_tasks_statuses'))),
             'status_detail' => 'nullable|string|max:255',
+            'case_number' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'judge' => 'nullable|string|max:255',
             'clerk' => 'nullable|string|max:255',
@@ -105,6 +137,7 @@ class CourtTaskController extends Controller
             'business_id' => $request->business_id,
             'status' => $request->status,
             'status_detail' => $request->status_detail,
+            'case_number' => $request->case_number,
             'department' => $request->department,
             'judge' => $request->judge,
             'clerk' => $request->clerk,
@@ -142,6 +175,7 @@ class CourtTaskController extends Controller
             'business_id' => 'required|exists:businesses,id',
             'status' => 'required|in:' . implode(',', array_keys(config('master.court_tasks_statuses'))),
             'status_detail' => 'nullable|string|max:255',
+            'case_number' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'judge' => 'nullable|string|max:255',
             'clerk' => 'nullable|string|max:255',
@@ -169,6 +203,7 @@ class CourtTaskController extends Controller
             'business_id' => $request->business_id,
             'status' => $request->status,
             'status_detail' => $request->status_detail,
+            'case_number' => $request->case_number,
             'department' => $request->department,
             'judge' => $request->judge,
             'clerk' => $request->clerk,

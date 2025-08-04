@@ -14,6 +14,7 @@ class AdvisoryContract extends Model
      * 一括代入可能な属性（フォームからの保存対象）
      */
     protected $fillable = [
+        'external_id',
         'client_id',
         'advisory_party',
         'title',
@@ -47,6 +48,16 @@ class AdvisoryContract extends Model
         'newyearscard',
         'folder_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function ($model) {
+            if (empty($model->external_id)) {
+                $model->external_id = 'ACR-' . str_pad($model->id + 1000, 6, '0', STR_PAD_LEFT);
+                $model->save();
+            }
+        });
+    }
 
     /**
      * クライアントとのリレーション

@@ -6,12 +6,6 @@
         {{ session('success') }}
     </div>
 @endif
-@if (session('debug_participants'))
-    <div class="bg-gray-100 p-2 mb-2 rounded text-sm">
-        <strong>participants:</strong>
-        <pre>{{ print_r(session('debug_participants'), true) }}</pre>
-    </div>
-@endif
 
 <!-- タイトル -->
 <h2 class="text-2xl font-bold mb-4 text-gray-800">相談登録</h2>
@@ -232,9 +226,9 @@
                 <!-- 問い合せ形態 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>問い合せ形態
+                        問い合せ形態
                     </label>
-                    <select name="inquirytype" class="w-full p-2 border rounded bg-white required">
+                    <select name="inquirytype" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.inquirytypes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('inquirytype') == $key)>{{ $label }}</option>

@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+    if (env('PHP_MEMORY_LIMIT')) {
+        ini_set('memory_limit', env('PHP_MEMORY_LIMIT'));
+    }
     
     // 各項目に書いている @error を共通コンポーネント化
     Blade::directive('errorText', function ($field) {

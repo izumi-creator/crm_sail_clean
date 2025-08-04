@@ -18,6 +18,7 @@ class CourtTask extends Model
         'business_id',
         'status',
         'status_detail',
+        'case_number',
         'department',
         'judge',
         'clerk',

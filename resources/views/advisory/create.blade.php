@@ -158,7 +158,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         支払区分
                     </label>
-                    <select name="payment_category" class="w-full p-2 border rounded bg-white required">
+                    <select name="payment_category" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.payment_categories') as $key => $label)
                             <option value="{{ $key }}" @selected(old('payment_category') == $key)>{{ $label }}</option>
@@ -172,7 +172,7 @@
                         自動引落番号
                     </label>
                     <input type="text" name="adviser_fee_auto" value="{{ old('adviser_fee_auto') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('adviser_fee_auto')
                 </div>
                 <!-- 支払方法 -->
@@ -180,7 +180,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         支払方法
                     </label>
-                    <select name="payment_method" class="w-full p-2 border rounded bg-white required">
+                    <select name="payment_method" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.payment_methods') as $key => $label)
                             <option value="{{ $key }}" @selected(old('payment_method') == $key)>{{ $label }}</option>
@@ -203,7 +203,7 @@
                         引落内訳
                     </label>
                     <input type="text" name="withdrawal_breakdown" value="{{ old('withdrawal_breakdown') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('withdrawal_breakdown')
                 </div>
                 <!-- 引落更新日 -->
@@ -222,7 +222,7 @@
                 <!-- 取扱事務所 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        取扱事務所
+                        <span class="text-red-500">*</span>取扱事務所
                     </label>
                     <select name="office_id" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
@@ -274,9 +274,9 @@
                 <!-- 親：ソース -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>ソース
+                        ソース
                     </label>
-                    <select  id="source" name="source" class="w-full p-2 border rounded bg-white required">
+                    <select  id="source" name="source" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.routes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('source') == $key)>{{ $label }}</option>
@@ -299,7 +299,7 @@
                         紹介者その他
                     </label>
                     <input type="text" name="introducer_others" value="{{ old('introducer_others') }}"
-                           class="w-full p-2 border rounded bg-white required">
+                           class="w-full p-2 border rounded bg-white">
                     @errorText('introducer_others')
                 </div>
 
@@ -312,7 +312,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         お中元・お歳暮
                     </label>
-                    <select name="gift" class="w-full p-2 border rounded bg-white required">
+                    <select name="gift" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.gifts') as $key => $label)
                             <option value="{{ $key }}" @selected(old('gift') == $key)>{{ $label }}</option>
@@ -325,7 +325,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         年賀状
                     </label>
-                    <select name="newyearscard" class="w-full p-2 border rounded bg-white required">
+                    <select name="newyearscard" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.newyearscards') as $key => $label)
                             <option value="{{ $key }}" @selected(old('newyearscard') == $key)>{{ $label }}</option>

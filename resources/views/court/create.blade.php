@@ -40,7 +40,7 @@
                         <span class="text-red-500">*</span>裁判所名
                     </label>
                         <input type="text" name="court_name" value="{{ old('court_name') }}"
-                           class="w-full p-2 border rounded bg-white">
+                           class="w-full p-2 border rounded bg-white required">
                     @errorText('court_name')
                 </div>
 
@@ -49,7 +49,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>裁判所区分
                     </label>
-                        <select name="court_type" class="w-full p-2 border rounded bg-white">
+                        <select name="court_type" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.court_types') as $key => $label)
                             <option value="{{ $key }}" @selected(old('court_type') == $key)>{{ $label }}</option>

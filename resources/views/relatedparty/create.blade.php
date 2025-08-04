@@ -45,7 +45,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>区分
                     </label>
-                        <select name="relatedparties_party" class="w-full p-2 border rounded bg-white">
+                        <select name="relatedparties_party" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.relatedparties_parties') as $key => $label)
                             <option value="{{ $key }}" @selected(old('relatedparties_party') == $key)>{{ $label }}</option>
@@ -57,7 +57,7 @@
                 <!-- 分類（親） -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>分類</label>
-                    <select id="relatedparties_class" name="relatedparties_class" class="w-full p-2 border rounded bg-white">
+                    <select id="relatedparties_class" name="relatedparties_class" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.relatedparties_classes') as $key => $label)
                             <option value="{{ $key }}" @selected(old('relatedparties_class') == $key)>{{ $label }}</option>
@@ -67,8 +67,8 @@
                 </div>
                 <!-- 子：種別 -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">種別</label>
-                    <select id="relatedparties_type" name="relatedparties_type" class="w-full p-2 border rounded bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>種別</label>
+                    <select id="relatedparties_type" name="relatedparties_type" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         {{-- JSで動的に上書き --}}
                     </select>
@@ -78,7 +78,7 @@
                 <!-- 立場 -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <span class="text-red-500">*</span>立場
+                        立場
                     </label>
                         <select name="relatedparties_position" class="w-full p-2 border rounded bg-white">
                         <option value="">-- 未選択 --</option>
@@ -114,7 +114,7 @@
                         <span class="text-red-500">*</span>関係者名（漢字）
                     </label>
                     <input type="text" name="relatedparties_name_kanji" value="{{ old('relatedparties_name_kanji') }}"
-                           class="w-full p-2 border rounded bg-white">
+                           class="w-full p-2 border rounded bg-white required">
                     @errorText('relatedparties_name_kanji')
                 </div>
                 <!-- 関係者名（ふりがな） -->

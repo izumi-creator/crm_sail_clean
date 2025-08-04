@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use App\Models\TaskComment;
 use App\Models\Task;
-use App\Models\Negotiation;
 use App\Models\Inquiry;
 use App\Models\Consultation;
 use App\Models\Business;
@@ -17,15 +17,43 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        $tasks = Task::where('worker_id', $userId)
-            ->whereNotIn('status', [5, 6]) // 5:完了, 6:取下げ
+        // 未読コメント
+        $unreadComments = TaskComment::with('task') // ← ココを追加
+            ->where(function ($query) use ($userId) {
+                $query->where(function ($q) use ($userId) {
+                    $q->where('to_id', $userId)
+                      ->where('already_read', false);
+                })->orWhere(function ($q) use ($userId) {
+                    $q->where('to2_id', $userId)
+                      ->where('already_read2', false);
+                })->orWhere(function ($q) use ($userId) {
+                    $q->where('to3_id', $userId)
+                      ->where('already_read3', false);
+                });
+            })
             ->orderByDesc('created_at')
             ->get();
 
-        $negotiations = Negotiation::where('worker_id', $userId)
+        // 📞 未完了電話タスク
+        $phoneTasks = Task::where('worker_id', $userId)
             ->whereNotIn('status', [5, 6])
-            ->orderByDesc('created_at')
+            ->where('record1', 1)
+            ->orderByRaw('deadline_date IS NULL')
+            ->orderBy('deadline_date')
+            ->orderBy('status')
             ->get();
+
+        // 📌 通常タスク（電話以外）
+        $todoTasks = Task::where('worker_id', $userId)
+            ->whereNotIn('status', [5, 6]) // 未完了
+            ->where(function ($query) {
+                $query->whereNull('record1')->orWhere('record1', '!=', 1); // 電話以外
+            })
+            ->orderByRaw('deadline_date IS NULL') // null最後
+            ->orderBy('deadline_date')
+            ->orderBy('status')
+            ->get();
+          
 
         $inquiries = Inquiry::where(function($q) use ($userId) {
             $q->where('manager_id', $userId)
@@ -83,6 +111,6 @@ class DashboardController extends Controller
         ->orderByDesc('created_at')
         ->get();
 
-        return view('dashboard', compact('tasks', 'negotiations', 'inquiries', 'consultations', 'businesses', 'advisoryContracts', 'advisoryConsultations'));
+        return view('dashboard', compact('unreadComments', 'phoneTasks', 'todoTasks', 'inquiries', 'consultations', 'businesses', 'advisoryContracts', 'advisoryConsultations'));
     }
 }

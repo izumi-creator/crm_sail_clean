@@ -54,6 +54,7 @@
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded min-w-[100px]">検索</button>
                     <a href="{{ route('advisory.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded">検索条件クリア</a>
                     <a href="{{ route('advisory.create') }}" class="bg-green-500 text-white px-4 py-2 rounded">新規登録</a>
+                    <a href="{{ route('advisory.zeus.preview') }}" class="bg-indigo-600 text-white px-4 py-2 rounded">ZEUS用データ</a>
                 </div>
             </form>
         </div>

@@ -40,8 +40,8 @@
                         <span class="text-red-500">*</span>ユーザID
                     </label>
                         <input type="text" name="user_id" value="{{ old('user_id') }}"
-                            placeholder="8文字以上・英数字（例: user12345）"
-                            class="w-full p-2 border rounded bg-white">
+                            placeholder="メールアドレス推奨・8文字以上"
+                            class="w-full p-2 border rounded bg-white required">
                     @errorText('user_id')
                 </div>
 
@@ -51,7 +51,7 @@
                         <span class="text-red-500">*</span>氏名
                     </label>
                         <input type="text" name="name" value="{{ old('name') }}"
-                           class="w-full p-2 border rounded bg-white">
+                           class="w-full p-2 border rounded bg-white required">
                     @errorText('name')
                 </div>
 
@@ -60,7 +60,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>従業員区分
                     </label>
-                        <select name="employee_type" class="w-full p-2 border rounded bg-white">
+                        <select name="employee_type" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.employee_types') as $key => $label)
                             <option value="{{ $key }}" @selected(old('employee_type') == $key)>{{ $label }}</option>
@@ -86,7 +86,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>システム権限
                     </label>
-                        <select name="role_type" class="w-full p-2 border rounded bg-white">
+                        <select name="role_type" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.role_types') as $key => $label)
                             <option value="{{ $key }}" @selected(old('role_type') == $key)>{{ $label }}</option>
@@ -100,7 +100,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>システム利用区分
                     </label>
-                        <select name="user_status" class="w-full p-2 border rounded bg-white">
+                        <select name="user_status" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.user_statuses') as $key => $label)
                             <option value="{{ $key }}" @selected(old('user_status') == $key)>{{ $label }}</option>
@@ -149,15 +149,15 @@
 
                 <!-- パスワード -->
                 <div>
-                    <label class="block font-semibold mb-1">パスワード<span class="text-red-500">*</span></label>
+                    <label class="block font-semibold mb-1"><span class="text-red-500">*</span>パスワード</label>
                     <input type="password" name="password"
                         placeholder="8文字以上・英大文字/小文字/数字/記号のうち3種以上"
-                        class="w-full p-2 border rounded bg-white">
+                        class="w-full p-2 border rounded bg-white required">
                     @errorText('password')
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1">パスワード確認<span class="text-red-500">*</span></label>
-                    <input type="password" name="password_confirmation" class="w-full p-2 border rounded bg-white">
+                    <label class="block font-semibold mb-1"><span class="text-red-500">*</span>パスワード確認</label>
+                    <input type="password" name="password_confirmation" class="w-full p-2 border rounded bg-white required">
                     @errorText('password_confirmation')
                 </div>
             </div>

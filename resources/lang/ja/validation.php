@@ -325,6 +325,7 @@ return [
         'naisen_from' => '発信内線番号',
         'notify_person_in' => '担当通知',
         'folder_id' => 'GoogleDriveフォルダID',
+        'case_number' => '事件番号',
         // 必要に応じて他の属性も追加
     ],
 ];

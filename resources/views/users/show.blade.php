@@ -174,7 +174,7 @@
                             <span class="text-red-500">*</span> 氏名
                         </label>
                         <input type="text" name="name" value="{{ $user->name }}"
-                               class="w-full p-2 border rounded bg-white">
+                               class="w-full p-2 border rounded bg-white required">
                         @errorText('name')
                     </div>
 
@@ -184,8 +184,8 @@
                             <span class="text-red-500">*</span> ユーザID（ログインID）：原則変更不可
                         </label>
                         <input type="text" name="user_id" value="{{ $user->user_id }}"
-                                placeholder="8文字以上・英数字（例: user12345）"
-                                class="w-full p-2 border rounded bg-white">
+                                placeholder="メールアドレス推奨・8文字以上"
+                                class="w-full p-2 border rounded bg-white required">
                         @errorText('user_id')
                     </div>
                 
@@ -194,7 +194,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
                             <span class="text-red-500">*</span> 従業員区分
                         </label>
-                        <select name="employee_type" class="w-full p-2 border rounded bg-white">
+                        <select name="employee_type" class="w-full p-2 border rounded bg-white required">
                             @foreach (config('master.employee_types') as $key => $label)
                                 <option value="{{ $key }}" @selected($user->employee_type == $key)>{{ $label }}</option>
                             @endforeach
@@ -219,7 +219,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
                             <span class="text-red-500">*</span> システム権限
                         </label>
-                        <select name="role_type" class="w-full p-2 border rounded bg-white">
+                        <select name="role_type" class="w-full p-2 border rounded bg-white required">
                             @foreach (config('master.role_types') as $key => $label)
                                 <option value="{{ $key }}" @selected($user->role_type == $key)>{{ $label }}</option>
                             @endforeach
@@ -232,7 +232,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
                             <span class="text-red-500">*</span> システム利用区分
                         </label>
-                        <select name="user_status" class="w-full p-2 border rounded bg-white">
+                        <select name="user_status" class="w-full p-2 border rounded bg-white required">
                             @foreach (config('master.user_statuses') as $key => $label)
                                 <option value="{{ $key }}" @selected($user->user_status == $key)>{{ $label }}</option>
                             @endforeach

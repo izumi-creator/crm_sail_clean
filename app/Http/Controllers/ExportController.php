@@ -14,7 +14,7 @@ use App\Models\Business;
 use App\Models\AdvisoryContract;
 use App\Models\AdvisoryConsultation;
 use App\Models\Task;
-use App\Models\Negotiation;
+use App\Models\TaskComment;
 use App\Models\CourtTask;
 use App\Models\InsuranceCompany;
 use App\Models\Court;
@@ -80,7 +80,7 @@ class ExportController extends Controller
                 'model' => User::class,
                 'table' => 'users',
                 'filename_prefix' => 'users',
-                'excluded' => ['password', 'remember_token'],
+                'excluded' => ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'],
                 'headers' => [
                     'ID', 'ユーザID', '氏名', 
                     '従業員区分', 'システム権限', 'システム利用区分', '所属事務所',
@@ -151,7 +151,7 @@ class ExportController extends Controller
                     '取扱事務所','担当弁護士ID', '担当弁護士2ID', '担当弁護士3ID',
                     '担当パラリーガルID', '担当パラリーガル2ID', '担当パラリーガル3ID',
                     '見込理由', '報酬体系', '売上見込', '売上見込（初期値）', '売上見込更新日',
-                    '終了時期見込', '終了時期見込（初期値）', '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他',
+                    '終了時期見込', '終了時期見込（初期値）', '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他', 'GoogleDriveフォルダID',
                     '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
@@ -175,7 +175,7 @@ class ExportController extends Controller
                 'filename_prefix' => 'businesses',
                 'excluded' => [],
                 'headers' => [
-                    'ID', 'クライアントID', '相談ID',
+                    'ID', '外部連携ID', 'クライアントID', '相談ID',
                     '区分', '件名', 'ステータス', 'ステータス詳細',
                     '事件概要', '特記事項', '問い合せ形態', '相談形態', '事件分野', '事件分野（詳細）',
                     '受任日', '終結日', 'クローズ理由', '時効完成日',
@@ -186,7 +186,7 @@ class ExportController extends Controller
                     '養育費回収フラグ', 'フェーズ', '養育費月額', '養育費月額報酬', '未回収金額', '依頼者送金額',
                     '支払日', '支払期間（開始）', '支払期間（終了）', '入金先口座', '入金日', '振込元口座名義', '返金日',
                     '返金先口座の金融機関名', '返金先口座名義', '臨時払いの有無', '備考',
-                    '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他', 'コメント', '進捗コメント',
+                    '流入経路', '流入経路（詳細）', '紹介者', '紹介者その他', 'コメント', '進捗コメント', 'GoogleDriveフォルダID',
                     '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
@@ -209,7 +209,7 @@ class ExportController extends Controller
                 'filename_prefix' => 'advisory_contracts',
                 'excluded' => [],
                 'headers' => [
-                    'ID', 'クライアントID',
+                    'ID', '外部連携ID', 'クライアントID',
                     '区分', '件名', 'ステータス', '利益相反確認', '利益相反実施日',
                     '説明', '特記事項', '契約開始日', '契約終了日',
                     '顧問料月額', '契約期間（月）', '初回相談日', '支払区分', '自動引落番号',
@@ -217,7 +217,7 @@ class ExportController extends Controller
                     '取扱事務所', '担当弁護士ID', '担当弁護士2ID', '担当弁護士3ID',
                     '担当パラリーガルID', '担当パラリーガル2ID', '担当パラリーガル3ID',
                     'ソース', 'ソース詳細', '紹介者その他',
-                    'お中元お歳暮', '年賀状',
+                    'お中元お歳暮', '年賀状', 'GoogleDriveフォルダID',
                     '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
@@ -267,7 +267,7 @@ class ExportController extends Controller
                     '添付名1', '添付名2', '添付名3', '添付リンク1', '添付リンク2', '添付リンク3',
                     '運送業者', '追跡番号', '電話通知チェック', '通知タイプ',
                     '宛先', '電話番号', '着信電話番号', '発信電話番号', '着信内線番号', '発信内線番号',
-                    '担当通知', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
+                    '担当通知', 'メモ欄', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
                 'master_maps' => [
                     'related_party' => 'related_parties',
@@ -277,25 +277,15 @@ class ExportController extends Controller
                     'carrier'       => 'carriers',
                 ],
             ],
-            'negotiations' => [
-                'model' => Negotiation::class,
-                'table' => 'negotiations',
-                'filename_prefix' => 'negotiations',
+            'task_comments' => [
+                'model' => TaskComment::class,
+                'table' => 'task_comments',
+                'filename_prefix' => 'task_comments',
                 'excluded' => [],
                 'headers' => [
-                    'ID', '関連先区分（登録時）', '相談ID', '受任案件ID', '顧問契約ID', '顧問相談ID',
-                    '大区分', '小区分', '件名', 'ステータス', '既読チェック',
-                    '登録日', 'タスク内容', '依頼者ID', '対応者ID',
-                    '添付名1', '添付名2', '添付名3', '添付リンク1', '添付リンク2', '添付リンク3',
-                    '電話通知チェック', '通知タイプ',
-                    '宛先', '電話番号', '着信電話番号', '発信電話番号', '着信内線番号', '発信内線番号',
-                    '担当通知', '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
-                ],
-                'master_maps' => [
-                    'related_party' => 'related_parties',
-                    'record1'       => 'records_1',
-                    'record2'       => 'records_2',
-                    'status'        => 'task_statuses',
+                    'ID', 'タスクID', 'コメント', '投稿者', '宛先', '宛先2',
+                    '宛先3', '既読チェック', '既読チェック2', '既読チェック3',
+                    '作成者ID', '更新者ID','レコード作成日', 'レコード更新日',
                 ],
             ],
             'court_tasks' => [
@@ -305,7 +295,7 @@ class ExportController extends Controller
                 'excluded' => [],
                 'headers' => [
                     'ID', '裁判所マスタID', '受任案件ID',
-                    'ステータス', 'ステータス詳細',
+                    'ステータス', 'ステータス詳細', '事件番号',
                     '担当係', '担当裁判官', '担当書記官', '電話（直通）', 'FAX（直通）', 'メール（直通）',
                     'タスク分類', 'タスク名', 'タスク内容', '担当弁護士ID', '担当パラリーガルID',
                     '期限', '移動時間', 'メモ欄',

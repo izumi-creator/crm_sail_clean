@@ -13,8 +13,6 @@ use App\Models\Task;
 use App\Models\CourtTask;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Services\SlackBotNotificationService;
-use Illuminate\Support\Facades\Auth;
 
 class BusinessController extends Controller
 {
@@ -132,31 +130,31 @@ class BusinessController extends Controller
             'consultation_party' => 'required|in:' . implode(',', array_keys(config('master.consultation_parties'))),
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.business_statuses'))),
-            'case_summary' => 'required|string|max:10000',
+            'case_summary' => 'nullable|string|max:10000',
             'special_notes' => 'nullable|string|max:10000',
-            'inquirytype' => 'required|in:' . implode(',', array_keys(config('master.inquirytypes'))),
+            'inquirytype' => 'nullable|in:' . implode(',', array_keys(config('master.inquirytypes'))),
             'consultationtype' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_types'))),
             'case_category' => 'nullable|in:' . implode(',', array_keys(config('master.case_categories'))),
-            'case_subcategory' => 'required|in:' . implode(',', array_keys(config('master.case_subcategories'))),
-            'appointment_date' => 'required|date',
+            'case_subcategory' => 'nullable|in:' . implode(',', array_keys(config('master.case_subcategories'))),
+            'appointment_date' => 'nullable|date',
             'status_limitday' => 'nullable|date',
             'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
             'lawyer_id' => 'required|exists:users,id',
             'paralegal_id' => 'required|exists:users,id',
-            'feefinish_prospect' => 'required|string|max:255',
-            'feesystem' => 'required|string|max:255',
-            'sales_prospect' => 'required|numeric',
+            'feefinish_prospect' => 'nullable|string|max:255',
+            'feesystem' => 'nullable|string|max:255',
+            'sales_prospect' => 'nullable|numeric',
             'feesystem_initialvalue' => 'required|numeric',
-            'sales_reason_updated' => 'required|date',
-            'enddate_prospect' => 'required|date',
+            'sales_reason_updated' => 'nullable|date',
+            'enddate_prospect' => 'nullable|date',
             'enddate_prospect_initialvalue' => 'required|date',
-            'deposit' => 'required|numeric',
-            'performance_reward' => 'required|numeric',
-            'difference' => 'required|numeric',
-            'requestfee_initialvalue' => 'required|numeric',
-            'requestfee' => 'required|numeric',
-            'requestfee_balance' => 'required|numeric',
-            'route' => 'required|in:' . implode(',', array_keys(config('master.routes'))),
+            'deposit' => 'nullable|numeric',
+            'performance_reward' => 'nullable|numeric',
+            'difference' => 'nullable|numeric',
+            'requestfee_initialvalue' => 'nullable|numeric',
+            'requestfee' => 'nullable|numeric',
+            'requestfee_balance' => 'nullable|numeric',
+            'route' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
             'routedetail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'introducer' => 'nullable|string|max:255',
             'introducer_others' => 'nullable|string|max:255',
@@ -166,10 +164,10 @@ class BusinessController extends Controller
         ]);
 
         // 差額の再計算
-        $sales_prospect = $validated['sales_prospect'] ?? 0;
+        $feesystem_initialvalue = $validated['feesystem_initialvalue'] ?? 0;
         $deposit = $validated['deposit'] ?? 0;
         $reward = $validated['performance_reward'] ?? 0;
-        $validated['difference'] = $sales_prospect - $deposit - $reward;
+        $validated['difference'] = $feesystem_initialvalue - $deposit - $reward;
 
         // 預り金残の再計算
         $initial = $validated['requestfee_initialvalue'] ?? 0;
@@ -180,7 +178,7 @@ class BusinessController extends Controller
         $client = Client::find($validated['client_id']);
         $validated['consultation_party'] = $client?->client_type ?? null;
 
-        $business = Business::create([
+        Business::create([
             'client_id' => $validated['client_id'],
             'consultation_id' => $validated['consultation_id'],
             'consultation_party' => $validated['consultation_party'],
@@ -219,23 +217,6 @@ class BusinessController extends Controller
             'folder_id' => $validated['folder_id'] ?? null,
         ]);
 
-        // ✅ Slack通知送信
-        $creatorName = optional($business->createdByUser)->name;
-        $url = route('business.show', ['business' => $business->id]);
-        $message = "受任案件を追加しました。";
-
-        // Botによる個別通知
-        $notifiedUsers = collect([
-            $business->lawyer,
-            $business->paralegal,
-        ])->filter();
-
-        $slackBot = app(SlackBotNotificationService::class);
-        foreach ($notifiedUsers as $user) {
-            if (!empty($user->slack_channel_id)) {
-                $slackBot->sendMessage("📝 {$message}\n受任案件の件名：{$business->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
-            }
-        }
         return redirect()->route('business.index')->with('success', '受任案件を追加しました！');
     }
 
@@ -253,18 +234,36 @@ class BusinessController extends Controller
             'paralegal3',
             'courtTasks',
             'relatedParties',
-            'tasks',
-            'negotiations',
         ]);
 
-        return view('business.show', compact('business'));
+        // タスク：未完了（status 1〜4） ※期限昇順 → ステータス昇順
+        $todoTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 2)
+            ->where('business_id', $business->id)
+            ->whereIn('status', [1, 2, 3, 4])
+            ->orderByRaw('deadline_date IS NULL')
+            ->orderBy('deadline_date')
+            ->orderBy('status')
+            ->get();
+
+        // タスク：完了（status 5） ※作成日昇順
+        $doneTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 2)
+            ->where('business_id', $business->id)
+            ->where('status', 5)
+            ->orderBy('created_at')
+            ->get();
+
+        return view('business.show', compact(
+            'business',
+            'todoTasks',
+            'doneTasks'
+        ));
     }
 
     // 受任案件編集画面
         public function update(Request $request, Business $business)
     {
-
-        $before_status = $business->status;
 
         $validator = Validator::make($request->all(), [
             'client_id' => 'nullable|exists:clients,id',
@@ -272,13 +271,13 @@ class BusinessController extends Controller
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.business_statuses'))),
             'status_detail' => 'nullable|string|max:255',
-            'case_summary' => 'required|string|max:10000',
+            'case_summary' => 'nullable|string|max:10000',
             'special_notes' => 'nullable|string|max:10000',
-            'inquirytype' => 'required|in:' . implode(',', array_keys(config('master.inquirytypes'))),
+            'inquirytype' => 'nullable|in:' . implode(',', array_keys(config('master.inquirytypes'))),
             'consultationtype' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_types'))),
-            'case_category' => 'required|in:' . implode(',', array_keys(config('master.case_categories'))),
-            'case_subcategory' => 'required|in:' . implode(',', array_keys(config('master.case_subcategories'))),
-            'appointment_date' => 'required|date',
+            'case_category' => 'nullable|in:' . implode(',', array_keys(config('master.case_categories'))),
+            'case_subcategory' => 'nullable|in:' . implode(',', array_keys(config('master.case_subcategories'))),
+            'appointment_date' => 'nullable|date',
             'close_date' => 'nullable|date',
             'close_notreason' => 'nullable|in:' . implode(',', array_keys(config('master.close_notreasons'))),
             'status_limitday' => 'nullable|date',
@@ -290,20 +289,20 @@ class BusinessController extends Controller
             'paralegal2_id' => 'nullable|exists:users,id',
             'paralegal3_id' => 'nullable|exists:users,id',
             'duedate_memo' => 'nullable|string|max:100000',
-            'feefinish_prospect' => 'required|string|max:255',
-            'feesystem' => 'required|string|max:255',
-            'sales_prospect' => 'required|numeric',
+            'feefinish_prospect' => 'nullable|string|max:255',
+            'feesystem' => 'nullable|string|max:255',
+            'sales_prospect' => 'nullable|numeric',
             'feesystem_initialvalue' => 'required|numeric',
-            'sales_reason_updated' => 'required|date',
-            'enddate_prospect' => 'required|date',
+            'sales_reason_updated' => 'nullable|date',
+            'enddate_prospect' => 'nullable|date',
             'enddate_prospect_initialvalue' => 'required|date',
             'delay_check' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
-            'deposit' => 'required|numeric',
-            'performance_reward' => 'required|numeric',
-            'difference' => 'required|numeric',
-            'requestfee_initialvalue' => 'required|numeric',
-            'requestfee' => 'required|numeric',
-            'requestfee_balance' => 'required|numeric',
+            'deposit' => 'nullable|numeric',
+            'performance_reward' => 'nullable|numeric',
+            'difference' => 'nullable|numeric',
+            'requestfee_initialvalue' => 'nullable|numeric',
+            'requestfee' => 'nullable|numeric',
+            'requestfee_balance' => 'nullable|numeric',
             'childsupport_collect' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'childsupport_phase' => 'nullable|in:' . implode(',', array_keys(config('master.childsupport_phases'))),
             'childsupport_monthly_fee' => 'nullable|numeric',
@@ -321,7 +320,7 @@ class BusinessController extends Controller
             'childsupport_refundaccount_name' => 'nullable|string|max:255',            
             'childsupport_temporary_payment' => 'nullable|in:' . implode(',', array_keys(config('master.checks'))),
             'childsupport_memo' => 'nullable|string|max:10000',
-            'route' => 'required|in:' . implode(',', array_keys(config('master.routes'))),
+            'route' => 'nullable|in:' . implode(',', array_keys(config('master.routes'))),
             'routedetail' => 'nullable|in:' . implode(',', array_keys(config('master.routedetails'))),
             'introducer' => 'nullable|string|max:255',
             'introducer_others' => 'nullable|string|max:255',
@@ -333,20 +332,22 @@ class BusinessController extends Controller
 
         // ✳ ステータスに応じた追加チェック
         $validator->after(function ($validator) use ($request) {
-            if ((int)$request->status === 4) {
+
+            if (in_array((int)$request->status, [4, 5])) {
+                if (is_null($request->deposit)) {
+                    $validator->errors()->add('deposit', '「着手金」を入力してください。');
+                }
+                if (is_null($request->performance_reward)) {
+                    $validator->errors()->add('performance_reward', '「成果報酬」を入力してください。');
+                }
+            }
+            
+            if ((int)$request->status === 5) {
                 if (empty($request->close_date)) {
                     $validator->errors()->add('close_date', 'クローズ時は「終結日」を入力してください。');
                 }
                 if (empty($request->close_notreason)) {
                     $validator->errors()->add('close_notreason', 'クローズ時は「クローズ理由」を入力してください。');
-                }            
-                // 差額チェック（0であること）
-                if ((float)$request->difference !== 0.0) {
-                    $validator->errors()->add('difference', 'クローズ時は「差額」が0である必要があります。');
-                }
-                // 預り金残チェック（0であること）
-                if ((float)$request->requestfee_balance !== 0.0) {
-                    $validator->errors()->add('requestfee_balance', 'クローズ時は「預り金残」が0である必要があります。');
                 }
             }
         });
@@ -354,10 +355,10 @@ class BusinessController extends Controller
         $validated = $validator->validate();
 
         // 差額の再計算
-        $sales_prospect = $validated['sales_prospect'] ?? 0;
+        $feesystem_initialvalue = $validated['feesystem_initialvalue'] ?? 0;
         $deposit = $validated['deposit'] ?? 0;
         $reward = $validated['performance_reward'] ?? 0;
-        $validated['difference'] = $sales_prospect - $deposit - $reward;
+        $validated['difference'] = $feesystem_initialvalue - $deposit - $reward;
 
         // 預り金残の再計算
         $initial = $validated['requestfee_initialvalue'] ?? 0;
@@ -427,48 +428,7 @@ class BusinessController extends Controller
             'progress_comment' => $validated['progress_comment'],
             'folder_id' => $validated['folder_id'] ?? null,
         ]);
-
-
-        $notificationMessage = null; // ← Slackメッセージ
-
-        $before_status = (int) $before_status;
-        $after_status = (int) $validated['status'];
-
-        if ($before_status !== $after_status) {
-            $statusLabels = config('master.business_statuses');
         
-            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
-            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";
-            $updaterName = optional($business->updatedByUser)->name ?? '不明';
-            $url = route('business.show', ['business' => $business->id]);
-        
-            $notificationMessage = "📌受任案件のステータスが変更されました\n"
-                . "■ 件名：{$business->title}\n"
-                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
-                . "■ 更新者：{$updaterName}\n"
-                . "🔗 URL：{$url}";
-
-        // Slack送信処理（あれば）
-        if ($notificationMessage) {
-            $notifiedUsers = collect([
-                $business->lawyer,
-                $business->lawyer2,
-                $business->lawyer3,
-                $business->paralegal,
-                $business->paralegal2,
-                $business->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
-                }
-            }
-
-        }
-        }
-
         return redirect()->route('business.show', $business->id)->with('success', '受任案件を更新しました！');
     }
 
@@ -478,31 +438,7 @@ class BusinessController extends Controller
         $this->ensureIsAdmin();
 
         try {
-
-            $title = $business->title;
-
             $business->delete();
-
-            // ✅ Slack通知送信
-            $userName = Auth::user()?->name ?? '不明';
-            $message = "🗑️ 受任案件を削除しました！\n受任案件の件名：{$title}\n削除者：{$userName}";
-
-            $notifiedUsers = collect([
-                $business->lawyer,
-                $business->lawyer2,
-                $business->lawyer3,
-                $business->paralegal,
-                $business->paralegal2,
-                $business->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($message, $user->slack_channel_id);
-                }
-            }
-
             return redirect()->route('business.index')->with('success', '受任案件を削除しました');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {

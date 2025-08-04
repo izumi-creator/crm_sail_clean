@@ -338,14 +338,7 @@
                             </label>
                             @errorText('individual.send_office_news')
                         </div>
-                        <div>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="individual[send_autocreation]" value="1"
-                                       @checked(old('individual.send_autocreation') == 1)>
-                                <span class="ml-2">交際情報履歴を自動作成する</span>
-                            </label>
-                            @errorText('individual.send_autocreation')
-                        </div>
+                        <div></div>
                     </div>
                 </div>                       
             </div>
@@ -637,14 +630,7 @@
                             </label>
                             @errorText('corporate.send_office_news')
                         </div>
-                        <div>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="corporate[send_autocreation]" value="1"
-                                       @checked(old('corporate.send_autocreation') == 1)>
-                                <span class="ml-2">交際情報履歴を自動作成する</span>
-                            </label>
-                            @errorText('corporate.send_autocreation')
-                        </div>
+                        <div></div>
                     </div>
                 </div>
             </div>

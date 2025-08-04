@@ -15,8 +15,6 @@ use App\Models\Business;
 use App\Models\AdvisoryConsultation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Services\SlackBotNotificationService;
-use Illuminate\Support\Facades\Auth;
 
 class ConsultationController extends Controller
 {
@@ -156,7 +154,7 @@ class ConsultationController extends Controller
         // ▼ 相談関連バリデーション
         $request->validate([
             'title' => 'required|string|max:255',
-            'inquirytype' => 'required|in:' . implode(',', array_keys(config('master.inquirytypes'))),
+            'inquirytype' => 'nullable|in:' . implode(',', array_keys(config('master.inquirytypes'))),
             'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
             'status' => 'required|in:' . implode(',', array_keys(config('master.consultation_statuses'))),
             'lawyer_id' => 'nullable|exists:users,id',
@@ -224,23 +222,6 @@ class ConsultationController extends Controller
             $message = '相談・関係者を追加しました！';
         }
 
-        // ✅ Slack通知送信
-        $creatorName = optional($consultation->createdByUser)->name;
-        $url = route('consultation.show', ['consultation' => $consultation->id]);
-
-        // Botによる個別通知
-        $notifiedUsers = collect([
-            $consultation->lawyer,
-            $consultation->paralegal,
-        ])->filter();
-
-        $slackBot = app(SlackBotNotificationService::class);
-        foreach ($notifiedUsers as $user) {
-            if (!empty($user->slack_channel_id)) {
-                $slackBot->sendMessage("📝 {$message}\n相談の件名：{$consultation->title}\n登録者：{$creatorName}\n🔗 URL：{$url}", $user->slack_channel_id);
-            }
-        }
-
         if ($request->filled('redirect_url')) {
         return redirect($request->input('redirect_url'))->with('success', $message);
         }
@@ -262,10 +243,9 @@ class ConsultationController extends Controller
             'business',
             'relatedParties',
             'advisoryConsultation',
-            'tasks',
-            'negotiations',
         ]);
 
+        // 利益相反確認
         // クライアント情報（スペース除去した比較用文字列）
         $clientNameKanji = preg_replace('/\s/u', '', $consultation->client->name_kanji ?? '');
         $clientNameKana  = preg_replace('/\s/u', '', $consultation->client->name_kana ?? '');
@@ -299,10 +279,30 @@ class ConsultationController extends Controller
                   ->orWhereRaw("REPLACE(REPLACE(manager_name_kana, ' ', ''), '　', '') = ?", [$responsibleKana]);
         })->get();
 
+        // タスク：未完了（status 1〜4） ※期限昇順 → ステータス昇順
+        $todoTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 1)
+            ->where('consultation_id', $consultation->id)
+            ->whereIn('status', [1, 2, 3, 4])
+            ->orderByRaw('deadline_date IS NULL')
+            ->orderBy('deadline_date')
+            ->orderBy('status')
+            ->get();
+
+        // タスク：完了（status 5） ※作成日昇順
+        $doneTasks = Task::with(['orderer', 'worker'])
+            ->where('related_party', 1)
+            ->where('consultation_id', $consultation->id)
+            ->where('status', 5)
+            ->orderBy('created_at')
+            ->get();
+
         return view('consultation.show', compact(
             'consultation',
             'matchedClients',
-            'matchedRelatedParties'
+            'matchedRelatedParties',
+            'todoTasks',
+            'doneTasks'
         ));
     }
     
@@ -320,17 +320,17 @@ class ConsultationController extends Controller
             'title' => 'required|string|max:255',
             'status' => 'required|in:' . implode(',', array_keys(config('master.consultation_statuses'))),
             'status_detail' => 'nullable|string|max:255',
-            'case_summary' => 'required|string|max:10000',
+            'case_summary' => 'nullable|string|max:10000',
             'special_notes' => 'nullable|string|max:10000',
             'inquirycontent' => 'nullable|string|max:10000',
             'firstchoice_date' => 'nullable|date',
             'firstchoice_time' => 'nullable|date_format:H:i',
             'secondchoice_date' => 'nullable|date',
             'secondchoice_time' => 'nullable|date_format:H:i',
-            'inquirytype' => 'required|in:' . implode(',', array_keys(config('master.inquirytypes'))),
+            'inquirytype' => 'nullable|in:' . implode(',', array_keys(config('master.inquirytypes'))),
             'consultationtype' => 'nullable|in:' . implode(',', array_keys(config('master.consultation_types'))),
-            'case_category' => 'required|in:' . implode(',', array_keys(config('master.case_categories'))),
-            'case_subcategory' => 'required|in:' . implode(',', array_keys(config('master.case_subcategories'))),
+            'case_category' => 'nullable|in:' . implode(',', array_keys(config('master.case_categories'))),
+            'case_subcategory' => 'nullable|in:' . implode(',', array_keys(config('master.case_subcategories'))),
             'consultation_receptiondate' => 'nullable|date',
             'consultation_firstdate' => 'nullable|date',
             'enddate' => 'nullable|date',
@@ -339,10 +339,10 @@ class ConsultationController extends Controller
             'reason_termination' => 'nullable|string|max:255',
             'reason_termination_detail' => 'nullable|string|max:255',
             'office_id' => 'required|in:' . implode(',', array_keys(config('master.offices_id'))),
-            'lawyer_id' => 'required|exists:users,id',
+            'lawyer_id' => 'nullable|exists:users,id',
             'lawyer2_id' => 'nullable|exists:users,id',
             'lawyer3_id' => 'nullable|exists:users,id',
-            'paralegal_id' => 'required|exists:users,id',
+            'paralegal_id' => 'nullable|exists:users,id',
             'paralegal2_id' => 'nullable|exists:users,id',
             'paralegal3_id' => 'nullable|exists:users,id',
             'feefinish_prospect' => 'nullable|string|max:255',
@@ -366,33 +366,6 @@ class ConsultationController extends Controller
                 if ((int)$request->opponent_confliction !== 1) {
                     $validator->errors()->add('opponent_confliction', '「利益相反確認」が「問題なし」以外です。');
                 }
-                if (empty($request->consultation_receptiondate)) {
-                    $validator->errors()->add('consultation_receptiondate', '「相談受付日」を入力してください。');
-                }
-                if (empty($request->consultation_firstdate)) {
-                    $validator->errors()->add('consultation_firstdate', '「相談初回日」を入力してください。');
-                }
-                if (empty($request->feefinish_prospect)) {
-                    $validator->errors()->add('feefinish_prospect', '「見込理由」を入力してください。');
-                }
-                if (empty($request->feesystem)) {
-                    $validator->errors()->add('feesystem', '「報酬体系」を入力してください。');
-                }
-                if (is_null($request->sales_prospect)) {
-                    $validator->errors()->add('sales_prospect', '「売上見込」を入力してください。');
-                }
-                if (is_null($request->feesystem_initialvalue)) {
-                    $validator->errors()->add('feesystem_initialvalue', '「売上見込（初期値）」を入力してください。');
-                }
-                if (empty($request->sales_reason_updated)) {
-                    $validator->errors()->add('sales_reason_updated', '「売上見込更新日」を入力してください。');
-                }
-                if (empty($request->enddate_prospect)) {
-                    $validator->errors()->add('enddate_prospect', '「終了時期見込」を入力してください。');
-                }
-                if (empty($request->enddate_prospect_initialvalue)) {
-                    $validator->errors()->add('enddate_prospect_initialvalue', '「終了時期見込（初期値）」を入力してください。');
-                }
             }
 
             if ((int)$request->status === 4) {
@@ -408,9 +381,6 @@ class ConsultationController extends Controller
                 if (empty($request->reason_termination)) {
                     $validator->errors()->add('reason_termination', '「相談終了理由」を入力してください。');
                 }
-                if (empty($request->route)) {
-                    $validator->errors()->add('route', '「流入経路」を入力してください。');
-                }
             }
 
             if ((int)$request->status === 6) {
@@ -422,9 +392,6 @@ class ConsultationController extends Controller
                 }
                 if (empty($request->reason_termination)) {
                     $validator->errors()->add('reason_termination', '「相談終了理由」を入力してください。');
-                }
-                if (empty($request->route)) {
-                    $validator->errors()->add('route', '「流入経路」を入力してください。');
                 }
             }
         });
@@ -494,62 +461,23 @@ class ConsultationController extends Controller
         ]);
 
         $messages = ['相談が更新されました。'];
-        $notificationMessage = null; // ← Slackメッセージ
 
         $before_status = (int) $before_status;
         $after_status = (int) $validated['status'];
 
-        if ($before_status !== $after_status) {
-            $statusLabels = config('master.consultation_statuses');
+        if ($before_status !== 6 && $after_status === 6) {
+            $business = $this->generateBusinessFromConsultation($consultation);
         
-            $beforeLabel = $statusLabels[$before_status] ?? "不明（$before_status）";
-            $afterLabel = $statusLabels[$after_status] ?? "不明（$after_status）";        
-            $updaterName = optional($consultation->updatedByUser)->name ?? '不明';
-            $url = route('consultation.show', ['consultation' => $consultation->id]);
-        
-            $notificationMessage = "📌相談ステータスが変更されました\n"
-                . "■ 件名：{$consultation->title}\n"
-                . "■ ステータス：{$beforeLabel} → {$afterLabel}\n"
-                . "■ 更新者：{$updaterName}\n"
-                . "🔗 URL：{$url}";
-        
-            // ステータスが「6：受任案件へ移行」の場合は案件作成メッセージ追加
-            if ($after_status === 6) {
-                $business = $this->generateBusinessFromConsultation($consultation);
-                if ($business->wasRecentlyCreated) {
-                    $messages[] = "▶ 受任案件が新規作成されました（案件ID: #{$business->id}）。";
-                    $notificationMessage .= "\n▶ 受任案件が新規作成されました（案件ID: #{$business->id}）";
-                
-                    $count = RelatedParty::where('consultation_id', $consultation->id)->count();
-                    if ($count > 0) {
-                        $messages[] = "▶ 関係者{$count}名に受任案件を自動設定しました。";
-                        $notificationMessage .= "\n▶ 関係者{$count}名に受任案件を自動設定しました";
-                    }
-                } else {
-                    $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）。";
-                    $notificationMessage .= "\n▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）";
+            if ($business->wasRecentlyCreated) {
+                $messages[] = "▶ 受任案件が新規作成されました（案件ID: #{$business->id}）。";
+            
+                $count = RelatedParty::where('consultation_id', $consultation->id)->count();
+                if ($count > 0) {
+                    $messages[] = "▶ 関係者{$count}名に受任案件を自動設定しました。";
                 }
+            } else {
+                $messages[] = "▶ 受任案件はすでに作成されています（案件ID: #{$business->id}）。";
             }
-        }
-
-        // Slack送信処理（あれば）
-        if ($notificationMessage) {
-            $notifiedUsers = collect([
-                $consultation->lawyer,
-                $consultation->lawyer2,
-                $consultation->lawyer3,
-                $consultation->paralegal,
-                $consultation->paralegal2,
-                $consultation->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($notificationMessage, $user->slack_channel_id);
-                }
-            }
-
         }
 
         return redirect()
@@ -616,32 +544,8 @@ class ConsultationController extends Controller
     {
         $this->ensureIsAdmin();
         try {
-
-            $title = $consultation->title;
             $consultation->delete();
-
-            // ✅ Slack通知送信
-            $userName = Auth::user()?->name ?? '不明';
-            $message = "🗑️ 相談を削除しました！\n相談の件名：{$title}\n削除者：{$userName}";
-
-            $notifiedUsers = collect([
-                $consultation->lawyer,
-                $consultation->lawyer2,
-                $consultation->lawyer3,
-                $consultation->paralegal,
-                $consultation->paralegal2,
-                $consultation->paralegal3,
-            ])->filter();
-
-            $slackBot = app(SlackBotNotificationService::class);
-            foreach ($notifiedUsers as $user) {
-                if (!empty($user->slack_channel_id)) {
-                    $slackBot->sendMessage($message, $user->slack_channel_id);
-                }
-            }
-
             return redirect()->route('consultation.index')->with('success', '相談を削除しました');
-
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1451) {
                 return response()->view('errors.db_constraint', [

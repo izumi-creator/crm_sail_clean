@@ -64,6 +64,14 @@
                         {!! config('master.court_task_categories')[$court_task->task_category] ?? '&nbsp;' !!}
                         </div>
                 </div>
+                <!-- 事件番号 -->
+                <div>
+                    <label class="font-bold">事件番号</label>
+                    <div class="mt-1 p-2 border rounded bg-gray-50">
+                        {!! $court_task->case_number ?: '&nbsp;' !!}
+                    </div>
+                </div>
+                <div></div>
                 <!-- タスク内容 -->
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">タスク内容</label>
@@ -262,6 +270,12 @@
                             @endforeach
                         </select>
                         @errorText('task_category')
+                    </div>
+                    <!-- 事件番号 -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">事件番号</label>
+                        <input type="text" name="case_number" value="{{ $court_task->case_number }}" class="mt-1 p-2 border rounded w-full bg-white">
+                        @errorText('case_number')
                     </div>
                     <!-- タスク内容 -->
                     <div class="col-span-2">

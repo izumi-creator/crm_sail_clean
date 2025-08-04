@@ -144,14 +144,18 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1"> 電話番号</label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
-                    {!! $inquiry->phone_number ?: '&nbsp;' !!}
+                    {!! $inquiry->phone_number
+                            ? '<a href="tel:' . e($inquiry->phone_number) . '" class="text-blue-600 underline hover:text-blue-800">' . e($inquiry->phone_number) . '</a>'
+                            : '&nbsp;' !!}
                 </div>
             </div>
             <!-- メールアドレス -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1"> メールアドレス</label>
                 <div class="mt-1 p-2 border rounded bg-gray-50">
-                    {!! $inquiry->email ?: '&nbsp;' !!}
+                    {!! $inquiry->email
+                            ? '<a href="mailto:' . e($inquiry->email) . '" class="text-blue-600 underline hover:text-blue-800">' . e($inquiry->email) . '</a>'
+                            : '&nbsp;' !!}
                 </div>
             </div>
             <!-- 都道府県 -->
@@ -317,7 +321,7 @@
                     </div>
                     <!-- 担当者 -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1"><span class="text-red-500">*</span>担当者</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">担当者</label>
                         <select name="manager_id"
                                 class="select-user-edit w-full"
                                 data-initial-id="{{ $inquiry->manager_id }}"

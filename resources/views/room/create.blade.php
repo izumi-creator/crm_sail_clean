@@ -40,7 +40,7 @@
                         <span class="text-red-500">*</span>施設名
                     </label>
                         <input type="text" name="room_name" value="{{ old('room_name') }}"
-                           class="w-full p-2 border rounded bg-white">
+                           class="w-full p-2 border rounded bg-white required">
                     @errorText('room_name')
                 </div>
 
@@ -49,7 +49,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <span class="text-red-500">*</span>場所
                     </label>
-                        <select name="office_id" class="w-full p-2 border rounded bg-white">
+                        <select name="office_id" class="w-full p-2 border rounded bg-white required">
                         <option value="">-- 未選択 --</option>
                         @foreach (config('master.offices_id') as $key => $label)
                             <option value="{{ $key }}" @selected(old('office_id') == $key)>{{ $label }}</option>
@@ -64,7 +64,7 @@
                         <span class="text-red-500">*</span>GoogleカレンダーID
                     </label>
                     <input type="text" name="calendar_id" value="{{ old('calendar_id') }}"
-                           class="w-full p-2 border rounded bg-white">
+                           class="w-full p-2 border rounded bg-white required">
                     @errorText('calendar_id')
                 </div>
                 
